@@ -1014,6 +1014,321 @@ explication.osm = {
 			},
 			sort: null
 		},
+		Площадки: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['leisure'];
+				if (!l)
+					return false;
+				if (l == 'playground' || l == 'pitch' || l == 'dog_park')
+					return true;
+				return false;
+			},
+			data_object: function (osmGeoJSON_obj) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['leisure'];
+				var lt = explication.osm.data.leisure[l];
+				var sp = t['sport'];
+				var st = explication.osm.data.sport[sp];
+				var sq = explication.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
+				sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
+				var Уч_ = '';
+				for (var j in Уч_geoJSON) {
+					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
+				}
+				var osmt = osmGeoJSON_obj.properties.type[0];
+				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var площадка = {
+					No: null,					
+					Тип: lt,
+					Спорт: st ? st : '',
+					Площадь: sq,
+					//Заметки: note ? note : null,
+					//Датировка: start ? start : '',
+					//Описание: descr ? descr : '',
+					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					_Участки: Уч_geoJSON ? Уч_ : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return площадка;
+			},
+			active: function (площадка) {
+				площадка._tooltip = площадка.Тип + площадка.Спорт ? ('(' + площадка.Спорт + ')') : '';
+				площадка._popup = explication.osm.popup(площадка, '<b>Учётная карточка площадки</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 1;
+				if (пл.Тип == 'Спортивная площадка')
+					S.color = 'ffff00';
+				else if (пл.Тип == 'Игровая площадка')
+					S.color = '88ff00';
+				else if (пл.Тип == 'Собачья площадка')
+					S.color = 'bbbbbb';
+					
+				S.dashArray = '2, 2';
+				return S;
+			},
+			sort: function (a, b) {
+				/*if (a.Название === b.Название) {
+					return 0;
+				}
+				else if (!a.Название) {
+					return 1;
+				}
+				else if (!b.Название) {
+					return -1;
+				}
+				else {
+					return (a.Название < b.Название) ? -1 : 1;
+				}*/
+			}
+		},
+		Урны: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['amenity'];
+				if (!l || l != 'waste_basket')
+					return false;
+				return true;
+			},
+			data_object: function (osmGeoJSON_obj) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['leisure'];				
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
+				var Уч_ = '';
+				for (var j in Уч_geoJSON) {
+					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
+				}
+				var osmt = osmGeoJSON_obj.properties.type[0];
+				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var урна = {
+					No: null,					
+				/*	Заметки: note ? note : null,
+					Датировка: start ? start : '',
+					Описание: descr ? descr : '',*/
+					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					_Участки: Уч_geoJSON ? Уч_ : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return урна;
+			},
+			active: function (урна) {
+				урна._tooltip = '';
+				урна._popup = explication.osm.popup(урна, '<b>Учётная карточка урны</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				return 0;
+				/*if (a.Название === b.Название) {
+					return 0;
+				}
+				else if (!a.Название) {
+					return 1;
+				}
+				else if (!b.Название) {
+					return -1;
+				}
+				else {
+					return (a.Название < b.Название) ? -1 : 1;
+				}*/
+			}
+		},
+		Скамейки: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['amenity'];
+				if (!l || l != 'bench')
+					return false;
+				return true;
+			},
+			data_object: function (osmGeoJSON_obj) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['amenity'];
+				var bc = t['backrest'];
+				var mt = t['material'];
+				var mtt = explication.osm.data.material[mt];
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
+				var Уч_ = '';
+				for (var j in Уч_geoJSON) {
+					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
+				}
+				var osmt = osmGeoJSON_obj.properties.type[0];
+				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var скамейка = {
+					No: null,
+					Спинка: (bc == 'yes') ? 'есть' : 'нет',
+					Метариал: mtt ? mtt : (mt ? mt : ''),
+				/*	Заметки: note ? note : null,
+					Датировка: start ? start : '',
+					Описание: descr ? descr : '',*/
+					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					_Участки: Уч_geoJSON ? Уч_ : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return скамейка;
+			},
+			active: function (скамейка) {
+				скамейка._tooltip = '';
+				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				return 0;
+				/*if (a.Название === b.Название) {
+					return 0;
+				}
+				else if (!a.Название) {
+					return 1;
+				}
+				else if (!b.Название) {
+					return -1;
+				}
+				else {
+					return (a.Название < b.Название) ? -1 : 1;
+				}*/
+			}
+		},
+		Достопримечательности: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['tourism'];
+				if (!l || l != 'attraction')
+					return false;
+				return true;
+			},
+			data_object: function (osmGeoJSON_obj) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['amenity'];
+				var bc = t['backrest'];
+				var mt = t['material'];
+				var mtt = explication.osm.data.material[mt];
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
+				var Уч_ = '';
+				for (var j in Уч_geoJSON) {
+					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
+				}
+				var osmt = osmGeoJSON_obj.properties.type[0];
+				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var скамейка = {
+					No: null,
+					Спинка: (bc == 'yes') ? 'есть' : 'нет',
+					Метариал: mtt ? mtt : (mt ? mt : ''),
+				/*	Заметки: note ? note : null,
+					Датировка: start ? start : '',
+					Описание: descr ? descr : '',*/
+					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					_Участки: Уч_geoJSON ? Уч_ : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return скамейка;
+			},
+			active: function (скамейка) {
+				скамейка._tooltip = '';
+				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				return 0;
+				/*if (a.Название === b.Название) {
+					return 0;
+				}
+				else if (!a.Название) {
+					return 1;
+				}
+				else if (!b.Название) {
+					return -1;
+				}
+				else {
+					return (a.Название < b.Название) ? -1 : 1;
+				}*/
+			}
+		},
+		Малые_формы: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var tr = t['tourism'];
+				var hs = t['historic'];
+				if (!tr && !hs)
+					return false;
+				if (hs == 'memorial' || tr == 'artwork')
+					return true;
+				return false;
+			},
+			data_object: function (osmGeoJSON_obj) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var t = osmGeoJSON_obj.properties.tags;
+				var l = t['amenity'];
+				var bc = t['backrest'];
+				var mt = t['material'];
+				var mtt = explication.osm.data.material[mt];
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
+				var Уч_ = '';
+				for (var j in Уч_geoJSON) {
+					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
+				}
+				var osmt = osmGeoJSON_obj.properties.type[0];
+				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var скамейка = {
+					No: null,
+					Спинка: (bc == 'yes') ? 'есть' : 'нет',
+					Метариал: mtt ? mtt : (mt ? mt : ''),
+				/*	Заметки: note ? note : null,
+					Датировка: start ? start : '',
+					Описание: descr ? descr : '',*/
+					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					_Участки: Уч_geoJSON ? Уч_ : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return скамейка;
+			},
+			active: function (скамейка) {
+				скамейка._tooltip = '';
+				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				return 0;
+				/*if (a.Название === b.Название) {
+					return 0;
+				}
+				else if (!a.Название) {
+					return 1;
+				}
+				else if (!b.Название) {
+					return -1;
+				}
+				else {
+					return (a.Название < b.Название) ? -1 : 1;
+				}*/
+			}
+		},
 		Ref_Sirius_msk: {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
@@ -1184,7 +1499,25 @@ explication.osm = {
 			fine_gravel: '#f8f32b',
 			grass: '#8DB600',
 			null: 'red'
+		},
+		leisure:{
+			pitch: "Спортивная площадка",
+			playground: "Игровая площадка",
+			dog_park: "Собачья площадка"
+		},
+		sport:{
+			fitness: "фитнес",
+			table_tennis: "настольный тенис"
+		},
+		artwork: {
+			sculpture: "скульптура"
+		},
+		material: {
+			wood: "дерево",
+			metal: "металл",
+			stone: "камень"
 		}
+
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
 		var html = '<p align="center">' + title + '<a href="#' + obj.No + '">' + obj.No + '</a></p><table><tr><th>Свойство</th><th>Значение</th></tr>';

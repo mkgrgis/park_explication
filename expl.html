@@ -79,6 +79,18 @@
 	<div style="margin: auto; overflow: auto; height: 450px">
 		<div id="МаточнаяПлощадка"></div>
 	</div>
+	<p>Экспликация специальных площадок</p>
+	<div style="margin: auto; overflow: auto; height: 450px">
+		<div id="Площадки"></div>
+	</div>
+	<p>Экспликация урн</p>
+	<div style="margin: auto; overflow: auto; height: 450px">
+		<div id="Урны"></div>
+	</div>
+	<p>Экспликация скамеек</p>
+	<div style="margin: auto; overflow: auto; height: 450px">
+		<div id="Скамейки"></div>
+	</div>
 	<p>Экспликация объектов с кодом фотосайта-путеводителя Московские Парки</p>
 	<div style="margin: auto; overflow: auto; height: 450px">
 		<div id="Ref_Sirius_msk"></div>
@@ -110,6 +122,17 @@
 		var filter = null;
 		// Срабатывает при изменении адреса
 		function hashChange () {
+/*
+var hash = window.location.hash.substring(1);
+    var params = {}
+    hash.split('&').map(hk => { 
+      let temp = hk.split('='); 
+        params[temp[0]] = temp[1] 
+    });
+	console.log(params); //Here are the params to use
+	*/
+
+
 		var el = decodeURI(location.hash).replace('#', '').split(';');
 		if (el[0])
 			start_expl_process(el[0]);
