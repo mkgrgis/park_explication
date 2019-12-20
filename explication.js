@@ -1157,6 +1157,7 @@ explication.osm = {
 				var l = t['amenity'];
 				var bc = t['backrest'];
 				var mt = t['material'];
+				var cl = t['color'];
 				var mtt = explication.osm.data.material[mt];
 				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
 				var Уч_ = '';
@@ -1167,8 +1168,9 @@ explication.osm = {
 				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var скамейка = {
 					No: null,
-					Спинка: (bc == 'yes') ? 'есть' : 'нет',
+					Спинка: (bc == 'yes') ? 'есть' : 'нет',					
 					Метариал: mtt ? mtt : (mt ? mt : ''),
+					Цвет: cl ? cl : '',
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
@@ -1208,16 +1210,21 @@ explication.osm = {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
 				var l = t['tourism'];
-				if (!l || l != 'attraction')
+				if (!l)
+					return false;
+				if (l != 'attraction' && l != 'artwork')
 					return false;
 				return true;
 			},
 			data_object: function (osmGeoJSON_obj) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
 				var t = osmGeoJSON_obj.properties.tags;
-				var l = t['amenity'];
-				var bc = t['backrest'];
+				var n = t['name'];
+				var at = t['artwork_type'];
 				var mt = t['material'];
+				var au = t['artist_name'];
+				var start = t['start_date'];				
+				var note = t['note'];
 				var mtt = explication.osm.data.material[mt];
 				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
 				var Уч_ = '';
@@ -1228,11 +1235,11 @@ explication.osm = {
 				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var скамейка = {
 					No: null,
-					Спинка: (bc == 'yes') ? 'есть' : 'нет',
-					Метариал: mtt ? mtt : (mt ? mt : ''),
-				/*	Заметки: note ? note : null,
-					Датировка: start ? start : '',
-					Описание: descr ? descr : '',*/
+					Тип: at ? explication.osm.data.artwork_type[at] : '',
+					Название: n ? n : '',
+					Автор: au ? au : '',
+					Заметки: note ? note : '',
+					Датировка: start ? start : '',					
 					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
 					_Участки: Уч_geoJSON ? Уч_ : null,
 					_geoJSON_Участков: Уч_geoJSON,
@@ -1281,7 +1288,7 @@ explication.osm = {
 				var t = osmGeoJSON_obj.properties.tags;
 				var l = t['amenity'];
 				var bc = t['backrest'];
-				var mt = t['material'];
+				var mt = t['material'];				
 				var mtt = explication.osm.data.material[mt];
 				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
 				var Уч_ = '';
@@ -1293,7 +1300,7 @@ explication.osm = {
 				var скамейка = {
 					No: null,
 					Спинка: (bc == 'yes') ? 'есть' : 'нет',
-					Метариал: mtt ? mtt : (mt ? mt : ''),
+					Метариал: mtt ? mtt : (mt ? mt : ''),					
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
@@ -1515,9 +1522,19 @@ explication.osm = {
 		material: {
 			wood: "дерево",
 			metal: "металл",
-			stone: "камень"
+			stone: "камень",
+			marble: "мрамор",
+			glass: "стекло",
+			steel: "сталь"
+		},
+		artwork_type: {
+			sculpture: "скульптура",
+			statue: "статуя",
+			painting: "живописное",
+			mosaic: "мозаика",
+			mural: "фреска",
+			architecture: "архитектурный объект"
 		}
-
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
 		var html = '<p align="center">' + title + '<a href="#' + obj.No + '">' + obj.No + '</a></p><table><tr><th>Свойство</th><th>Значение</th></tr>';
