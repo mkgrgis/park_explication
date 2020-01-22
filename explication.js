@@ -1395,6 +1395,10 @@ explication.osm = {
 		if (data_obj._tooltip)
 			l.bindTooltip(data_obj._tooltip);
 		l.on('click', l.openPopup);
+	        l.on('mouseover', function (e) {
+			var tt = e.target.getTooltip();
+			tt.setLatLng(e.latlng);
+		});
 		layer_group.push(l);
 	},
 	data: { // Данные для пояснения свойств и оформления объектов ОСМ
