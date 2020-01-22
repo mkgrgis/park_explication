@@ -1397,6 +1397,8 @@ explication.osm = {
 		l.on('click', l.openPopup);
 	        l.on('mouseover', function (e) {
 			var tt = e.target.getTooltip();
+			if (!tt)
+				return;
 			tt.setLatLng(e.latlng);
 		});
 		layer_group.push(l);
