@@ -848,6 +848,7 @@ explication.osm = {
 				var nt = t['natural'];
 				if (t['barrier'] == 'hedge')
 					nt = 'scurb';
+				var stx = t['source:taxon'] ? t['source:taxon'] : null;
 				var bio_lat = explication.osm.biolog_format({
 					genus: t['genus'],
 					spieces: t['spieces'],
@@ -884,6 +885,7 @@ explication.osm = {
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
 					Год_учёта: rs.length > 1 ? rs[0] : '',
 					Номер_площадки: ref_n,
+					Подтверждение_вида: explication.osm.data."source:taxon"[stx],
 					Род: bio_rus[0].genus ? bio_rus[0].genus : '',
 					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
 					Genus: bio_lat[0].genus ? bio_lat[0].genus : '',
@@ -1540,6 +1542,11 @@ explication.osm = {
 			mosaic: "мозаика",
 			mural: "фреска",
 			architecture: "архитектурный объект"
+		},
+		"source:taxon": {
+			board: "Щит с описанием",
+			survey: "Осмотр",
+			null: "нет"
 		}
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
