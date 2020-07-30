@@ -885,7 +885,7 @@ explication.osm = {
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
 					Год_учёта: rs.length > 1 ? rs[0] : '',
 					Номер_площадки: ref_n,
-					Подтверждение_вида: explication.osm.data."source:taxon"[stx],
+					Подтверждение_вида: explication.osm.data.source_taxon[stx],
 					Род: bio_rus[0].genus ? bio_rus[0].genus : '',
 					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
 					Genus: bio_lat[0].genus ? bio_lat[0].genus : '',
@@ -1543,7 +1543,7 @@ explication.osm = {
 			mural: "фреска",
 			architecture: "архитектурный объект"
 		},
-		"source:taxon": {
+		source_taxon: {
 			board: "Щит с описанием",
 			survey: "Осмотр",
 			null: "нет"
