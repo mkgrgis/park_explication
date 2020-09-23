@@ -947,12 +947,9 @@ explication.osm = {
 				return S;
 			},
 			sort: function (a, b) {
-				function norm(v) {
-					return ('00' + v).slice(-2);
-				}
 				function knorm(v) {
-					return norm(v.replace('*', ''));
-				}
+					return ('00' + v.replace('*', '')).slice(-2);
+				}				
 				var ka = knorm(a._Код);
 				var kb = knorm(b._Код);
 				if (a._Участок < b._Участок) return -1;
