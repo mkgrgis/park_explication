@@ -831,9 +831,10 @@ explication.osm = {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
 				var ref = t['ref'];
+				var ref_start = t['ref:start_date'];
 				if (!ref)
 					return false;
-				if (ref.indexOf(':') < 0 && ref.indexOf('*') < 0 && ref.length > 2)
+				if (! ref_start && ref.indexOf('*') < 0 && ref.length > 2)
 					return false;
 				var bar = t['barrier'];
 				if (bar == 'gate')
@@ -845,6 +846,7 @@ explication.osm = {
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var ref = t['ref'];
+				var ref_start = t['ref:start_date'];
 				var nt = t['natural'];
 				if (t['barrier'] == 'hedge')
 					nt = 'scurb';
@@ -859,8 +861,6 @@ explication.osm = {
 					spieces: t['spieces:ru'],
 					taxon: t['taxon:ru'] ? t['taxon:ru'] : t['was:taxon:ru']
 				});
-				var rs = ref.split(":");
-				var ref_n = rs[rs.length - 1];
 				var note = t['note'];
 				var start = t['start_date'];
 				var descr = t['description'];
@@ -883,8 +883,8 @@ explication.osm = {
 				var маточная_площадка = {
 					No: null,
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
-					Год_учёта: rs.length > 1 ? rs[0] : '',
-					Номер_площадки: ref_n,
+					Год_учёта: ref_start ? ref_start : '',
+					Номер_площадки: ref,
 					Подтверждение_вида: explication.osm.data.source_taxon[stx],
 					Род: bio_rus[0].genus ? bio_rus[0].genus : '',
 					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
@@ -905,7 +905,7 @@ explication.osm = {
 					Нужно_доработать: fm ? '<span style="color: red">' + fm + '</span>' : null,
 					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
 					_Участок: Уч_geoJSON ? norm(Уч_geoJSON.properties.tags.name) : null,
-					_Код: norm(ref_n),
+					_Код: norm(ref),
 					_geoJSON_Участка: Уч_geoJSON,
 					_nd: nd
 				};
