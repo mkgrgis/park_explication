@@ -948,7 +948,8 @@ explication.osm = {
 			},
 			sort: function (a, b) {
 				function knorm(v) {
-					return ('00' + v.replace('*', '')).slice(-2);
+					var s = v.replace('*', '');
+					return ('00' + s.substring(0, s.length > 1 ? 2 : s.length)).slice(-2);
 				}				
 				var ka = knorm(a._Код);
 				var kb = knorm(b._Код);
