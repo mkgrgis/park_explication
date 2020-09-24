@@ -1,113 +1,113 @@
 explication = {};
 
 explication.get_data = function (osm_relation_id, fin_ok) {
-    var xhr = new XMLHttpRequest();
-    xhr.url = geoAlb_lib.OSM_URL('relation', osm_relation_id, 'full');
-    xhr.osm_relation_id = osm_relation_id;
-    xhr.open('GET', xhr.url, true);
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState != 4) return;
-        if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
-            alert("Ошибка БД OSM! " + xhr.url);
+	var xhr = new XMLHttpRequest();
+	xhr.url = geoAlb_lib.OSM_URL('relation', osm_relation_id, 'full');
+	xhr.osm_relation_id = osm_relation_id;
+	xhr.open('GET', xhr.url, true);
+	xhr.send();
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState != 4) return;
+		if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
+			alert("Ошибка БД OSM! " + xhr.url);
 			return;
-        }
+		}
 		if (xhr.status == 200){
-            log('Данные по контуру получены ');
-            explication.getAllgeoData(xhr.responseXML, xhr.osm_relation_id, fin_ok);
+			log('Данные по контуру получены ');
+			explication.getAllgeoData(xhr.responseXML, xhr.osm_relation_id, fin_ok);
 			return;
-        }
+		}
 		console.log (xhr.status);
-    }
+	}
 }
 
 // Формирование экспликационной таблицы по массиву
 explication.tabulation = function (table_obj) {
-    tbl = document.createElement('table');
-    tbl.setAttribute('role', 'expl');
-    var tr = document.createElement('tr');
-    tr.setAttribute('role', 'expl');
-    for (var j in table_obj[0]) {
-        if (j.indexOf('_') == 0)
-            continue;
-        var th = document.createElement('th');
-        th.setAttribute('role', 'expl');
-        th.innerHTML = j.replace('_', ' ');
-        tr.appendChild(th);
-    }
-    tbl.appendChild(tr);
+	tbl = document.createElement('table');
+	tbl.setAttribute('role', 'expl');
+	var tr = document.createElement('tr');
+	tr.setAttribute('role', 'expl');
+	for (var j in table_obj[0]) {
+		if (j.indexOf('_') == 0)
+			continue;
+		var th = document.createElement('th');
+		th.setAttribute('role', 'expl');
+		th.innerHTML = j.replace('_', ' ');
+		tr.appendChild(th);
+	}
+	tbl.appendChild(tr);
 
-    for (var i_ in table_obj) {
-        var tobji = table_obj[i_];
-        var tr = document.createElement('tr');
-        tr.setAttribute('role', 'expl');
-        for (var j in tobji) {
-            if (j.indexOf('_') == 0)
-                continue;
-            var td = document.createElement('td');
-            td.setAttribute('role', 'expl');
-            td.innerHTML = tobji[j];
-            tr.appendChild(td);
-        }
-        tbl.appendChild(tr);
-    }
-    return tbl;
+	for (var i_ in table_obj) {
+		var tobji = table_obj[i_];
+		var tr = document.createElement('tr');
+		tr.setAttribute('role', 'expl');
+		for (var j in tobji) {
+			if (j.indexOf('_') == 0)
+				continue;
+			var td = document.createElement('td');
+			td.setAttribute('role', 'expl');
+			td.innerHTML = tobji[j];
+			tr.appendChild(td);
+		}
+		tbl.appendChild(tr);
+	}
+	return tbl;
 };
 
 explication.map = function (div, geoJsonGeneral, map_prov) {
-    var cen = geoJsonGeneral.features[0].geometry.coordinates[0][0];
-    var md = new mapDiv(
-        div,
-        [cen[1], cen[0]],
-        map_prov.tileLayers,
-        map_prov.Names,
-        {
-            ini: 14,
-            min: 8,
-            max: 20
-        },
-        true
-    );
-    var mrg = explication.main_rel(geoJsonGeneral);
-    var n = mrg.properties.tags.name;
-    var mr = L.geoJSON(mrg, { fillOpacity: 0, color: "#F2872F" });
-    md.map.fitBounds(mr.getBounds());
-    md.Control.addOverlay(mr, n);
-    md.map.addLayer(mr); 
-    //  md.map.setZoom(md.map.getZoom() + 1);
-    return md;
+	var cen = geoJsonGeneral.features[0].geometry.coordinates[0][0];
+	var md = new mapDiv(
+		div,
+		[cen[1], cen[0]],
+		map_prov.tileLayers,
+		map_prov.Names,
+		{
+			ini: 14,
+			min: 8,
+			max: 20
+		},
+		true
+	);
+	var mrg = explication.main_rel(geoJsonGeneral);
+	var n = mrg.properties.tags.name;
+	var mr = L.geoJSON(mrg, { fillOpacity: 0, color: "#F2872F" });
+	md.map.fitBounds(mr.getBounds());
+	md.Control.addOverlay(mr, n);
+	md.map.addLayer(mr); 
+	//  md.map.setZoom(md.map.getZoom() + 1);
+	return md;
 }
 
 explication.getAllgeoData = function (osm_main_rel_xml, osm_main_rel_id, f_ok) {
-    var mr = geoAlb_lib.osmRelationGeoJson(osm_main_rel_xml, osm_main_rel_id);
-    var gJs = L.geoJSON(mr);
+	var mr = geoAlb_lib.osmRelationGeoJson(osm_main_rel_xml, osm_main_rel_id);
+	var gJs = L.geoJSON(mr);
 
-    var xhr = new XMLHttpRequest();
-    xhr.url = 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
-    xhr.open('GET', xhr.url, true);
-    xhr.osm_relation_id = osm_main_rel_id;
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState != 4) return;
-        if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
-            alert("Ошибка БД OSM! " + xhr.url);
-        } else {
-            if (typeof (f_ok) == 'function')
-                f_ok(xhr);
-        }
-    }
+	var xhr = new XMLHttpRequest();
+	xhr.url = 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
+	xhr.open('GET', xhr.url, true);
+	xhr.osm_relation_id = osm_main_rel_id;
+	xhr.send();
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState != 4) return;
+		if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
+			alert("Ошибка БД OSM! " + xhr.url);
+		} else {
+			if (typeof (f_ok) == 'function')
+				f_ok(xhr);
+		}
+	}
 }
 
 // Выделение основного отношения из массива geoJSON
 explication.main_rel = function (geoJsonGeneral) {
-    if (!geoJsonGeneral.osm_relation_id)
-        throw (".osm_relation_id !");
-    for (var i in geoJsonGeneral.features) {
-        var el = geoJsonGeneral.features[i];
-        if (el.properties.id == geoJsonGeneral.osm_relation_id)
-            return el;
-    }
-    return null;
+	if (!geoJsonGeneral.osm_relation_id)
+		throw (".osm_relation_id !");
+	for (var i in geoJsonGeneral.features) {
+		var el = geoJsonGeneral.features[i];
+		if (el.properties.id == geoJsonGeneral.osm_relation_id)
+			return el;
+	}
+	return null;
 }
 
 /**
@@ -121,33 +121,33 @@ explication.main_rel = function (geoJsonGeneral) {
 * @param {bool} controls - включать ли преключатель своёв.
 */
 function mapDiv(div, centerGeo, provider, providerName, Z, controls) {
-    this.div = div;
-    this.map = L.map(div.getAttribute('id'), { keyboard: false });
-    if (!isNaN(centerGeo[0]) && !isNaN(centerGeo[1]) && !isNaN(Z.ini))
-        this.map.setView(centerGeo, Z.ini);
-    if (Z) {
-        this.map.setMinZoom(Z.min);
-        this.map.setMaxZoom(Z.max);
-    }
-    var a = Array.isArray(provider);
-    var prov0 = (a ? provider[0] : provider);
-    this.ini_layer = (typeof prov0 === 'string') ? L.tileLayer.provider(prov0) : prov0;
-    this.ini_layer.addTo(this.map);
-    if (controls) {
-        this.Control = new L.Control.Layers();
-        var n0 = providerName ? (Array.isArray(providerName) ? providerName[0] : providerName) : ((typeof prov0 === 'string') ? prov0 : '?');
-        this.Control.addBaseLayer(this.ini_layer, n0);
-        if (a) {
-            for (var i in provider) {
-                if (i != 0) {
-                    var prov = provider[i];
-                    var provStr = providerName[i] ? providerName[i] : ((typeof prov === 'string') ? prov : '?');
-                    this.Control.addBaseLayer((typeof prov === 'string') ? L.tileLayer.provider(prov) : prov, provStr);
-                }
-            }
-        }
-        this.map.addControl(this.Control);
-    }
+	this.div = div;
+	this.map = L.map(div.getAttribute('id'), { keyboard: false });
+	if (!isNaN(centerGeo[0]) && !isNaN(centerGeo[1]) && !isNaN(Z.ini))
+		this.map.setView(centerGeo, Z.ini);
+	if (Z) {
+		this.map.setMinZoom(Z.min);
+		this.map.setMaxZoom(Z.max);
+	}
+	var a = Array.isArray(provider);
+	var prov0 = (a ? provider[0] : provider);
+	this.ini_layer = (typeof prov0 === 'string') ? L.tileLayer.provider(prov0) : prov0;
+	this.ini_layer.addTo(this.map);
+	if (controls) {
+		this.Control = new L.Control.Layers();
+		var n0 = providerName ? (Array.isArray(providerName) ? providerName[0] : providerName) : ((typeof prov0 === 'string') ? prov0 : '?');
+		this.Control.addBaseLayer(this.ini_layer, n0);
+		if (a) {
+			for (var i in provider) {
+				if (i != 0) {
+					var prov = provider[i];
+					var provStr = providerName[i] ? providerName[i] : ((typeof prov === 'string') ? prov : '?');
+					this.Control.addBaseLayer((typeof prov === 'string') ? L.tileLayer.provider(prov) : prov, provStr);
+				}
+			}
+		}
+		this.map.addControl(this.Control);
+	}
 }
 
 // БЛОК ГЕОМЕТРИИ
@@ -155,266 +155,266 @@ explication.γεωμετρία = {};
 
 // БЛОК ВЫЧИСЛЕНИЯ ДЛИНЫ
 explication.γεωμετρία.len = function (geometry) {
-    if (geometry.type === 'LineString')
-        return geoJSON_len(geometry.coordinates);
-    else if (geometry.type === 'MultiLineString')
-        return geometry.coordinates.reduce(function (memo, coordinates) {
-            return memo + geoJSON_len(coordinates);
-        }, 0);
-    else
-        return null;
+	if (geometry.type === 'LineString')
+		return geoJSON_len(geometry.coordinates);
+	else if (geometry.type === 'MultiLineString')
+		return geometry.coordinates.reduce(function (memo, coordinates) {
+			return memo + geoJSON_len(coordinates);
+		}, 0);
+	else
+		return null;
 
-    function geoJSON_len(lineString) {
-        if (lineString.length < 2)
-            return 0;
-        var result = 0;
-        for (var i = 1; i < lineString.length; i++)
-            result += distance(lineString[i - 1][0], lineString[i - 1][1],
-                lineString[i][0], lineString[i][1]);
-        return result;
-    }
+	function geoJSON_len(lineString) {
+		if (lineString.length < 2)
+			return 0;
+		var result = 0;
+		for (var i = 1; i < lineString.length; i++)
+			result += distance(lineString[i - 1][0], lineString[i - 1][1],
+				lineString[i][0], lineString[i][1]);
+		return result;
+	}
 
-    /**
-     * Calculate the approximate distance between two coordinates (lat/lon)
-     *
-     * © Chris Veness, MIT-licensed,
-     * http://www.movable-type.co.uk/scripts/latlong.html#equirectangular
-     */
-    function distance(λ1, φ1, λ2, φ2) {
-        var R = 6371000;
-        var Δλ = (λ2 - λ1) * Math.PI / 180;
-        φ1 = φ1 * Math.PI / 180;
-        φ2 = φ2 * Math.PI / 180;
-        var x = Δλ * Math.cos((φ1 + φ2) / 2);
-        var y = (φ2 - φ1);
-        var d = Math.sqrt(x * x + y * y);
-        return R * d;
-    };
+	/**
+	 * Calculate the approximate distance between two coordinates (lat/lon)
+	 *
+	 * © Chris Veness, MIT-licensed,
+	 * http://www.movable-type.co.uk/scripts/latlong.html#equirectangular
+	 */
+	function distance(λ1, φ1, λ2, φ2) {
+		var R = 6371000;
+		var Δλ = (λ2 - λ1) * Math.PI / 180;
+		φ1 = φ1 * Math.PI / 180;
+		φ2 = φ2 * Math.PI / 180;
+		var x = Δλ * Math.cos((φ1 + φ2) / 2);
+		var y = (φ2 - φ1);
+		var d = Math.sqrt(x * x + y * y);
+		return R * d;
+	};
 }
 
 // БЛОК ВЫЧИСЛЕНИЯ ПЛОЩАДИ
 explication.γεωμετρία.sqf = function (_) {
-    var area = 0, i;
-    switch (_.type) {
-        case 'LineString':
-        case 'MultiLineString':
-        case 'Polygon':
-            return polygonArea(_.coordinates);
-        case 'MultiPolygon':
-            for (i = 0; i < _.coordinates.length; i++) {
-                area += polygonArea(_.coordinates[i]);
-            }
-            return area;
-        case 'Point':
-            return 0;
-        case 'GeometryCollection':
-            for (i = 0; i < _.geometries.length; i++) {
-                area += explication.γεωμετρία.sqf(_.geometries[i]);
-            }
-            return area;
-    }
+	var area = 0, i;
+	switch (_.type) {
+		case 'LineString':
+		case 'MultiLineString':
+		case 'Polygon':
+			return polygonArea(_.coordinates);
+		case 'MultiPolygon':
+			for (i = 0; i < _.coordinates.length; i++) {
+				area += polygonArea(_.coordinates[i]);
+			}
+			return area;
+		case 'Point':
+			return 0;
+		case 'GeometryCollection':
+			for (i = 0; i < _.geometries.length; i++) {
+				area += explication.γεωμετρία.sqf(_.geometries[i]);
+			}
+			return area;
+	}
 
-    function polygonArea(coords) {
-        var area = 0;
-        if (coords && coords.length > 0) {
-            area += Math.abs(ringArea(coords[0]));
-            for (var i = 1; i < coords.length; i++) {
-                area -= Math.abs(ringArea(coords[i]));
-            }
-        }
-        return area;
-    }
+	function polygonArea(coords) {
+		var area = 0;
+		if (coords && coords.length > 0) {
+			area += Math.abs(ringArea(coords[0]));
+			for (var i = 1; i < coords.length; i++) {
+				area -= Math.abs(ringArea(coords[i]));
+			}
+		}
+		return area;
+	}
 
-    /**
-     * Calculate the approximate area of the polygon were it projected onto
-     *     the earth.  Note that this area will be positive if ring is oriented
-     *     clockwise, otherwise it will be negative.
-     *
-     * Reference:
-     * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
-     *     Polygons on a Sphere", JPL Publication 07-03, Jet Propulsion
-     *     Laboratory, Pasadena, CA, June 2007 http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409
-     *
-     * Returns:
-     * {float} The approximate signed geodesic area of the polygon in square
-     *     meters.
-     */
+	/**
+	 * Calculate the approximate area of the polygon were it projected onto
+	 *	 the earth.  Note that this area will be positive if ring is oriented
+	 *	 clockwise, otherwise it will be negative.
+	 *
+	 * Reference:
+	 * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
+	 *	 Polygons on a Sphere", JPL Publication 07-03, Jet Propulsion
+	 *	 Laboratory, Pasadena, CA, June 2007 http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409
+	 *
+	 * Returns:
+	 * {float} The approximate signed geodesic area of the polygon in square
+	 *	 meters.
+	 */
 
-    function ringArea(coords) {
-        var p1, p2, p3, lowerIndex, middleIndex, upperIndex, i,
-            area = 0,
-            coordsLength = coords.length;
+	function ringArea(coords) {
+		var p1, p2, p3, lowerIndex, middleIndex, upperIndex, i,
+			area = 0,
+			coordsLength = coords.length;
 
-        var wgs84 = {};
-        wgs84.RADIUS = 6378137;
-        wgs84.FLATTENING_DENOM = 298.257223563
-        wgs84.FLATTENING = 1 / wgs84.FLATTENING_DENOM.FLATTENING_DENOM;
-        wgs84.POLAR_RADIUS = wgs84.RADIUS * (1 - wgs84.FLATTENING);
+		var wgs84 = {};
+		wgs84.RADIUS = 6378137;
+		wgs84.FLATTENING_DENOM = 298.257223563
+		wgs84.FLATTENING = 1 / wgs84.FLATTENING_DENOM.FLATTENING_DENOM;
+		wgs84.POLAR_RADIUS = wgs84.RADIUS * (1 - wgs84.FLATTENING);
 
-        if (coordsLength > 2) {
-            for (i = 0; i < coordsLength; i++) {
-                if (i === coordsLength - 2) {// i = N-2
-                    lowerIndex = coordsLength - 2;
-                    middleIndex = coordsLength - 1;
-                    upperIndex = 0;
-                } else if (i === coordsLength - 1) {// i = N-1
-                    lowerIndex = coordsLength - 1;
-                    middleIndex = 0;
-                    upperIndex = 1;
-                } else { // i = 0 to N-3
-                    lowerIndex = i;
-                    middleIndex = i + 1;
-                    upperIndex = i + 2;
-                }
-                p1 = coords[lowerIndex];
-                p2 = coords[middleIndex];
-                p3 = coords[upperIndex];
-                area += (rad(p3[0]) - rad(p1[0])) * Math.sin(rad(p2[1]));
-            }
+		if (coordsLength > 2) {
+			for (i = 0; i < coordsLength; i++) {
+				if (i === coordsLength - 2) {// i = N-2
+					lowerIndex = coordsLength - 2;
+					middleIndex = coordsLength - 1;
+					upperIndex = 0;
+				} else if (i === coordsLength - 1) {// i = N-1
+					lowerIndex = coordsLength - 1;
+					middleIndex = 0;
+					upperIndex = 1;
+				} else { // i = 0 to N-3
+					lowerIndex = i;
+					middleIndex = i + 1;
+					upperIndex = i + 2;
+				}
+				p1 = coords[lowerIndex];
+				p2 = coords[middleIndex];
+				p3 = coords[upperIndex];
+				area += (rad(p3[0]) - rad(p1[0])) * Math.sin(rad(p2[1]));
+			}
 
-            area = area * wgs84.RADIUS * wgs84.RADIUS / 2;
-        }
-        return area;
-    }
+			area = area * wgs84.RADIUS * wgs84.RADIUS / 2;
+		}
+		return area;
+	}
 
-    function rad(_) {
-        return _ * Math.PI / 180;
-    }
+	function rad(_) {
+		return _ * Math.PI / 180;
+	}
 }
 
 ////// БЛОК ГЕОМЕТРИЧЕСКОГО АНАЛИЗА ///////
 explication.γεωμετρία.geo_nodes = function (geoJSONel) {
-    var nd = [];
-    var g = geoJSONel.geometry;
-    if (g.type == 'Point') {
-        nd.push(g.coordinates);
-        return nd;
-    }
-    if (g.type == 'LineString' || g.type == 'MultiPoint')
-        return g.coordinates;
-    if (g.type == 'Polygon' || g.type == 'MultiLineString') {
-        for (var i in g.coordinates) {
-            Array.prototype.push.apply(nd, g.coordinates[i]);
-        }
-        return nd;
-    }
-    if (g.type == 'MultiPolygon') {
-        for (var i in g.coordinates) {
-            var ci = g.coordinates[i];
-            for (var j in ci) {
-                Array.prototype.push.apply(nd, ci[j]);
-            }
-        }
-        return nd;
-    }
-    return null;
+	var nd = [];
+	var g = geoJSONel.geometry;
+	if (g.type == 'Point') {
+		nd.push(g.coordinates);
+		return nd;
+	}
+	if (g.type == 'LineString' || g.type == 'MultiPoint')
+		return g.coordinates;
+	if (g.type == 'Polygon' || g.type == 'MultiLineString') {
+		for (var i in g.coordinates) {
+			Array.prototype.push.apply(nd, g.coordinates[i]);
+		}
+		return nd;
+	}
+	if (g.type == 'MultiPolygon') {
+		for (var i in g.coordinates) {
+			var ci = g.coordinates[i];
+			for (var j in ci) {
+				Array.prototype.push.apply(nd, ci[j]);
+			}
+		}
+		return nd;
+	}
+	return null;
 }
 
 // Блок геометрического анализа из библиотеки https://turfjs.org/docs/
 explication.γεωμετρία.booleanPointInPolygon = function (point, polygon, options) {
-    function inRing(pt, ring, ignoreBoundary) {
-        var isInside = false;
-        if (ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]) ring = ring.slice(0, ring.length - 1);
+	function inRing(pt, ring, ignoreBoundary) {
+		var isInside = false;
+		if (ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]) ring = ring.slice(0, ring.length - 1);
 
-        for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-            var xi = ring[i][0], yi = ring[i][1];
-            var xj = ring[j][0], yj = ring[j][1];
-            var onBoundary = (pt[1] * (xi - xj) + yi * (xj - pt[0]) + yj * (pt[0] - xi) === 0) &&
-                ((xi - pt[0]) * (xj - pt[0]) <= 0) && ((yi - pt[1]) * (yj - pt[1]) <= 0);
-            if (onBoundary)
-                return !ignoreBoundary;
-            var intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
-                (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
-            if (intersect) isInside = !isInside;
-        }
-        return isInside;
-    }
-    function getCoord(obj) {
-        if (!obj) throw new Error('obj is required');
+		for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+			var xi = ring[i][0], yi = ring[i][1];
+			var xj = ring[j][0], yj = ring[j][1];
+			var onBoundary = (pt[1] * (xi - xj) + yi * (xj - pt[0]) + yj * (pt[0] - xi) === 0) &&
+				((xi - pt[0]) * (xj - pt[0]) <= 0) && ((yi - pt[1]) * (yj - pt[1]) <= 0);
+			if (onBoundary)
+				return !ignoreBoundary;
+			var intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
+				(pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
+			if (intersect) isInside = !isInside;
+		}
+		return isInside;
+	}
+	function getCoord(obj) {
+		if (!obj) throw new Error('obj is required');
 
-        var coordinates = getCoords(obj);
+		var coordinates = getCoords(obj);
 
-        // getCoord() must contain at least two numbers (Point)
-        if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
-            return coordinates;
-        } else {
-            throw new Error('Coordinate is not a valid Point');
-        }
-    }
-    function getCoords(obj) {
-        if (!obj) throw new Error('obj is required');
-        var coordinates;
+		// getCoord() must contain at least two numbers (Point)
+		if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
+			return coordinates;
+		} else {
+			throw new Error('Coordinate is not a valid Point');
+		}
+	}
+	function getCoords(obj) {
+		if (!obj) throw new Error('obj is required');
+		var coordinates;
 
-        // Array of numbers
-        if (obj.length) {
-            coordinates = obj;
+		// Array of numbers
+		if (obj.length) {
+			coordinates = obj;
 
-            // Geometry Object
-        } else if (obj.coordinates) {
-            coordinates = obj.coordinates;
+			// Geometry Object
+		} else if (obj.coordinates) {
+			coordinates = obj.coordinates;
 
-            // Feature
-        } else if (obj.geometry && obj.geometry.coordinates) {
-            coordinates = obj.geometry.coordinates;
-        }
-        // Checks if coordinates contains a number
-        if (coordinates) {
-            containsNumber(coordinates);
-            return coordinates;
-        }
-        throw new Error('No valid coordinates');
-    }
-    function containsNumber(coordinates) {
-        if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
-            return true;
-        }
+			// Feature
+		} else if (obj.geometry && obj.geometry.coordinates) {
+			coordinates = obj.geometry.coordinates;
+		}
+		// Checks if coordinates contains a number
+		if (coordinates) {
+			containsNumber(coordinates);
+			return coordinates;
+		}
+		throw new Error('No valid coordinates');
+	}
+	function containsNumber(coordinates) {
+		if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
+			return true;
+		}
 
-        if (Array.isArray(coordinates[0]) && coordinates[0].length) {
-            return containsNumber(coordinates[0]);
-        }
-        throw new Error('coordinates must only contain numbers');
-    }
+		if (Array.isArray(coordinates[0]) && coordinates[0].length) {
+			return containsNumber(coordinates[0]);
+		}
+		throw new Error('coordinates must only contain numbers');
+	}
 
-    function isNumber(num) {
-        return !isNaN(num) && num !== null && !Array.isArray(num);
-    }
+	function isNumber(num) {
+		return !isNaN(num) && num !== null && !Array.isArray(num);
+	}
 
-    // Optional parameters
-    options = options || {};
-    if (typeof options !== 'object') throw new Error('options is invalid');
-    var ignoreBoundary = options.ignoreBoundary;
+	// Optional parameters
+	options = options || {};
+	if (typeof options !== 'object') throw new Error('options is invalid');
+	var ignoreBoundary = options.ignoreBoundary;
 
-    // validation
-    if (!point) throw new Error('point is required');
-    if (!polygon) throw new Error('polygon is required');
+	// validation
+	if (!point) throw new Error('point is required');
+	if (!polygon) throw new Error('polygon is required');
 
-    var pt = getCoord(point);
-    var polys = getCoords(polygon);
-    var type = (polygon.geometry) ? polygon.geometry.type : polygon.type;
-    var bbox = polygon.bbox;
+	var pt = getCoord(point);
+	var polys = getCoords(polygon);
+	var type = (polygon.geometry) ? polygon.geometry.type : polygon.type;
+	var bbox = polygon.bbox;
 
-    // Quick elimination if point is not inside bbox
-    if (bbox && inBBox(pt, bbox) === false) return false;
+	// Quick elimination if point is not inside bbox
+	if (bbox && inBBox(pt, bbox) === false) return false;
 
-    // normalize to multipolygon
-    if (type === 'Polygon') polys = [polys];
+	// normalize to multipolygon
+	if (type === 'Polygon') polys = [polys];
 
-    for (var i = 0, insidePoly = false; i < polys.length && !insidePoly; i++) {
-        // check if it is in the outer ring first
-        if (inRing(pt, polys[i][0], ignoreBoundary)) {
-            var inHole = false;
-            var k = 1;
-            // check for the point in any of the holes
-            while (k < polys[i].length && !inHole) {
-                if (inRing(pt, polys[i][k], !ignoreBoundary)) {
-                    inHole = true;
-                }
-                k++;
-            }
-            if (!inHole) insidePoly = true;
-        }
-    }
-    return insidePoly;
+	for (var i = 0, insidePoly = false; i < polys.length && !insidePoly; i++) {
+		// check if it is in the outer ring first
+		if (inRing(pt, polys[i][0], ignoreBoundary)) {
+			var inHole = false;
+			var k = 1;
+			// check for the point in any of the holes
+			while (k < polys[i].length && !inHole) {
+				if (inRing(pt, polys[i][k], !ignoreBoundary)) {
+					inHole = true;
+				}
+				k++;
+			}
+			if (!inHole) insidePoly = true;
+		}
+	}
+	return insidePoly;
 }
 
 geoAlb_lib = {};
@@ -432,79 +432,79 @@ geoAlb_lib.OSM_API_URL = geoAlb_lib.OSM_baseURL + '/api/0.6/' //Выборка �
 
 // Формирует одрес ОСМ объекта
 geoAlb_lib.OSM_URL = function (type, id, suff) {
-    var _smod = (suff != '') ? '/' + suff : '';
-    return geoAlb_lib.OSM_API_URL + type + '/' + id + _smod;
+	var _smod = (suff != '') ? '/' + suff : '';
+	return geoAlb_lib.OSM_API_URL + type + '/' + id + _smod;
 }
 
 // Получает из документа ветвь отношения с данным кодом
 geoAlb_lib.getRelationXmlTree = function (xml, osm_rl_id) {
-    var relations = xml.getElementsByTagName('relation');
-    for (var i = 0; i < relations.length; i++) {
-        if (relations[i].getAttribute('id') == osm_rl_id)
-            return relations[i];
-    }
-    return null;
+	var relations = xml.getElementsByTagName('relation');
+	for (var i = 0; i < relations.length; i++) {
+		if (relations[i].getAttribute('id') == osm_rl_id)
+			return relations[i];
+	}
+	return null;
 };
 
 // Удаляет точки из geoJSON отношения или линии
 geoAlb_lib.geoJsonRemoveOsmNodes = function (geoJson) {
-    for (var i = 0; i < geoJson.features.length; i++) {
-        if (geoJson.features[i].geometry.type == 'Point') {
-            geoJson.features.splice(i, 1);
-            i--;
-        }
-    }
-    return geoJson;
+	for (var i = 0; i < geoJson.features.length; i++) {
+		if (geoJson.features[i].geometry.type == 'Point') {
+			geoJson.features.splice(i, 1);
+			i--;
+		}
+	}
+	return geoJson;
 };
 
 // Получает массив номеров отношений, содержащих подчинённые территории
 geoAlb_lib.getSubAreas = function (xml, osm_rl_id) {
-    var relXml = geoAlb_lib.getRelationXmlTree(xml, osm_rl_id);
-    if (!relXml)
-        return null;
-    var subAreas = [];
-    var members = relXml.getElementsByTagName('member');
-    var j = 0;
-    for (var i = 0; i < members.length; i++) {
-        if (members[i].getAttribute('type') == 'relation' && members[i].getAttribute('role') == 'subarea')
-            subAreas[j++] = members[i].getAttribute('ref');
-    }
-    return subAreas;
+	var relXml = geoAlb_lib.getRelationXmlTree(xml, osm_rl_id);
+	if (!relXml)
+		return null;
+	var subAreas = [];
+	var members = relXml.getElementsByTagName('member');
+	var j = 0;
+	for (var i = 0; i < members.length; i++) {
+		if (members[i].getAttribute('type') == 'relation' && members[i].getAttribute('role') == 'subarea')
+			subAreas[j++] = members[i].getAttribute('ref');
+	}
+	return subAreas;
 };
 
 // Удаляет чужие полигоны из документа, оставляя собственный полигон заданного отношения
 geoAlb_lib.geoJsonDecomposeSubAreas = function (geoJson, osm_rl_id) {
-    var subrel = []; var j = 0;
-    for (var i = 0; i < geoJson.features.length; i++) {
-        if (geoJson.features[i].geometry.type.indexOf('Polygon') + 1)
-            if (geoJson.features[i].id.indexOf('relation/') + 1) {
-                if (geoJson.features[i].id != 'relation/' + osm_rl_id) {
-                    geoJson.features.splice(i--, 1);
-                }
-            }
-            else // Полигоны от линий удаляем
-                geoJson.features.splice(i--, 1);
-    }
-    return geoJson;
+	var subrel = []; var j = 0;
+	for (var i = 0; i < geoJson.features.length; i++) {
+		if (geoJson.features[i].geometry.type.indexOf('Polygon') + 1)
+			if (geoJson.features[i].id.indexOf('relation/') + 1) {
+				if (geoJson.features[i].id != 'relation/' + osm_rl_id) {
+					geoJson.features.splice(i--, 1);
+				}
+			}
+			else // Полигоны от линий удаляем
+				geoJson.features.splice(i--, 1);
+	}
+	return geoJson;
 };
 
 // Оставляет собственный полигон заданного отношения
 geoAlb_lib.relationSelfPolygon = function (geoJson, osm_rl_id) {
-    for (var i = 0; i < geoJson.features.length; i++) {
-        if ((geoJson.features[i].geometry.type.indexOf('Polygon') + 1) &&
-            (geoJson.features[i].id == 'relation/' + osm_rl_id))
-            return i;
-    }
-    return null;
+	for (var i = 0; i < geoJson.features.length; i++) {
+		if ((geoJson.features[i].geometry.type.indexOf('Polygon') + 1) &&
+			(geoJson.features[i].id == 'relation/' + osm_rl_id))
+			return i;
+	}
+	return null;
 };
 
 // Создание GeoJson из основного контура отношения, представленного в xml документе
 geoAlb_lib.osmRelationGeoJson = function (xml, rel_id) {
-    var geoJson0 = osmtogeojson(xml);
-    var geoJson1 = geoAlb_lib.geoJsonRemoveOsmNodes(geoJson0);
-    var geoJson2 = geoAlb_lib.geoJsonDecomposeSubAreas(geoJson1, rel_id);
-    geoJson2.osm_rel_id = rel_id;
-    return geoJson2;
+	var geoJson0 = osmtogeojson(xml);
+	var geoJson1 = geoAlb_lib.geoJsonRemoveOsmNodes(geoJson0);
+	var geoJson2 = geoAlb_lib.geoJsonDecomposeSubAreas(geoJson1, rel_id);
+	geoJson2.osm_rel_id = rel_id;
+	return geoJson2;
 };
 
 explication.osm = {
@@ -817,15 +817,15 @@ explication.osm = {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
 				var ref = t['ref'];
-				var ref_start = t['ref:start_date'];                              
+				var ref_start = t['ref:start_date'];							  
 				if (!ref)
 					return false;
 				var bar = t['barrier'];
 				if (bar == 'gate')
 					return false;
 
-                if (!ref.indexOf('*') < 0)
-    				return true;      
+				if (!ref.indexOf('*') < 0)
+					return true;	  
 				if (! ref_start && ref.replace(/\D+/g,"").length > 4)
 					return false;
 				return true;
@@ -864,8 +864,8 @@ explication.osm = {
 				fm = fm ? fm : null;
 				var sq = explication.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 				sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
-                var sortNo = ref.replace(/\D+/g,"");
-                sortNo = (sortNo.length == 1) ? ('0' + sortNo) : sortNo;
+				var sortNo = ref.replace(/\D+/g,"");
+				sortNo = (sortNo.length == 1) ? ('0' + sortNo) : sortNo;
 				var маточная_площадка = {
 					No: null,
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
@@ -894,7 +894,7 @@ explication.osm = {
 					_Код: sortNo,
 					_geoJSON_Участка: Уч_geoJSON,
 					_nd: nd,
-                    _ref: ref
+					_ref: ref
 				};
 				return маточная_площадка;
 			},
@@ -1060,7 +1060,7 @@ explication.osm = {
 				return 0;
 			}
 		},
-        Справочные_объекты: {
+		Справочные_объекты: {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
 				var tr = t['tourism'];
@@ -1077,16 +1077,16 @@ explication.osm = {
 
 				var i = t['information'];
 				var bt = t['board_type'];
-                var note = t['note'];
-                var name = t['name'];
+				var note = t['note'];
+				var name = t['name'];
 				var start = t['start_date'];
 				var descr = t['description'];
 				var справочный_объект = {
 					No: null,
-                    Тип_справки: explication.osm.data.information[i],
-                    Тип_информации: (i == 'board' && bt) ? explication.osm.data.board_type[bt] : null,
-                    Участок : Уч,
-                    Название : name ? name : null,
+					Тип_справки: explication.osm.data.information[i],
+					Тип_информации: (i == 'board' && bt) ? explication.osm.data.board_type[bt] : null,
+					Участок : Уч,
+					Название : name ? name : null,
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
@@ -1132,7 +1132,7 @@ explication.osm = {
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
-                    Участок : Уч,
+					Участок : Уч,
 					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
 					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
@@ -1234,7 +1234,7 @@ explication.osm = {
 					Тип: at ? explication.osm.data.artwork_type[at] : '',
 					Название: n ? n : '',
 					Автор: au ? au : '',
-                    Участок: explication.osm.γεωμετρία.Участок(Уч_geoJSON),
+					Участок: explication.osm.γεωμετρία.Участок(Уч_geoJSON),
 					Заметки: note ? note : '',
 					Датировка: start ? start : '',					
 					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
@@ -1389,7 +1389,7 @@ explication.osm = {
 		if (data_obj._tooltip)
 			l.bindTooltip(data_obj._tooltip);
 		l.on('click', l.openPopup);
-	        l.on('mouseover', function (e) {
+			l.on('mouseover', function (e) {
 			var tt = e.target.getTooltip();
 			if (!tt)
 				return;
@@ -1487,7 +1487,7 @@ explication.osm = {
 			gravel: 'Гравий',
 			paved: 'Твёрдое',
 			wood: 'Дерево',
-            metal: 'Металл',
+			metal: 'Металл',
 			pebblestone: 'Галька',
 			fine_gravel: 'Камнегравийный слой',
 			grass: 'Трава',
@@ -1543,26 +1543,26 @@ explication.osm = {
 			survey: "Осмотр",
 			null: "нет"
 		},
-        information: {
+		information: {
 			board: "Щит с описанием",
 			office: "Cправочная служба",
-            terminal: "Терминал информационной системы",
-            audioguide: "Аудиогид",
-            map: "Карта или план",
-            tactile_map: "Тактильная карта",
-            tactile_model: "Тактильная модель",
-            guidepost: "Указатель направлений",
-            trail_blaze: "Маршрутная метка или табличка",
-            route_marker: "Маршрутная метка или табличка"
-        },
-        board_type: {
-            geology: "о геологии",
-            history: "об истории",
-            nature: "о природе или климате",
-            plants: "о растительности",
-            notice: "о мероприятиях",
-            wildlife: "о животном мире",
-            null: "не указан"
+			terminal: "Терминал информационной системы",
+			audioguide: "Аудиогид",
+			map: "Карта или план",
+			tactile_map: "Тактильная карта",
+			tactile_model: "Тактильная модель",
+			guidepost: "Указатель направлений",
+			trail_blaze: "Маршрутная метка или табличка",
+			route_marker: "Маршрутная метка или табличка"
+		},
+		board_type: {
+			geology: "о геологии",
+			history: "об истории",
+			nature: "о природе или климате",
+			plants: "о растительности",
+			notice: "о мероприятиях",
+			wildlife: "о животном мире",
+			null: "не указан"
 		}
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
@@ -1592,17 +1592,17 @@ explication.osm = {
 		}
 		return canon;
 	},
-    href: function(osmGeoJSON_obj) {
-        var osmt = osmGeoJSON_obj.properties.type[0];
+	href: function(osmGeoJSON_obj) {
+		var osmt = osmGeoJSON_obj.properties.type[0];
 		var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
-        return "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>";
-    },
+		return "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>";
+	},
 	γεωμετρία: {
-        Участки_точек: function (nd, участки)
-        {
-            function uniq(value, index, self) {
-                return self.indexOf(value) === index;
-            }
+		Участки_точек: function (nd, участки)
+		{
+			function uniq(value, index, self) {
+				return self.indexOf(value) === index;
+			}
 			var уч_geoJson = []; // Перечень участков, которым принадлежат точки данного объекта
 			for (var i_u in участки) {
 				var pol = участки[i_u];
@@ -1612,10 +1612,10 @@ explication.osm = {
 					}
 				}
 			}
-            return уч_geoJson.filter(uniq);
-        },
+			return уч_geoJson.filter(uniq);
+		},
 		Участок_всех_точек: function (nd, участки) {
-            var уч_geoJson = explication.osm.γεωμετρία.Участки_точек(nd, участки);			
+			var уч_geoJson = explication.osm.γεωμετρία.Участки_точек(nd, участки);			
 			if (уч_geoJson.length == 0) // Нет точек ни в одном участке
 				return null;
 			if (уч_geoJson.length == 1)
@@ -1629,16 +1629,16 @@ explication.osm = {
 					return уч_geoJson[c]; // Первый Участок, к которому относятся все точки
 			}
 		},
-        Участок : function (Уч_geoJSON) {
-                if (!Уч_geoJSON || Уч_geoJSON.length == 0)
-                    return null;
-                var Уч = '';
-                if (!Уч_geoJSON.length)
-                    return Уч_geoJSON.properties.tags.name;
-    			for (var j in Уч_geoJSON) {
-    				Уч += ' ' + Уч_geoJSON[j].properties.tags.name;
+		Участок : function (Уч_geoJSON) {
+				if (!Уч_geoJSON || Уч_geoJSON.length == 0)
+					return null;
+				var Уч = '';
+				if (!Уч_geoJSON.length)
+					return Уч_geoJSON.properties.tags.name;
+				for (var j in Уч_geoJSON) {
+					Уч += ' ' + Уч_geoJSON[j].properties.tags.name;
    				}
-                return Уч.slice(1);
+				return Уч.slice(1);
 		}
 	}, // γεωμετρία
 	сверка_маточных_площадок: function (маточные_площадки) {
