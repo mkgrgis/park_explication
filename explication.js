@@ -17,7 +17,7 @@ explication.get_data = function (osm_relation_id, fin_ok) {
             explication.getAllgeoData(xhr.responseXML, xhr.osm_relation_id, fin_ok);
 			return;
         }
-		Console.log (xhr.status);
+		console.log (xhr.status);
     }
 }
 
@@ -38,15 +38,15 @@ explication.tabulation = function (table_obj) {
     tbl.appendChild(tr);
 
     for (var i_ in table_obj) {
-        var площадка = table_obj[i_];
+        var tobji = table_obj[i_];
         var tr = document.createElement('tr');
         tr.setAttribute('role', 'expl');
-        for (var j in площадка) {
+        for (var j in tobji) {
             if (j.indexOf('_') == 0)
                 continue;
             var td = document.createElement('td');
             td.setAttribute('role', 'expl');
-            td.innerHTML = площадка[j];
+            td.innerHTML = tobji[j];
             tr.appendChild(td);
         }
         tbl.appendChild(tr);
@@ -624,8 +624,10 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var nt = t['natural'];
@@ -651,14 +653,6 @@ explication.osm = {
 				var mt_len = explication.γεωμετρία.len(osmGeoJSON_obj.geometry);
 				var sq = explication.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 				sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
-
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var водоток = {
 					No: null,
 					Название: n,
@@ -674,8 +668,8 @@ explication.osm = {
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
@@ -728,8 +722,10 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var hw = t['highway'];
@@ -754,18 +750,8 @@ explication.osm = {
 				var descr = t['description'];
 				var mt_len = explication.γεωμετρία.len(osmGeoJSON_obj.geometry);
 
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-
-				function norm(v) {
-					return ('00' + v).slice(-2);
-				}
-				for (var j in Уч_geoJSON) {
-					Уч_ += norm(Уч_geoJSON[j].properties.tags.name);
-				}
-
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var дорожка = {
 					No: null,
 					Название: n,
@@ -779,8 +765,8 @@ explication.osm = {
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 				};
 				return дорожка;
 			},
@@ -831,18 +817,23 @@ explication.osm = {
 			filter: function (osmGeoJSON_obj) {
 				var t = osmGeoJSON_obj.properties.tags;
 				var ref = t['ref'];
-				var ref_start = t['ref:start_date'];
+				var ref_start = t['ref:start_date'];                              
 				if (!ref)
-					return false;
-				if (! ref_start && ref.indexOf('*') < 0 && ref.length > 2)
 					return false;
 				var bar = t['barrier'];
 				if (bar == 'gate')
+					return false;
+
+                if (!ref.indexOf('*') < 0)
+    				return true;      
+				if (! ref_start && ref.replace(/\D+/g,"").length > 4)
 					return false;
 				return true;
 			},
 			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var ref = t['ref'];
@@ -873,13 +864,8 @@ explication.osm = {
 				fm = fm ? fm : null;
 				var sq = explication.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 				sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
-
-				function norm(v) {
-					return ('00' + v).slice(-2);
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+                var sortNo = ref.replace(/\D+/g,"");
+                sortNo = (sortNo.length == 1) ? ('0' + sortNo) : sortNo;
 				var маточная_площадка = {
 					No: null,
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
@@ -903,11 +889,12 @@ explication.osm = {
 					Описание: descr ? descr : '',
 					Вырублен: t['was:taxon'] ? '<span style="color: red"><b>Да</b></span>' : 'Нет',
 					Нужно_доработать: fm ? '<span style="color: red">' + fm + '</span>' : null,
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участок: Уч_geoJSON ? norm(Уч_geoJSON.properties.tags.name) : null,
-					_Код: norm(ref),
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
+					_Код: sortNo,
 					_geoJSON_Участка: Уч_geoJSON,
-					_nd: nd
+					_nd: nd,
+                    _ref: ref
 				};
 				return маточная_площадка;
 			},
@@ -947,16 +934,14 @@ explication.osm = {
 				return S;
 			},
 			sort: function (a, b) {
-				function knorm(v) {
-					var s = v.replace('*', '');
-					return ('00' + s.substring(0, s.length > 1 ? 2 : s.length)).slice(-2);
-				}				
-				var ka = knorm(a._Код);
-				var kb = knorm(b._Код);
+				var ka = a._Код;
+				var kb = b._Код;
 				if (a._Участок < b._Участок) return -1;
 				if (a._Участок > b._Участок) return 1;
 				if (ka < kb) return -1;
 				if (ka > kb) return 1;
+				if (a._ref < b._ref) return -1;
+				if (a._ref > b._ref) return 1;
 				return 0;
 			}
 		},
@@ -965,13 +950,13 @@ explication.osm = {
 				var t = osmGeoJSON_obj.properties.tags;
 				return (t['natural'] == 'tree_row' || t['barrier'] == 'hedge');
 			},
-			data_object: function (osmGeoJSON_obj) {
-				// var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+			data_object: function (osmGeoJSON_obj, участки) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var mt_len = explication.γεωμετρία.len(osmGeoJSON_obj.geometry);
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var bio_rus = explication.osm.biolog_format({
 					genus: t['genus:ru'],
 					spieces: t['spieces:ru'],
@@ -987,7 +972,7 @@ explication.osm = {
 					Род: bio_rus[0].genus ? bio_rus[0].genus : bio_lat[0].genus ? bio_lat[0].genus : '',
 					Вид: bio_rus[0].spieces ? bio_rus[0].spieces.join(' ') : bio_lat[0].spieces ? bio_lat[0].spieces : '',
 					Длина_части: mt_len,
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
 					_nd: null
 				};
 				return обсадка;
@@ -1024,32 +1009,29 @@ explication.osm = {
 					return true;
 				return false;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
+
 				var l = t['leisure'];
 				var lt = explication.osm.data.leisure[l];
 				var sp = t['sport'];
 				var st = explication.osm.data.sport[sp];
 				var sq = explication.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 				sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var площадка = {
-					No: null,					
+					No: null,
+					Участок: Уч,
 					Тип: lt,
 					Спорт: st ? st : '',
 					Площадь: sq,
 					//Заметки: note ? note : null,
 					//Датировка: start ? start : '',
 					//Описание: descr ? descr : '',
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
@@ -1073,18 +1055,61 @@ explication.osm = {
 				return S;
 			},
 			sort: function (a, b) {
-				/*if (a.Название === b.Название) {
-					return 0;
-				}
-				else if (!a.Название) {
-					return 1;
-				}
-				else if (!b.Название) {
-					return -1;
-				}
-				else {
-					return (a.Название < b.Название) ? -1 : 1;
-				}*/
+				if (a._Участок < b._Участок) return -1;
+				if (a._Участок > b._Участок) return 1;
+				return 0;
+			}
+		},
+        Справочные_объекты: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var tr = t['tourism'];
+				var i = t['information'];
+				if (!tr || !i)
+					return false;
+				return true;
+			},
+			data_object: function (osmGeoJSON_obj, участки) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
+				var t = osmGeoJSON_obj.properties.tags;
+
+				var i = t['information'];
+				var bt = t['board_type'];
+                var note = t['note'];
+                var name = t['name'];
+				var start = t['start_date'];
+				var descr = t['description'];
+				var справочный_объект = {
+					No: null,
+                    Тип_справки: explication.osm.data.information[i],
+                    Тип_информации: (i == 'board' && bt) ? explication.osm.data.board_type[bt] : null,
+                    Участок : Уч,
+                    Название : name ? name : null,
+					Заметки: note ? note : null,
+					Датировка: start ? start : '',
+					Описание: descr ? descr : '',
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return справочный_объект;
+			},
+			active: function (справочный_объект) {
+				справочный_объект._tooltip = '';
+				справочный_объект._popup = explication.osm.popup(справочный_объект, '<b>Учётная карточка справочного объекта</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				if (a._Участок < b._Участок) return -1;
+				if (a._Участок > b._Участок) return 1;
+				return 0;
 			}
 		},
 		Урны: {
@@ -1095,24 +1120,21 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
-				var l = t['leisure'];				
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+
+				var l = t['leisure'];
 				var урна = {
 					No: null,					
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+                    Участок : Уч,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
@@ -1128,19 +1150,9 @@ explication.osm = {
 				return S;
 			},
 			sort: function (a, b) {
+				if (a._Участок < b._Участок) return -1;
+				if (a._Участок > b._Участок) return 1;
 				return 0;
-				/*if (a.Название === b.Название) {
-					return 0;
-				}
-				else if (!a.Название) {
-					return 1;
-				}
-				else if (!b.Название) {
-					return -1;
-				}
-				else {
-					return (a.Название < b.Название) ? -1 : 1;
-				}*/
 			}
 		},
 		Скамейки: {
@@ -1151,21 +1163,17 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
+
 				var l = t['amenity'];
 				var bc = t['backrest'];
 				var mt = t['material'];
 				var cl = t['color'];
 				var mtt = explication.osm.data.material[mt];
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var скамейка = {
 					No: null,
 					Спинка: (bc == 'yes') ? 'есть' : 'нет',					
@@ -1174,8 +1182,9 @@ explication.osm = {
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					Участок: Уч,
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
@@ -1191,19 +1200,9 @@ explication.osm = {
 				return S;
 			},
 			sort: function (a, b) {
+				if (a._Участок < b._Участок) return -1;
+				if (a._Участок > b._Участок) return 1;
 				return 0;
-				/*if (a.Название === b.Название) {
-					return 0;
-				}
-				else if (!a.Название) {
-					return 1;
-				}
-				else if (!b.Название) {
-					return -1;
-				}
-				else {
-					return (a.Название < b.Название) ? -1 : 1;
-				}*/
 			}
 		},
 		Достопримечательности: {
@@ -1216,9 +1215,12 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
+
 				var n = t['name'];
 				var at = t['artwork_type'];
 				var mt = t['material'];
@@ -1226,30 +1228,26 @@ explication.osm = {
 				var start = t['start_date'];				
 				var note = t['note'];
 				var mtt = explication.osm.data.material[mt];
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
-				var скамейка = {
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
+				var дпр = {
 					No: null,
 					Тип: at ? explication.osm.data.artwork_type[at] : '',
 					Название: n ? n : '',
 					Автор: au ? au : '',
+                    Участок: explication.osm.γεωμετρία.Участок(Уч_geoJSON),
 					Заметки: note ? note : '',
 					Датировка: start ? start : '',					
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					Участок: Уч,
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
-				return скамейка;
+				return дпр;
 			},
-			active: function (скамейка) {
-				скамейка._tooltip = '';
-				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
+			active: function (дпр) {
+				дпр._tooltip = '';
+				дпр._popup = explication.osm.popup(дпр, '<b>Учётная карточка достопримечательности</b></br><i>№ в таблице экспликации</i> ');
 			},
 			geoJSON_style: function (osmGeoJSON_obj, пл) {
 				var S = {};
@@ -1283,20 +1281,17 @@ explication.osm = {
 					return true;
 				return false;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
 				var t = osmGeoJSON_obj.properties.tags;
+
 				var l = t['amenity'];
 				var bc = t['backrest'];
 				var mt = t['material'];				
 				var mtt = explication.osm.data.material[mt];
-				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_массива_точек(nd);
-				var Уч_ = '';
-				for (var j in Уч_geoJSON) {
-					Уч_ += ' ' + Уч_geoJSON[j].properties.tags.name;
-				}
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
 				var скамейка = {
 					No: null,
 					Спинка: (bc == 'yes') ? 'есть' : 'нет',
@@ -1304,8 +1299,9 @@ explication.osm = {
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',*/
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
-					_Участки: Уч_geoJSON ? Уч_ : null,
+					Участок: Уч,
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
@@ -1343,19 +1339,17 @@ explication.osm = {
 					return false;
 				return true;
 			},
-			data_object: function (osmGeoJSON_obj) {
+			data_object: function (osmGeoJSON_obj, участки) {
 				// var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
 				var t = osmGeoJSON_obj.properties.tags;
 
 				var mt_len = explication.γεωμετρία.len(osmGeoJSON_obj.geometry);
-				var osmt = osmGeoJSON_obj.properties.type[0];
-				var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
 				var ref_obj = {
 					No: null,
 					Обозначение: t['ref:sirius_msk'],
 					Название: t['name'] ? t['name'] : '',
 					Длина_части: mt_len,
-					Объект_OSM: "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>",
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
 					_nd: null
 				};
 				return ref_obj;
@@ -1493,6 +1487,7 @@ explication.osm = {
 			gravel: 'Гравий',
 			paved: 'Твёрдое',
 			wood: 'Дерево',
+            metal: 'Металл',
 			pebblestone: 'Галька',
 			fine_gravel: 'Камнегравийный слой',
 			grass: 'Трава',
@@ -1531,7 +1526,8 @@ explication.osm = {
 			stone: "камень",
 			marble: "мрамор",
 			glass: "стекло",
-			steel: "сталь"
+			steel: "сталь",
+			concrete: "заливной бетон"
 		},
 		artwork_type: {
 			sculpture: "скульптура",
@@ -1539,12 +1535,34 @@ explication.osm = {
 			painting: "живописное",
 			mosaic: "мозаика",
 			mural: "фреска",
-			architecture: "архитектурный объект"
+			architecture: "архитектурный объект",
+			installation: "инсталляция",
 		},
 		source_taxon: {
 			board: "Щит с описанием",
 			survey: "Осмотр",
 			null: "нет"
+		},
+        information: {
+			board: "Щит с описанием",
+			office: "Cправочная служба",
+            terminal: "Терминал информационной системы",
+            audioguide: "Аудиогид",
+            map: "Карта или план",
+            tactile_map: "Тактильная карта",
+            tactile_model: "Тактильная модель",
+            guidepost: "Указатель направлений",
+            trail_blaze: "Маршрутная метка или табличка",
+            route_marker: "Маршрутная метка или табличка"
+        },
+        board_type: {
+            geology: "о геологии",
+            history: "об истории",
+            nature: "о природе или климате",
+            plants: "о растительности",
+            notice: "о мероприятиях",
+            wildlife: "о животном мире",
+            null: "не указан"
 		}
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
@@ -1574,42 +1592,53 @@ explication.osm = {
 		}
 		return canon;
 	},
+    href: function(osmGeoJSON_obj) {
+        var osmt = osmGeoJSON_obj.properties.type[0];
+		var osmt_ = (osmt == 'n') ? 'Точка' : ((osmt == 'w') ? 'Линия' : 'Отношение');
+        return "<a href='https://www.openstreetmap.org/" + osmGeoJSON_obj.id + "'>" + osmt_ + "</a>";
+    },
 	γεωμετρία: {
-		Участок_массива_точек: function (nd, участки) { // Определяет участки, которые захватывает массив точек
-			var cand = [];
+        Участки_точек: function (nd, участки)
+        {
+            function uniq(value, index, self) {
+                return self.indexOf(value) === index;
+            }
+			var уч_geoJson = []; // Перечень участков, которым принадлежат точки данного объекта
 			for (var i_u in участки) {
 				var pol = участки[i_u];
 				for (var i_n in nd) {
 					if (explication.γεωμετρία.booleanPointInPolygon(nd[i_n], pol, { ignoreBoundary: true })) {
-						cand.push(pol);
+						уч_geoJson.push(pol);
 					}
 				}
 			}
-			return cand.filter((item, pos, arr) => !pos || item !== arr[pos - 1]); // Массив участков
-		},
+            return уч_geoJson.filter(uniq);
+        },
 		Участок_всех_точек: function (nd, участки) {
-			var cand = [];
-			for (var i_u in участки) {
-				var pol = участки[i_u];
-				for (var i_n in nd) {
-					if (explication.γεωμετρία.booleanPointInPolygon(nd[i_n], pol, { ignoreBoundary: true })) {
-						cand.push(pol);
-					}
-				}
-			} // Наден перечень участков, которым принадлежат точки данного объекта
-			cand = cand.filter(function (item, pos) { return cand.indexOf(item) == pos; });
-			if (cand.length == 0) // Нет точек ни в одном участке
+            var уч_geoJson = explication.osm.γεωμετρία.Участки_точек(nd, участки);			
+			if (уч_geoJson.length == 0) // Нет точек ни в одном участке
 				return null;
-			if (cand.length == 1)
-				return cand[0];
-			for (var c in cand) {
+			if (уч_geoJson.length == 1)
+				return уч_geoJson[0];
+			for (var c in уч_geoJson) {
 				var ok = true;
 				for (var i_n in nd) {
-					ok = ok && (explication.γεωμετρία.booleanPointInPolygon(nd[i_n], cand[c], { ignoreBoundary: true }));
+					ok = ok && (explication.γεωμετρία.booleanPointInPolygon(nd[i_n], уч_geoJson[c], { ignoreBoundary: true }));
 				}
 				if (ok)
-					return cand[c]; // Первый Участок, к которому относятся все точки
+					return уч_geoJson[c]; // Первый Участок, к которому относятся все точки
 			}
+		},
+        Участок : function (Уч_geoJSON) {
+                if (!Уч_geoJSON || Уч_geoJSON.length == 0)
+                    return null;
+                var Уч = '';
+                if (!Уч_geoJSON.length)
+                    return Уч_geoJSON.properties.tags.name;
+    			for (var j in Уч_geoJSON) {
+    				Уч += ' ' + Уч_geoJSON[j].properties.tags.name;
+   				}
+                return Уч.slice(1);
 		}
 	}, // γεωμετρία
 	сверка_маточных_площадок: function (маточные_площадки) {
