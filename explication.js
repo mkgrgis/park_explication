@@ -823,10 +823,8 @@ explication.osm = {
 				var bar = t['barrier'];
 				if (bar == 'gate')
 					return false;
-
-				if (!ref.indexOf('*') < 0)
-					return true;	  
-				if (! ref_start && ref.replace(/\D+/g,"").length > 4)
+				var nt = t['natural'];
+				if (nt != 'wood' && nt != 'scrub' && nt != 'tree_row' && nt != 'tree' && bar != 'hedge')
 					return false;
 				return true;
 			},
@@ -1295,7 +1293,7 @@ explication.osm = {
 				var n = t['name'];
 				var mtt = explication.osm.data.material[mt];
 				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
-				var скамейка = {
+				var малая_форма = {
 					No: null,
 					Название: n ? n : '',
 					Метариал: mtt ? mtt : (mt ? mt : ''),					
@@ -1308,11 +1306,11 @@ explication.osm = {
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
 				};
-				return скамейка;
+				return малая_форма;
 			},
-			active: function (скамейка) {
-				скамейка._tooltip = '';
-				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
+			active: function (малая_форма) {
+				малая_форма._tooltip = '';
+				малая_форма._popup = explication.osm.popup(малая_форма, '<b>Учётная карточка малой формы</b></br><i>№ в таблице экспликации</i> ');
 			},
 			geoJSON_style: function (osmGeoJSON_obj, пл) {
 				var S = {};
