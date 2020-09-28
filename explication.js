@@ -841,7 +841,9 @@ explication.osm = {
 				var nt = t['natural'];
 				if (t['barrier'] == 'hedge')
 					nt = 'scurb';
-				var stx = t['source:taxon'] ? t['source:taxon'] : null;
+				var stx =  t['source:taxon'];
+				var stx1 = explication.osm.data.source_taxon[stx];
+				stx = stx1 ? stx1 : (stx ? stx : null);
 				var bio_lat = explication.osm.biolog_format({
 					genus: t['genus'],
 					spieces: t['spieces'],
@@ -871,7 +873,7 @@ explication.osm = {
 					Участок: Уч_geoJSON ? Уч_geoJSON.properties.tags.name : null,
 					Год_учёта: ref_start ? ref_start : '',
 					Номер_площадки: ref,
-					Подтверждение_вида: explication.osm.data.source_taxon[stx],
+					Подтверждение_вида: stx,
 					Род: bio_rus[0].genus ? bio_rus[0].genus : '',
 					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
 					Genus: bio_lat[0].genus ? bio_lat[0].genus : '',
@@ -1289,12 +1291,13 @@ explication.osm = {
 
 				var l = t['amenity'];
 				var bc = t['backrest'];
-				var mt = t['material'];				
+				var mt = t['material'];
+				var n = t['name'];
 				var mtt = explication.osm.data.material[mt];
 				var Уч_geoJSON = explication.osm.γεωμετρία.Участок_всех_точек(nd, участки);
 				var скамейка = {
 					No: null,
-					Спинка: (bc == 'yes') ? 'есть' : 'нет',
+					Название: n ? n : '',
 					Метариал: mtt ? mtt : (mt ? mt : ''),					
 				/*	Заметки: note ? note : null,
 					Датировка: start ? start : '',
@@ -1541,6 +1544,7 @@ explication.osm = {
 		source_taxon: {
 			board: "Щит с описанием",
 			survey: "Осмотр",
+			label: "Бирка на саженцах",
 			null: "нет"
 		},
 		information: {
