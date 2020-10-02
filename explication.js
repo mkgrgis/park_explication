@@ -1136,7 +1136,8 @@ explication.osm = {
 				var descr = t['description'];
 				var note = t['note'];
 				var at = t['architect'];
-				var ar = t['artist_name'];
+				var ar = t['artist_name'];				
+				ref = '<a href="https://ru_monuments.toolforge.org/get_info.php?id=' + ref + '">' + ref + '</a>';
 				
 				var ОКН = {
 					No: null,					
