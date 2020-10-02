@@ -54,6 +54,7 @@ explication.tabulation = function (table_obj) {
 	return tbl;
 };
 
+// По образу главного отношения заполняет карту нужного типа в элементе div
 explication.map = function (div, geoJsonGeneral, map_prov) {
 	var cen = geoJsonGeneral.features[0].geometry.coordinates[0][0];
 	var md = new mapDiv(
@@ -600,7 +601,7 @@ explication.osm = {
 				Names: L_mapNames
 			}
 		);
-		// Вывод всеё слоёв на карту по группам
+		// Вывод всех слоёв на карту по группам
 		for (var oi in explication.osm.object) {
 			var obj = explication.osm.object[oi];
 			md.Control.addOverlay(new L.LayerGroup(obj.lGr), oi);
@@ -1109,6 +1110,65 @@ explication.osm = {
 			sort: function (a, b) {
 				if (a._Участок < b._Участок) return -1;
 				if (a._Участок > b._Участок) return 1;
+				return 0;
+			}
+		},
+		Объекты_культурного_наследия: {
+			filter: function (osmGeoJSON_obj) {
+				var t = osmGeoJSON_obj.properties.tags;
+				var r = t['ref:ЕГРОКН'];
+				var r1 = t['ref:okn'];
+				if (!r && !r1)
+					return false;
+				return true;
+			},
+			data_object: function (osmGeoJSON_obj, участки) {
+				var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+				var Уч_geoJSON = explication.osm.γεωμετρία.Участки_точек(nd, участки);
+				var Уч = explication.osm.γεωμετρία.Участок(Уч_geoJSON);
+				var t = osmGeoJSON_obj.properties.tags;
+
+				var r = t['ref:ЕГРОКН'];
+				var r1 = t['ref:okn'];				
+				var ref = r ? r : r1;				
+				var name = t['name'];
+				var start = t['start_date'];
+				var descr = t['description'];
+				var note = t['note'];
+				var at = t['architect'];
+				var ar = t['artist_name'];
+				
+				var ОКН = {
+					No: null,					
+					Участок : Уч,
+					Код_ЕГРОКН : ref ? ref : null,
+					Название : name ? name : null,
+					Датировка: start ? start : '',
+					Архитектор: at ? at : null,
+					Автор_худ_решения: ar ? ar : null,					
+					Заметки: note ? note : null,
+					Описание: descr ? descr : '',
+					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
+					_geoJSON_Участков: Уч_geoJSON,
+					_nd: null
+				};
+				return ОКН;
+			},
+			active: function (ОКН) {
+				ОКН._tooltip = ОКН.Название;
+				ОКН._popup = explication.osm.popup(ОКН, '<b>Учётная карточка объекта культурного наследия</b></br><i>№ в таблице экспликации</i> ');
+			},
+			geoJSON_style: function (osmGeoJSON_obj, пл) {
+				var S = {};
+				S.weight = 4;				
+				return S;
+			},
+			sort: function (a, b) {
+				if (a._Участок < b._Участок) return -1;
+				if (a._Участок > b._Участок) return 1;
+				if (a.Название < b.Название) return -1;
+				if (a.Название > b.Название) return 1;
 				return 0;
 			}
 		},
