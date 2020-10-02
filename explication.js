@@ -1159,9 +1159,10 @@ explication.osm = {
 				ОКН._tooltip = ОКН.Название;
 				ОКН._popup = explication.osm.popup(ОКН, '<b>Учётная карточка объекта культурного наследия</b></br><i>№ в таблице экспликации</i> ');
 			},
-			geoJSON_style: function (osmGeoJSON_obj, пл) {
+			geoJSON_style: function (osmGeoJSON_obj, ОКН) {
 				var S = {};
-				S.weight = 4;				
+				S.weight = 1;
+				S.color = '#ff0000';
 				return S;
 			},
 			sort: function (a, b) {
@@ -1204,7 +1205,7 @@ explication.osm = {
 				урна._tooltip = '';
 				урна._popup = explication.osm.popup(урна, '<b>Учётная карточка урны</b></br><i>№ в таблице экспликации</i> ');
 			},
-			geoJSON_style: function (osmGeoJSON_obj, пл) {
+			geoJSON_style: function (osmGeoJSON_obj, урна) {
 				var S = {};
 				S.weight = 4;				
 				return S;
@@ -1254,7 +1255,7 @@ explication.osm = {
 				скамейка._tooltip = '';
 				скамейка._popup = explication.osm.popup(скамейка, '<b>Учётная карточка скамейки</b></br><i>№ в таблице экспликации</i> ');
 			},
-			geoJSON_style: function (osmGeoJSON_obj, пл) {
+			geoJSON_style: function (osmGeoJSON_obj, скамейка) {
 				var S = {};
 				S.weight = 4;				
 				return S;
@@ -1309,7 +1310,7 @@ explication.osm = {
 				дпр._tooltip = '';
 				дпр._popup = explication.osm.popup(дпр, '<b>Учётная карточка достопримечательности</b></br><i>№ в таблице экспликации</i> ');
 			},
-			geoJSON_style: function (osmGeoJSON_obj, пл) {
+			geoJSON_style: function (osmGeoJSON_obj, дпр) {
 				var S = {};
 				S.weight = 4;				
 				return S;
@@ -1372,7 +1373,7 @@ explication.osm = {
 				малая_форма._tooltip = '';
 				малая_форма._popup = explication.osm.popup(малая_форма, '<b>Учётная карточка малой формы</b></br><i>№ в таблице экспликации</i> ');
 			},
-			geoJSON_style: function (osmGeoJSON_obj, пл) {
+			geoJSON_style: function (osmGeoJSON_obj, малая_форма) {
 				var S = {};
 				S.weight = 4;				
 				return S;
