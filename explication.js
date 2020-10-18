@@ -692,9 +692,9 @@ explication.osm = {
 				else if (вт.Тип == 'Ручей')
 					S.weight = 3;
 				else if (вт.Тип == 'Сток')
-					S.weight = 2;
-				else if (вт.Тип == 'Канава')
 					S.weight = 3;
+				else if (вт.Тип == 'Канава')
+					S.weight = 2;
 				else if (вт.Тип == '?')
 					S.weight = 2;
 				else
