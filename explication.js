@@ -684,6 +684,7 @@ explication.osm = {
 			},
 			geoJSON_style: function (osmGeoJSON_obj, вт) {
 				var S = {};
+				S.color='#7EBCEB';
 				if (вт.Тип == 'Речка')
 					S.weight = 4;
 				else if (вт.Тип == 'Водопад')
