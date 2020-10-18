@@ -669,6 +669,8 @@ explication.osm = {
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
+					Датировка: start ? start : '',
+					Подтверждение_направления_течения: explication.osm.data.source_direction[t['source:direction']],
 					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
 					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
@@ -698,6 +700,10 @@ explication.osm = {
 					S.weight = 1;
 				if (osmGeoJSON_obj.properties.tags.tunnel && osmGeoJSON_obj.properties.tags.tunnel != 'no')
 					S.dashArray = '4, 4';
+				if (вт.Подтверждение_направления_течения == 'Пересекает изолинию или видимый наклон')
+					S.color = '#4444FF';
+				else if (вт.Подтверждение_направления_течения == 'Осмотр, зафиксировано направление течения')
+					S.color = '#FF00FF';					
 				return S;
 			},
 			sort: function (a, b) {
@@ -1627,7 +1633,12 @@ explication.osm = {
 			notice: "о мероприятиях",
 			wildlife: "о животном мире",
 			null: "не указан"
-		}
+		},
+		source_direction: {
+			isoline: "Пересекает изолинию или видимый наклон",
+			survey: "Осмотр, зафиксировано направление течения",			
+			null: "нет"
+		},
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
 		var html = '<p align="center">' + title + '<a href="#' + obj.No + '">' + obj.No + '</a></p><table><tr><th>Свойство</th><th>Значение</th></tr>';
