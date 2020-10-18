@@ -702,9 +702,9 @@ explication.osm = {
 				if (osmGeoJSON_obj.properties.tags.tunnel && osmGeoJSON_obj.properties.tags.tunnel != 'no')
 					S.dashArray = '4, 4';
 				if (вт.Подтверждение_направления_течения == 'Пересекает изолинию или видимый наклон')
-					S.color = '#4444FF';
+					S.color = '#729FCF';
 				else if (вт.Подтверждение_направления_течения == 'Осмотр, зафиксировано направление течения')
-					S.color = '#FF00FF';					
+					S.color = '#3DECFA';					
 				return S;
 			},
 			sort: function (a, b) {
