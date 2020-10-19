@@ -624,7 +624,7 @@ explication.osm = {
 				if (ww == 'dam')
 					return false;
 				if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
-					osmGeoJSON_obj.antPath = true;
+					osmGeoJSON_obj.properties.antPath = true;
 				return true;
 			},
 			data_object: function (osmGeoJSON_obj, участки) {
@@ -687,7 +687,7 @@ explication.osm = {
 			geoJSON_style: function (osmGeoJSON_obj, вт) {
 				var S = {};
 				S.color='#7EBCEB';
-				if (osmGeoJSON_obj.geometry.type == 'LineString' && osmGeoJSON_obj.properties.tags['waterway'])
+				if (osmGeoJSON_obj.properties.antPath)
 				{
 					S.delay = 400;
 					S.pulseColor = '#2222FF';
@@ -1464,7 +1464,7 @@ explication.osm = {
 		}
 	},
 	l_osmGeoJSON_objData: function (osmGeoJSON_obj, style, data_obj, layer_group) {
-		var l = osmGeoJSON_obj.antPath ? L.polyline.antPath(osmGeoJSON_obj, style) : L.geoJSON(osmGeoJSON_obj, style);
+		var l = osmGeoJSON_obj.properties.antPath ? L.polyline.antPath(osmGeoJSON_obj, style) : L.geoJSON(osmGeoJSON_obj, style);
 		if (data_obj._popup)
 			l.bindPopup(data_obj._popup);
 		if (data_obj._tooltip)
