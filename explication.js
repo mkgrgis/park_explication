@@ -692,7 +692,7 @@ explication.osm = {
 					S.textStyle = {repeat: true,
 								  offset: 4,
 								  attributes: {fill: '#07E1F5'}};
-					S.text = '\u25BA	   ';
+					S.text = '\u25BA	    ';
 				}
 				if (вт.Тип == 'Речка')
 					S.weight = 4;
