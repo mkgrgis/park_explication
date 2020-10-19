@@ -624,7 +624,7 @@ explication.osm = {
 				if (ww == 'dam')
 					return false;
 				if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
-					osmGeoJSON_obj.properties.antPath = true;
+					osmGeoJSON_obj.properties.showDirection = true;
 				return true;
 			},
 			data_object: function (osmGeoJSON_obj, участки) {
@@ -687,13 +687,12 @@ explication.osm = {
 			geoJSON_style: function (osmGeoJSON_obj, вт) {
 				var S = {};
 				S.color='#7EBCEB';
-				if (osmGeoJSON_obj.properties.antPath)
+				if (osmGeoJSON_obj.properties.showDirection)
 				{
-					S.delay = 400;
-					S.pulseColor = '#2222FF';
-					S.paused = false;
-					S.reverse = false;					
-					S.dashArray = [ 5, 15 ];
+					S.textStyle = {repeat: true,
+								  offset: 4,
+								  attributes: {fill: '#07E1F5'}};
+					S.text = '\u25BA	   ';
 				}
 				if (вт.Тип == 'Речка')
 					S.weight = 4;
@@ -1463,7 +1462,9 @@ explication.osm = {
 		}
 	},
 	l_osmGeoJSON_objData: function (osmGeoJSON_obj, style, data_obj, layer_group) {
-		var l = osmGeoJSON_obj.properties.antPath ? L.polyline.antPath(osmGeoJSON_obj, style) : L.geoJSON(osmGeoJSON_obj, style);
+		var l = L.geoJSON(osmGeoJSON_obj, style);
+		if (osmGeoJSON_obj.properties.showDirection)
+	   		l.setText(style.text, style.textStyle);
 		if (data_obj._popup)
 			l.bindPopup(data_obj._popup);
 		if (data_obj._tooltip)
