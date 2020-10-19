@@ -623,7 +623,7 @@ explication.osm = {
 					return false;
 				if (ww == 'dam')
 					return false;
-				if (osmGeoJSON_obj.type == 'LineString' && ww)
+				if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
 					osmGeoJSON_obj.antPath = true;
 				return true;
 			},
@@ -687,7 +687,7 @@ explication.osm = {
 			geoJSON_style: function (osmGeoJSON_obj, вт) {
 				var S = {};
 				S.color='#7EBCEB';
-				if (osmGeoJSON_obj.type == 'LineString' && osmGeoJSON_obj.properties.tags['waterway'])
+				if (osmGeoJSON_obj.geometry.type == 'LineString' && osmGeoJSON_obj.properties.tags['waterway'])
 				{
 					S.delay = 400;
 					S.pulseColor = '#2222FF';
