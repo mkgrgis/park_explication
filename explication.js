@@ -1463,7 +1463,7 @@ explication.osm = {
 		}
 	},
 	l_osmGeoJSON_objData: function (osmGeoJSON_obj, style, data_obj, layer_group) {
-		var l = osmGeoJSON_obj.properties.antPath ? L.polyline.antPath(osmGeoJSON_obj, style) : L.geoJSON(osmGeoJSON_obj, style);
+		var l = osmGeoJSON_obj.properties.antPath ? L.Polyline.antPath(osmGeoJSON_obj, style) : L.geoJSON(osmGeoJSON_obj, style);
 		if (data_obj._popup)
 			l.bindPopup(data_obj._popup);
 		if (data_obj._tooltip)
