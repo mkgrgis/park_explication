@@ -692,8 +692,7 @@ explication.osm = {
 					S.delay = 400;
 					S.pulseColor = '#2222FF';
 					S.paused = false;
-					S.reverse = false;
-					S.hardwareAccelerated = true;
+					S.reverse = false;					
 					S.dashArray = [ 5, 15 ];
 				}
 				if (вт.Тип == 'Речка')
