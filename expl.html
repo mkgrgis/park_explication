@@ -213,15 +213,18 @@
 		}
 		
 		function getJsonFromUrl(url) {
-  			if(!url) url = location.href;
-  			var question = url.indexOf("?");
-  			var hash = url.indexOf("#");
-  			if(hash==-1 && question==-1)
+  			if(!url)
+				url = location.href;
+  			var q = url.indexOf("?");
+  			var h = url.indexOf("#");
+  			if(h==-1 && q==-1)
 				return {};
-  			if(hash==-1)
-				hash = url.length;
-  			var query = question==-1 || hash==question+1 ? url.substring(hash) : 
-  			url.substring(question+1,hash);
+  			if(h==-1)
+				h = url.length;
+			if (q==-1)
+				var query = substring(h, url.length);
+			else
+				var query = substring(q, url.length);
   			var result = {};
   			query.split("&").forEach(function(part) {
     				if(!part)
