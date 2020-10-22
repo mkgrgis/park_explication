@@ -139,7 +139,7 @@
 		var filter = null;
 		// Срабатывает при изменении адреса
 		function hashChange () {
-		var p = getJsonFromUrl(window.location.hash);		
+		var p = getJsonFromUrl();		
 		if (p.osmrel)
 			start_expl_process(p.osmrel);
 		}
@@ -216,8 +216,10 @@
   			if(!url) url = location.href;
   			var question = url.indexOf("?");
   			var hash = url.indexOf("#");
-  			if(hash==-1 && question==-1) return {};
-  			if(hash==-1) hash = url.length;
+  			if(hash==-1 && question==-1)
+				return {};
+  			if(hash==-1)
+				hash = url.length;
   			var query = question==-1 || hash==question+1 ? url.substring(hash) : 
   			url.substring(question+1,hash);
   			var result = {};
