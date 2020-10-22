@@ -222,9 +222,9 @@
   			if(h==-1)
 				h = url.length;
 			if (q==-1)
-				var query = url.substring(h, url.length);
+				var query = url.substring(h+1, url.length);
 			else
-				var query = url.substring(q, url.length);
+				var query = url.substring(q+1, url.length);
   			var result = {};
   			query.split("&").forEach(function(part) {
     				if(!part)
