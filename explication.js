@@ -529,7 +529,7 @@ explication.osm = {
 				if (!osmGeoJSON_obj.properties.tags['start_date'])
 					continue;
 				var inter_d = osmGeoJSON_obj.properties.tags['start_date'].split('..');
-				var mind_0 = inter_d[0].split('.');
+				var mind_0 = inter_d[0].split('-');
 				var min_date = new Number(mind_0[mind_0.length - 1]);
 				if (inter_d[1]) {
 					var maxd_0 = inter_d[1].split('.');
