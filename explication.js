@@ -528,18 +528,24 @@ explication.osm = {
 			if (hronofiltr) { // Фильтрация по дате
 				if (!osmGeoJSON_obj.properties.tags['start_date'])
 					continue;
-				var inter_d = osmGeoJSON_obj.properties.tags['start_date'].split('..');
-				var mind_0 = inter_d[0].split('-');
-				var min_date = new Number(mind_0[mind_0.length - 1]);
-				if (inter_d[1]) {
-					var maxd_0 = inter_d[1].split('.');
-					var max_date = new Number(maxd_0[maxd_0.length - 1]);
+				var s0 = osmGeoJSON_obj.properties.tags['start_date'];
+				if (s0.indexOf('x') != -1 || s0.indexOf('s') != -1)
+				{
+					var max_date = s0.replace('x', '9').replace('s', '9');
 				} else {
-					var max_date = min_date;
+					var inter_d = s0.split('..');
+					var d1 = inter_d[0].split('-');
+					var min_date = new Number(d1[0]);
+					if (inter_d[1]) {
+						var maxd_0 = inter_d[1].split('-');
+						var max_date = new Number(maxd_0[0]);
+					} else {
+						var max_date = min_date;
+					}
 				}
-				//console.log(min_date + " " + max_date + " " + osmGeoJSON_obj.properties.tags['start_date']);
 				if (max_date > hronofiltr)
 					continue;
+				console.log(min_date + " " + max_date + " " + osmGeoJSON_obj.properties.tags['start_date']);
 			}
 
 			var nd = explication.γεωμετρία.geo_nodes(osmGeoJSON_obj);
