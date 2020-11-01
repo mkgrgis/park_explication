@@ -55,7 +55,7 @@ explication.tabulation = function (table_obj) {
 };
 
 // По образу главного отношения заполняет карту нужного типа в элементе div
-explication.map = function (div, geoJsonGeneral, map_prov) {
+explication.map = function (div, geoJsonGeneral, map_prov, map_params) {
 	var cen = geoJsonGeneral.features[0].geometry.coordinates[0][0];
 	var md = new mapDiv(
 		div,
@@ -67,7 +67,8 @@ explication.map = function (div, geoJsonGeneral, map_prov) {
 			min: 8,
 			max: 20
 		},
-		true
+		true,
+		map_params
 	);
 	var mrg = explication.main_rel(geoJsonGeneral);
 	var n = mrg.properties.tags.name;
@@ -121,7 +122,10 @@ explication.main_rel = function (geoJsonGeneral) {
 * @param {int} maxZ - максимальный условный масштаб.
 * @param {bool} controls - включать ли преключатель своёв.
 */
-function mapDiv(div, centerGeo, provider, providerName, Z, controls) {
+function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params) {
+	function L_TileSource (prov) {
+		return (typeof prov === 'string') ? L.tileLayer.provider(prov) : prov;		
+	}
 	this.div = div;
 	this.map = L.map(div.getAttribute('id'), { keyboard: false });
 	if (!isNaN(centerGeo[0]) && !isNaN(centerGeo[1]) && !isNaN(Z.ini))
@@ -130,25 +134,23 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls) {
 		this.map.setMinZoom(Z.min);
 		this.map.setMaxZoom(Z.max);
 	}
-	var a = Array.isArray(provider);
-	var prov0 = (a ? provider[0] : provider);
-	this.ini_layer = (typeof prov0 === 'string') ? L.tileLayer.provider(prov0) : prov0;
-	this.ini_layer.addTo(this.map);
+	var TileLayers = [];
+	if (!Array.isArray(provider)){
+		TileLayers.add(L_TileSource(provider));
+	} else {
+		for (var i in provider)
+			TileLayers.push(L_TileSource(provider[i]));
+	}
+  	this.ini_layer = TileLayers[map_params.tile ?? 0] ?? TileLayers[0];
 	if (controls) {
 		this.Control = new L.Control.Layers();
-		var n0 = providerName ? (Array.isArray(providerName) ? providerName[0] : providerName) : ((typeof prov0 === 'string') ? prov0 : '?');
-		this.Control.addBaseLayer(this.ini_layer, n0);
-		if (a) {
-			for (var i in provider) {
-				if (i != 0) {
-					var prov = provider[i];
-					var provStr = providerName[i] ? providerName[i] : ((typeof prov === 'string') ? prov : '?');
-					this.Control.addBaseLayer((typeof prov === 'string') ? L.tileLayer.provider(prov) : prov, provStr);
-				}
-			}
+		for (var i in TileLayers){
+			var provStr = providerName[i] ?? ((typeof prov === 'string') ? prov : '?');
+			this.Control.addBaseLayer(TileLayers[i], provStr);
 		}
 		this.map.addControl(this.Control);
 	}
+	this.ini_layer.addTo(this.map);
 }
 
 // БЛОК ГЕОМЕТРИИ
@@ -509,8 +511,9 @@ geoAlb_lib.osmRelationGeoJson = function (xml, rel_id) {
 };
 
 explication.osm = {
-	function_general: function (geoJsonGeneral, участки, L_mapLayer, L_mapNames, hronofiltr) {
+	function_general: function (geoJsonGeneral, участки, L_mapLayer, L_mapNames, map_params) {
 		log('Получены исходные данные ');
+		var hronofiltr = map_params.start_date ?? null;
 		var main_rel = explication.main_rel(geoJsonGeneral);
 		document.getElementById('obj_title').innerText = main_rel.properties.tags.name;
 
@@ -522,7 +525,7 @@ explication.osm = {
 
 		for (var i in geoJsonGeneral.features) {
 			var osmGeoJSON_obj = geoJsonGeneral.features[i];
-			if (hronofiltr) {
+			if (hronofiltr) { // Фильтрация по дате
 				if (!osmGeoJSON_obj.properties.tags['start_date'])
 					continue;
 				var inter_d = osmGeoJSON_obj.properties.tags['start_date'].split('..');
@@ -553,7 +556,7 @@ explication.osm = {
 					obj.data.push(data_obj);
 				}
 			}
-		}
+		} 
 
 		// Сортировка и нумерация всех массивов для экспликации
 		function No_(data_obj) {
@@ -599,12 +602,16 @@ explication.osm = {
 			{
 				tileLayers: L_mapLayer,
 				Names: L_mapNames
-			}
+			},
+			map_params
 		);
 		// Вывод всех слоёв на карту по группам
 		for (var oi in explication.osm.object) {
 			var obj = explication.osm.object[oi];
-			md.Control.addOverlay(new L.LayerGroup(obj.lGr), oi);
+			var ogroup = new L.LayerGroup(obj.lGr);
+			md.Control.addOverlay(ogroup, oi);
+				if (map_params.obj && map_params.obj == oi)
+				ogroup.addTo(md.map);				
 		}
 		md.Control.expand();
 
@@ -692,7 +699,7 @@ explication.osm = {
 					S.textStyle = {repeat: true,
 								  offset: 4,
 								  attributes: {fill: '#07E1F5'}};
-					S.text = '\u25BA	    ';
+					S.text = '\u25BA		';
 				}
 				if (вт.Тип == 'Речка')
 					S.weight = 4;

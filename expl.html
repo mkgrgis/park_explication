@@ -191,8 +191,8 @@
 						{ maxZoom: 18, attribution: '1942,&copy;<a href="http://retromap.ru/">вермахт</a>', id: 'Retromap1942.aero' }),
 					L.tileLayer('http://www.retromap.ru/tiles/r/5/051952/Z{z}/{y}/{x}.jpg',
 						{ maxZoom: 18, attribution: '1952, &copy; </a>', id: '1952.geo' }),*/
-					gLayer('y'),
-					gLayer('p')
+					gLayer('p'),
+					gLayer('y')
 				],
 				[						 
 					'Снимки от Esri', 
@@ -208,7 +208,7 @@
 					'Карта google', 
 					'Гибрид google',
 				],
-				filter
+                getJsonFromUrl()
 			);
 		}
 		
