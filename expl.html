@@ -192,7 +192,9 @@
 					L.tileLayer('http://www.retromap.ru/tiles/r/5/051952/Z{z}/{y}/{x}.jpg',
 						{ maxZoom: 18, attribution: '1952, &copy; </a>', id: '1952.geo' }),*/
 					gLayer('p'),
-					gLayer('y')
+					gLayer('y'),
+					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}',
+						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero' })
 				],
 				[						 
 					'Снимки от Esri', 
@@ -207,6 +209,7 @@
 					'Москва 1952 г.',*/
 					'Карта google', 
 					'Гибрид google',
+					'Аэроротофото Павловского парка 2020 г.'
 				],
                 getJsonFromUrl()
 			);
