@@ -562,6 +562,9 @@ explication.osm = {
 					obj.data.push(data_obj);
 				}
 			}
+		}
+				if (main_rel.properties.id == 5851116){
+			explication.osm.привязка_указателей(explication.osm.object);
 		} 
 
 		// Сортировка и нумерация всех массивов для экспликации
@@ -621,9 +624,9 @@ explication.osm = {
 		}
 		md.Control.expand();
 
-		/*
-		if (main_rel.properties.id == 5851116)
-			explication.osm.сверка_маточных_площадок(маточные_площадки); //*/
+		if (main_rel.properties.id == 5851116){
+			explication.osm.сверка_маточных_площадок(explication.osm.object["Маточная_площадка"]);
+			}
 	}, // Конец основной алгоритмической ветви
 	object: {
 		Водоток: {
@@ -917,9 +920,10 @@ explication.osm = {
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
-					Вырублен: t['was:taxon'] ? '<span style="color: red"><b>Да</b></span>' : 'Нет',
+					Вырублен: t['was:taxon'] ? '<span style="color: red"><b>Да</b></span>' : null,
 					Нужно_доработать: fm ? '<span style="color: red">' + fm + '</span>' : null,
 					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					Табличка: null,
 					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_Код: sortNo,
 					_geoJSON_Участка: Уч_geoJSON,
@@ -937,8 +941,8 @@ explication.osm = {
 					//var УчМоскПарки = "<a href='http://moscowparks.narod.ru/piptsar/birdend/" + маточная_площадка._Участок + "/'>Моск.Парки</a>";
 					var УчOSM = "<a href='https://www.openstreetmap.org/" + маточная_площадка._geoJSON_Участка.id + "'>osm</a>";
 					// маточная_площадка.Участок += ' <small>' + УчМоскПарки + " " + УчOSM + "</small>";
-					//   маточная_площадка.Номер_площадки = маточная_площадка.На_Моск_Парках.replace('площадка №', '');
-					//   delete маточная_площадка.На_Моск_Парках;
+					//	маточная_площадка.Номер_площадки = маточная_площадка.На_Моск_Парках.replace('площадка №', '');
+					//	delete маточная_площадка.На_Моск_Парках;
 				}
 			},
 			geoJSON_style: function (osmGeoJSON_obj, маточная_площадка) {
@@ -1121,6 +1125,7 @@ explication.osm = {
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
 					Объект_OSM: explication.osm.href(osmGeoJSON_obj),
+					Площадка: null,
 					_Участок: Уч ? (Уч.length == 1 ? ('0' + Уч) : Уч) : null,
 					_geoJSON_Участков: Уч_geoJSON,
 					_nd: null
@@ -1477,7 +1482,7 @@ explication.osm = {
 	l_osmGeoJSON_objData: function (osmGeoJSON_obj, style, data_obj, layer_group) {
 		var l = L.geoJSON(osmGeoJSON_obj, style);
 		if (osmGeoJSON_obj.properties.showDirection)
-	   		l.setText(style.text, style.textStyle);
+				l.setText(style.text, style.textStyle);
 		if (data_obj._popup)
 			l.bindPopup(data_obj._popup);
 		if (data_obj._tooltip)
@@ -1737,13 +1742,13 @@ explication.osm = {
 					return Уч_geoJSON.properties.tags.name;
 				for (var j in Уч_geoJSON) {
 					Уч += ' ' + Уч_geoJSON[j].properties.tags.name;
-   				}
+					}
 				return Уч.slice(1);
 		}
 	}, // γεωμετρία
 	сверка_маточных_площадок: function (маточные_площадки) {
 		var xhr = new XMLHttpRequest();
-		xhr.url = 'https://raw.githubusercontent.com/mkgrgis/mkgrgis/master/Экспликации/МаточныеПлощадкиБД.txt';
+		xhr.url = 'https://raw.githubusercontent.com/mkgrgis/park_explication/master/МаточныеПлощадкиБД.txt';
 		xhr.open('GET', xhr.url, true);
 		xhr.маточные_площадки = маточные_площадки;
 		xhr.send();
@@ -1789,5 +1794,48 @@ explication.osm = {
 				console.table(diff);
 			}
 		}
-	}
+	},
+	привязка_указателей: function(osm_tables){
+		function привязка(мп, со){
+			if (мп.Табличка)
+	   			console.log(мп);
+			мп.Табличка = со.Объект_OSM;
+			if (со.Площадка)
+				console.log(со);
+			со.Площадка = мп.Объект_OSM;
+		}
+		var мп = osm_tables["МаточнаяПлощадка"].data;
+		var со = osm_tables["Справочные_объекты"].data;
+		var index_мп = {};
+		for (var i in мп){
+			var u = мп[i].Участок;
+			if (!index_мп[u])
+				index_мп[u] = [];
+			index_мп[u].push(мп[i]);
+		}
+		var index_со = {};
+		for (var i in со){
+			var u = со[i].Участок;
+			if (!index_со[u])
+				index_со[u] = [];
+			index_со[u].push(со[i]);
+		}
+		for (var i in мп){
+			var u = мп[i].Участок;
+			if (!index_со[u])
+				continue;
+			var в = мп[i].Вид;
+			var р = мп[i].Род;
+			var s = мп[i].Spieces;
+			var g = мп[i].Genus;
+			for (var j in index_со[u]){
+				var со_ = index_со[u][j];
+				var n = со_.Название;
+				if(!n || (!в && !р && !g && !s))
+					continue;
+				if (n.indexOf(в) != -1 && n.indexOf(р) != -1 && n.indexOf(g) != -1 && n.indexOf(s) != -1)
+					привязка(мп[i], со_);
+			}
+		}
+	} // f
 }; // 
