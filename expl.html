@@ -5,6 +5,12 @@
 	<title>Полная экспликация парка</title>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<link rel="stylesheet" href="js/leaflet.css" />
+
+	 <link rel="stylesheet" type="text/css" href="DataTables/datatables.css"/>
+
+	 <!--script type="text/javascript" src="js/jquery.js"></script-->
+	 <script type="text/javascript" src="DataTables/datatables.js"></script>
+
 	<style>
 		table[role=expl] {
 			border-collapse: collapse;
@@ -46,72 +52,77 @@
 			background: #b0e6b0;
 			/* Цвет фона */
 		}
+		div.dataTables_wrapper {
+		width: 98%;
+		margin: 0 auto;
+		}
+		div.dataTables_wrapper {
+		margin-bottom: 3em;
+		}
 	</style>
 	<script src="js/leaflet.js" type="text/javascript"></script>
 	<script src="js/osmtogeojson.js" type="text/javascript"></script>
 	<script src="js/leaflet-providers.js" type="text/javascript"></script>
 	<script src="js/leaflet.textpath.js" type="text/javascript"></script>
 	<script src="explication.js" type="text/javascript"></script>
+
 </head>
 
 <body>
-	<p id="status">Экспликация составляется, ожидаемое время до 15 секунд</p>
-	<p></p>
-	<h3 id="obj_title"></h3>
-	<h3>Экспликации парковых объектов</h3>
-	<p id="filter0">Граница датировок - не позднее <span id="filter"></span></p>
-	<!--p>На карте обозначены</br>Цветом линии тип листвы</br>Заливкой сезонность</br>Толщиной контура - древесная или
-		кустарниковая растительность</p -->
+	<p id="status">Экспликация составляется, ожидаемое время до 15 секунд</br></p>
+	<h1 id="obj_title"></h1>
+	<h2>Экспликации парковых объектов</h2>
+	<p id="filter0" style="display : none">Граница датировок - не позднее <span id="filter"></span></p>
 	<div id="map" style="height: 700px; width:98%"></div>
 	<p></p>
-	<p>Экспликация маточных площадок</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="МаточнаяПлощадка"></div>
+	<h3>Маточные площадки</h3>
+	<div>
+		<table class="dataTable" id="Маточные_площадки"></table>
 	</div>
-	<p>Экспликация справочных объектов</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Справочные_объекты"></div>
+	<h3>Справочные объекты</h3>	
+	<div>
+		<table class="dataTable" id="Справочные_объекты"></table>
 	</div>
-	<p>Экспликация водотоков</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Водоток"></div>
+	<h3>Водотоки</h3>
+	<div>
+		<table class="dataTable" id="Водотоки"></table>
 	</div>
-	<p>Экспликация дорожек</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Дорожка"></div>
+	<h3>Дорожки</h3>	
+	<div>
+		<table class="dataTable" id="Дорожно_тропиночая_сеть"></table>
 	</div>
-	<p>Экспликация обсадок</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Обсадка"></div>
-	</div>	
-	<p>Экспликация специальных площадок</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Площадки"></div>
+	<h3>Обсадки</h3>	
+	<div>
+		<table class="dataTable" id="Обсадки"></table>
 	</div>
-	<p>Экспликация урн</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Урны"></div>
+	<h3>Специализированне площадки</h3>
+	<div>
+		<table class="dataTable" id="Площадки"></table>
 	</div>
-	<p>Экспликация скамеек</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Скамейки"></div>
+	<h3>Урны</h3>	
+	<div>
+		<table class="dataTable" id="Урны"></table>
 	</div>
-	<p>Экспликация достопримечательностей</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Достопримечательности"></div>
+	<h3>Скамейки</h3>	
+	<div>
+		<table class="dataTable" id="Скамейки"></table>
 	</div>
-	<p>Экспликация малых форм</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Малые_формы"></div>
+	<h3>Достопримечательности</h3>
+	<div>
+		<table class="dataTable" id="Достопримечательности"></table>
+	 </div>
+	<h3>Малые формы</h3>
+	<div>
+		<table class="dataTable" id="Малые_формы"></table>
 	</div>
-	<p>Экспликация объектов культурного наследия</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Объекты_культурного_наследия"></div>
-	</div>
-	<p>Экспликация объектов с кодом фотосайта-путеводителя Московские Парки</p>
-	<div style="margin: auto; overflow: auto; height: 450px">
-		<div id="Ref_Sirius_msk"></div>
-	</div>
+	<h3>Объекты культурного наследия</h3>
+	<div>
+		<table class="dataTable" id="Объекты_культурного_наследия"></table>
+	 </div>
+	<h3>Объекты фотосайта</h3>
+	<div>
+		<table class="dataTable" id="Ref_Sirius_msk"></table>
+	 </div>
 	<p id="No"></p>
 	<p id="note"></p>
 	<script language="javascript">
@@ -125,7 +136,7 @@
 			console.log((this.tn - this.t0) / 1000 + (this.tn0 ? ('  (' + ((this.tn - this.tn0) / 1000) + ')') : ''));
 		}
 
-		function start_expl_process (osm_relation_id) {		
+		function start_expl_process (osm_relation_id) {
 			var t0 = new Date().getTime();
 			log('Данные по контуру Дендропарка запрошены ', t0);
 			explication.get_data(osm_relation_id, subAreaFilter);
@@ -135,27 +146,16 @@
 			hashChange();
 		});
 		hashChange();
-		
+
 		var filter = null;
 		// Срабатывает при изменении адреса
 		function hashChange () {
-/*
-var hash = window.location.hash.substring(1);
-	var params = {}
-	hash.split('&').map(hk => { 
-	  let temp = hk.split('='); 
-		params[temp[0]] = temp[1] 
-	});
-	console.log(params); //Here are the params to use
-	*/
-
-
-		var el = decodeURI(location.hash).replace('#', '').split(';');
-		if (el[0])
-			start_expl_process(el[0]);
+		var p = getJsonFromUrl();
+		if (p.osmrel)
+			start_expl_process(p.osmrel);
 		}
 
-		function gLayer(l) {	
+		function gLayer(l) {
 			return L.tileLayer(
 				'http://{s}.google.com/vt/lyrs=' + l + '&x={x}&y={y}&z={z}',
 				{
@@ -202,27 +202,247 @@ var hash = window.location.hash.substring(1);
 						{ maxZoom: 18, attribution: '1942,&copy;<a href="http://retromap.ru/">вермахт</a>', id: 'Retromap1942.aero' }),
 					L.tileLayer('http://www.retromap.ru/tiles/r/5/051952/Z{z}/{y}/{x}.jpg',
 						{ maxZoom: 18, attribution: '1952, &copy; </a>', id: '1952.geo' }),*/
+					gLayer('p'),
 					gLayer('y'),
-					gLayer('p')
+					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}',
+						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_norm' }),
+					L.tileLayer('https://tiles.openaerialmap.org/5fac2fcd3729bf000552677c/0/5fac2fcd3729bf000552677d/{z}/{x}/{y}',
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_or' })
 				],
-				[						 
-					'Снимки от Esri', 
-					'Топографическая карта', 
+				[
+					'Снимки от Esri',
+					'Топографическая карта',
 					'ОСМ/Мапник',
 					'ОСМ/Немецкая карта',
 					'ОСМ/Французская карта',
-					'Спутник Google',  
+					'Спутник Google',
 					'MapBox',
-					'Аэрофото 1942 г.', 
-				/*	'Аэрофото 1942 г.', 
+					'Аэрофото 1942 г.',
+				/*	'Аэрофото 1942 г.',
 					'Москва 1952 г.',*/
-					'Карта google', 
+					'Карта google',
 					'Гибрид google',
+					'Нормализ. аэроротофото Павловского парка 2020 г.',
+					'Оригинальное аэроротофото Павловского парка 2020 г.'
 				],
-				filter
+				getJsonFromUrl(),
+				dataOutput.explicationDataProcess
 			);
-		}		
+		}
+
+		dataOutput = {
+			dataColumns : function (sample){
+				 var ac = [];
+				 for (var a in sample){
+					 if (a.indexOf('_') == -1)
+							ac.push({ data : a, title : a });
+				 }
+				 return ac;
+			},
+			exportJSON : function (exportObj, exportName){
+				 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+				 var specialNode = document.createElement('a');
+				 specialNode.setAttribute("href",	  dataStr);
+				 specialNode.setAttribute("download", exportName + ".json");
+				 document.body.appendChild(specialNode); // required for firefox
+				 specialNode.click();
+				 specialNode.remove();
+			},
+			exportSQL : function (exportObj, tableName, exportName){
+				 var SQL = "";
+				 for (var i in exportObj){
+					var ins = "INSERT INTO " + tableName + " ("
+					for (var a in exportObj[i])
+							ins += "\"" + a + "\", ";
+					ins.slice(0, -2);
+					ins += ") VALUES (";
+					for (var a in exportObj[i]){
+							var v = exportObj[i][a];
+							if (v == null)
+								 ins += "NULL, ";
+							else
+								 ins += "'" + v + "', ";
+					}
+					ins.slice(0, -2);
+					ins += ");\n";
+						SQL += ins;
+				 }
+
+				 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(SQL);
+				 var specialNode = document.createElement('a');
+				 specialNode.setAttribute("href",	  dataStr);
+				 specialNode.setAttribute("download", exportName + ".sql");
+				 document.body.appendChild(specialNode); // required for firefox
+				 specialNode.click();
+				 specialNode.remove();
+			},
+			filterExportData: function(source){
+				var res = [];
+				for (var i in source){
+					var ex_a = {};
+					for (var j in source[i]){
+						 if (j.indexOf('_') == -1)
+							 ex_a[j] = source[i][j];
+					}
+					res.push(ex_a);
+				}
+				return res;
+			},
+			explicationDataProcess : function (expl_data){
+				// Заполнение всех табоиц
+				for (var oi in expl_data) {
+					var data_obj = expl_data[oi].data;
+					var nd = document.getElementById(oi);
+						if (data_obj.length == 0){
+							nd.parentNode.style.display = 'none';
+						} else {
+							dataOutput.tabulation(nd, data_obj, oi);
+							console.log(oi);
+							var t = $(nd).DataTable( {
+	    						buttons: [
+                                    'copy', 'excel', 'pdf',
+                                    'selectAll',
+                					'selectCells',
+				                	'selectColumns',
+                					'selectNone',
+				                	'selectRows',
+				                	'selected',
+				                	'selectedSingle'
+                                ],
+                				"scrollY": 300,
+                				"scrollX": true,
+                				language: dataTablesRu,
+				                "dom": '<"wrapper"flipt>'
+				                }
+                			);
+                			new $.fn.dataTable.Buttons( t, {
+                                buttons: [
+                                            'copy', 'excel', 'pdf'
+                                         ]
+                                } );
+						}
+				 }/*
+			var source = data['Маточные площадки'].data;
+			var export_obj = dataOutput.filterExportData(source);
+			dataOutput.exportSQL(export_obj, '"Маточные площадки"', 'Маточные площадки');
+			$('table.dataTable').DataTable( {
+				"scrollY": 300,
+				"scrollX": true,
+				//data: export_obj,
+				//"columns": dataOutput.dataColumns(export_obj[0]),
+				language: dataTablesRu,
+				buttons: [
+					'pdf',
+					'selectAll',
+					'selectCells',
+					'selectColumns',
+					'selectNone',
+					'selectRows',
+					'selected',
+					'selectedSingle'
+				],
+				"dom": '<"wrapper"flipt>'
+				}
+			);*/
+			},
+			// Формирование экспликационной таблицы по массиву
+			tabulation : function (tbl, table_obj, title) {
+				tbl.setAttribute('role', 'expl');
+				var thh = document.createElement('thead');
+				var tr = document.createElement('tr');
+				tr.setAttribute('role', 'expl');
+				for (var j in table_obj[0]) {
+					if (j.indexOf('_') == 0)
+						continue;
+					var th = document.createElement('th');
+					th.setAttribute('role', 'expl');
+					th.innerHTML = j.replace('_', ' ');
+					tr.appendChild(th);
+				}
+				thh.appendChild(tr);
+				tbl.appendChild(thh);
+
+				var tbd = document.createElement('tbody');
+				for (var i_ in table_obj) {
+					var tobji = table_obj[i_];
+					var tr = document.createElement('tr');
+					tr.setAttribute('role', 'expl');
+					for (var j in tobji) {
+						if (j.indexOf('_') == 0)
+							continue;
+						var td = document.createElement('td');
+						td.setAttribute('role', 'expl');
+						td.innerHTML = tobji[j];
+						tr.appendChild(td);
+					}
+				tbd.appendChild(tr);
+				}
+				tbl.appendChild(tbd);
+			}
+		};
+
+		function getJsonFromUrl(url) {
+			if(!url)
+				url = location.href;
+			var q = url.indexOf("?");
+			var h = url.indexOf("#");
+			if(h==-1 && q==-1)
+				return {};
+			if(h==-1)
+				h = url.length;
+			if (q==-1)
+				var query = url.substring(h+1, url.length);
+			else
+				var query = url.substring(q+1, url.length);
+			var result = {};
+			query.split("&").forEach(function(part) {
+	 				if(!part)
+					return;
+	 				part = part.split("+").join(" "); // replace every + with space, regexp-free version
+	 				var eq = part.indexOf("=");
+	 				var key = eq>-1 ? part.substr(0,eq) : part;
+		 			var val = eq>-1 ? decodeURIComponent(part.substr(eq+1)) : "";
+	 				var from = key.indexOf("[");
+	 				if(from==-1)
+					result[decodeURIComponent(key)] = val;
+		 			else {
+							var to = key.indexOf("]",from);
+					var index = decodeURIComponent(key.substring(from+1,to));
+					key = decodeURIComponent(key.substring(0,from));
+					if(!result[key])
+						result[key] = [];
+					if(!index)
+						result[key].push(val);
+					else
+						result[key][index] = val;
+					}
+				});
+			return result;
+		}
+		var dataTablesRu = {
+			"decimal":		  ",",
+			"emptyTable":	  "Таблица пуста",
+			"info":			  "Показано от _START_ до _END_ из _TOTAL_ записей",
+			"infoEmpty":		"Показано от 0 до 0 из 0 записей",
+			"infoFiltered":	"(отобрано из _MAX_ записей)",
+			"infoPostFix":	 "",
+			"thousands":		"'",
+			"lengthMenu":	  "Показано _MENU_ записей",
+			"loadingRecords": "Загружается...",
+			"processing":	  "Обрабатывается...",
+			"search":			"Найти:",
+			"zeroRecords":	 "Подходящих записей нет",
+			"paginate": {
+			  "first":		"Первая",
+			  "last":		 "Последняя",
+			  "next":		 "Следующая",
+			  "previous":	"Переыдущая"
+			},
+			"aria": {
+			  "sortAscending":  ": вызывает сортировку по возрастанию",
+			  "sortDescending": ": вызывает сортировку по убыванию"
+			}
+		};
 	</script>
 </body>
-
 </html>
