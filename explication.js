@@ -667,7 +667,7 @@ explication.osm = {
 					Год_учёта: ref_start ? ref_start : '',
 					Номер_площадки: ref,
 					Подтверждение_вида: stx,
-					Род: bio_rus[0].genus ? bio_rus[0].genus : '',
+					Род: bio_rus[0].genus ?? '',
 					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
 					Genus: bio_lat[0].genus ? bio_lat[0].genus : '',
 					Spieces: bio_lat[0].spieces ? (Array.isArray(bio_lat[0].spieces) ? bio_lat[0].spieces.join(' ') : bio_lat[0].spieces) : '',
@@ -1095,12 +1095,30 @@ explication.osm = {
 				var name = t['name'];
 				var start = t['start_date'];
 				var descr = t['description'];
+				var bio_lat = explication.osm.biolog_format({
+					genus: t['genus'],
+					spieces: t['spieces'],
+					taxon: t['taxon'] ? t['taxon'] : t['was:taxon']
+				});
+				var bio_rus = explication.osm.biolog_format({
+					genus: t['genus:ru'],
+					spieces: t['spieces:ru'],
+					taxon: t['taxon:ru'] ? t['taxon:ru'] : t['was:taxon:ru']
+				});
 				var справочный_объект = {
 					No: null,
 					Тип_справки: explication.osm.data.information[i],
 					Тип_информации: (i == 'board' && bt) ? explication.osm.data.board_type[bt] : null,
 					Участок : Уч,
 					Название : name ? name : null,
+					Род: bio_rus[0].genus ?? '',
+					Вид: bio_rus[0].spieces ? (Array.isArray(bio_rus[0].spieces) ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : '',
+					Genus: bio_lat[0].genus ? bio_lat[0].genus : '',
+					Spieces: bio_lat[0].spieces ? (Array.isArray(bio_lat[0].spieces) ? bio_lat[0].spieces.join(' ') : bio_lat[0].spieces) : '',
+					Род2: bio_rus[1] ? bio_rus[1].genus : '',
+					Вид2: bio_rus[1] ? bio_rus[1].spieces.join(' ') : '',
+					Genus2: bio_lat[1] ? bio_lat[1].genus : '',
+					Spieces2: bio_lat[1] ? bio_lat[1].spieces.join(' ') : '',
 					Заметки: note ? note : null,
 					Датировка: start ? start : '',
 					Описание: descr ? descr : '',
@@ -1810,12 +1828,38 @@ explication.osm = {
 			var g = мп[i].Genus;
 			for (var j in index_со[u]){
 				var со_ = index_со[u][j];
+				var в_ = со_.Вид;
+				var р_ = со_.Род;
+				var s_ = со_.Spieces;
+				var g_ = со_.Genus;
 				var n = со_.Название;
 				if(!n || (!в && !р && !g && !s))
 					continue;
-				if (n.indexOf(в) != -1 && n.indexOf(р) != -1 && n.indexOf(g) != -1 && n.indexOf(s) != -1)
+				if ((n.indexOf(в) != -1 && n.indexOf(р) != -1 && n.indexOf(g) != -1 && n.indexOf(s) != -1) ||
+					(в==в_ && р==р_) || (s==s_ && g==g_))
 					привязка(мп[i], со_);
 			}
+		}
+
+		for (var i in мп){
+			var o = мп[i];
+			var п = o.Подтверждение_вида;
+			if (п != "Щит с описанием")
+				continue;
+			if (!o.Табличка)
+				o.Подтверждение_вида = '<b><span style="color: red">' + п + '</span></b>';
+			else
+				o.Подтверждение_вида = '<span style="color: green">' + п + '</span>';
+		}
+		for (var i in со){
+			var o = со[i];
+			var п = o.Тип_информации;
+			if (п != "о растительности")
+				continue;
+			if (!o.Площадка)
+				o.Тип_информации = '<b><span style="color: red">' + п + '</span></b>';
+			else
+				o.Тип_информации = '<span style="color: green">' + п + '</span>';
 		}
 	} // f
 }; // 

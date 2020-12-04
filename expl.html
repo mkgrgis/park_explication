@@ -13,52 +13,34 @@
 
 	<style>
 		table[role=expl] {
+			/*border-collapse: collapse;	/* Убираем двойные линии между ячейками */
+		}
+		table.dataTable tbody th, table.dataTable tbody td {
+    		padding: 2px 4px;
+		}
+		table.dataTable {
 			border-collapse: collapse;
-			/* Убираем двойные линии между ячейками */
 		}
 
 		td[role=expl],
 		th[role=expl] {
-			padding: 3px;
-			/* Поля вокруг содержимого таблицы */
 			border: 1px solid black;
-			/* Параметры рамки */
+			margin-left: auto; /* Параметры рамки */
 		}
-
 		th[role=expl] {
 			background: #b0e0e6;
-			/* Цвет фона */
-		}
-
-		th[role=expl] {
-			position: sticky;
-			top: 0;
-		}
-
-		table {
-			border-collapse: collapse;
-			/* Убираем двойные линии между ячейками */
-		}
-
-		td,
-		th {
-			padding: 3px;
-			/* Поля вокруг содержимого таблицы */
 			border: 1px solid black;
-			/* Параметры рамки */
 		}
-
-		th {
-			background: #b0e6b0;
-			/* Цвет фона */
+		div.objTable {
+			margin-left: auto;
+		    margin-right: auto;
+			width: auto;
+			border-collapse: collapse;
 		}
-		div.dataTables_wrapper {
-		width: 98%;
-		margin: 0 auto;
-		}
-		div.dataTables_wrapper {
-		margin-bottom: 3em;
-		}
+		div.dataTables_scrollHeadInner{
+			margin-left: auto;
+		    margin-right: auto;
+}
 	</style>
 	<script src="js/leaflet.js" type="text/javascript"></script>
 	<script src="js/osmtogeojson.js" type="text/javascript"></script>
@@ -76,51 +58,51 @@
 	<div id="map" style="height: 700px; width:98%"></div>
 	<p></p>
 	<h3>Маточные площадки</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Маточные_площадки"></table>
 	</div>
 	<h3>Справочные объекты</h3>	
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Справочные_объекты"></table>
 	</div>
 	<h3>Водотоки</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Водотоки"></table>
 	</div>
 	<h3>Дорожки</h3>	
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Дорожно_тропиночая_сеть"></table>
 	</div>
 	<h3>Обсадки</h3>	
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Обсадки"></table>
 	</div>
 	<h3>Специализированне площадки</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Площадки"></table>
 	</div>
 	<h3>Урны</h3>	
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Урны"></table>
 	</div>
 	<h3>Скамейки</h3>	
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Скамейки"></table>
 	</div>
 	<h3>Достопримечательности</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Достопримечательности"></table>
 	 </div>
 	<h3>Малые формы</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Малые_формы"></table>
 	</div>
 	<h3>Объекты культурного наследия</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Объекты_культурного_наследия"></table>
 	 </div>
 	<h3>Объекты фотосайта</h3>
-	<div>
+	<div class="objTable">
 		<table class="dataTable" id="Ref_Sirius_msk"></table>
 	 </div>
 	<p id="No"></p>
@@ -309,10 +291,10 @@
 				                	'selected',
 				                	'selectedSingle'
                                 ],
-                				"scrollY": 300,
                 				"scrollX": true,
                 				language: dataTablesRu,
-				                "dom": '<"wrapper"flipt>'
+				                "dom": '<"wrapper"flipt>',
+								"pageLength": 15
 				                }
                 			);
                 			new $.fn.dataTable.Buttons( t, {
