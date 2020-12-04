@@ -1669,11 +1669,11 @@ explication.osm = {
 		},
 	},
 	popup: function (obj, title) {  // Возвращает гипертекст учётной карточки
-		var html = '<p align="center">' + title + '<a href="#' + obj.No + '">' + obj.No + '</a></p><table><tr><th>Свойство</th><th>Значение</th></tr>';
+		var html = '<p align="center">' + title + '<a href="#' + obj.No + '">' + obj.No + '</a></p><table role="popup_card"><tr><th role="popup_card">Свойство</th><th role="popup_card">Значение</th></tr>';
 		for (var k in obj) {
 			if (k[0] == '_' || k == 'No' || !obj[k] || obj[k] == '?' || obj[k] == '-')
 				continue;
-			html += '<tr><td>' + k.replace('_', ' ').replace('_', ' ') + '</td><td>' + obj[k] + '</td></tr>';
+			html += '<tr role="popup_card"><td role="popup_card">' + k.replace('_', ' ').replace('_', ' ') + '</td><td role="popup_card">' + obj[k] + '</td></tr>';
 		}
 		html += '</table>';
 		return html;

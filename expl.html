@@ -13,7 +13,25 @@
 
 	<style>
 		table[role=expl] {
-			/*border-collapse: collapse;	/* Убираем двойные линии между ячейками */
+			border-collapse: collapse;
+			/* Убираем двойные линии между ячейками */
+		}
+		td[role=expl],
+		th[role=expl] {
+			padding: 3px;
+			border: 1px solid black;
+		}
+		thead {
+			background: #b0e0e6;
+			margin-left: auto;
+		    margin-right: auto;
+		}
+		th[role=expl] {
+			background: #b0e0e6;
+		}
+		th[role=expl] {
+			position: sticky;
+			top: 0;
 		}
 		table.dataTable tbody th, table.dataTable tbody td {
     		padding: 2px 4px;
@@ -22,12 +40,15 @@
 			border-collapse: collapse;
 		}
 
-		td[role=expl],
-		th[role=expl] {
+		table[role="popup_card"] {
+			border-collapse: collapse;
+		}
+		td[role="popup_card"],
+		th[role="popup_card"] {
 			border: 1px solid black;
 			margin-left: auto; /* Параметры рамки */
 		}
-		th[role=expl] {
+		th[role="popup_card"] {
 			background: #b0e0e6;
 			border: 1px solid black;
 		}
@@ -40,7 +61,42 @@
 		div.dataTables_scrollHeadInner{
 			margin-left: auto;
 		    margin-right: auto;
-}
+		}
+
+		.tabs { width: 100%; padding: 0px; margin: 0 auto; }
+		.tabs>input { display: none; }
+		.tabs>div {
+		    display: none;
+		    padding: 12px;
+		    border: 1px solid #C0C0C0;
+		    background: #FFFFFF;
+		}
+		.tabs>label {
+		    display: inline-block;
+		    padding: 7px;
+		    margin: 0 -5px -1px 0;
+		    text-align: center;
+		    color: #666666;
+		    border: 1px solid #C0C0C0;
+		    background: #E0E0E0;
+		    cursor: pointer;
+		}
+		.tabs>input:checked + label {
+		    color: #000000;
+		    border: 1px solid #C0C0C0;
+		    border-bottom: 1px solid #FFFFFF;
+		    background: #FFFFFF;
+		}
+		#tab_Маточные_площадки:checked ~ #x_Маточные_площадки,
+		#tab_Справочные_объекты:checked ~ #x_Справочные_объекты,
+		#tab_Дорожно_тропиночая_сеть:checked ~ #x_Дорожно_тропиночая_сеть,
+		#tab_Водотоки:checked ~ #x_Водотоки,
+		#tab_Обсадки:checked ~ #x_Обсадки,
+		#tab_Урны:checked ~ #x_Урны,
+		#tab_Достопримечательности:checked ~ #x_Достопримечательности,
+		#tab_Малые_формы:checked ~ #x_Малые_формы,
+		#tab_Объекты_культурного_наследия:checked ~ #x_Объекты_культурного_наследия { display: block; }
+
 	</style>
 	<script src="js/leaflet.js" type="text/javascript"></script>
 	<script src="js/osmtogeojson.js" type="text/javascript"></script>
@@ -57,50 +113,105 @@
 	<p id="filter0" style="display : none">Граница датировок - не позднее <span id="filter"></span></p>
 	<div id="map" style="height: 700px; width:98%"></div>
 	<p></p>
-	<h3>Маточные площадки</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Маточные_площадки"></table>
+	<div class="tabs">
+	    <input type="radio" name="inset" value="" id="tab_Маточные_площадки" checked>
+	    <label for="tab_Маточные_площадки">Маточные площадки</label>
+
+    	<input type="radio" name="inset" value="" id="tab_Справочные_объекты">
+	    <label for="tab_Справочные_объекты">Справочные объекты</label>
+
+    	<input type="radio" name="inset" value="" id="tab_Дорожно_тропиночая_сеть">
+	    <label for="tab_Дорожно_тропиночая_сеть">Дорожно тропиночая сеть</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Водотоки">
+    	<label for="tab_Водотоки">Водотоки</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Обсадки">
+    	<label for="tab_Обсадки">Обсадки</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Площадки">
+    	<label for="tab_Площадки">Площадки</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Урны">
+    	<label for="tab_Урны">Урны</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Скамейки">
+    	<label for="tab_Скамейки">Скамейки</label>
+
+	    <input type="radio" name="inset" value="" id="tab_Малые_формы">
+    	<label for="tab_Малые_формы">Малые архитектурные формы</label>
+
+		<input type="radio" name="inset" value="" id="tab_Объекты_культурного_наследия">
+    	<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
+		
+	    <div id="x_Маточные_площадки">
+			<h3>Маточные площадки</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Маточные_площадки"></table>
+			</div>
+	    </div>
+	    <div id="x_Справочные_объекты">
+			<h3>Справочные объекты</h3>	
+			<div class="objTable">
+				<table class="dataTable" id="Справочные_объекты"></table>
+			</div>
+	    </div>
+	    <div id="x_Дорожно_тропиночая_сеть">
+			<h3>Дорожки</h3>	
+			<div class="objTable">
+				<table class="dataTable" id="Дорожно_тропиночая_сеть"></table>
+			</div>
+	    </div>
+	    <div id="x_Водотоки">
+			<h3>Водотоки</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Водотоки"></table>
+			</div>
+	    </div>
+		<div id="x_Обсадки">
+			<h3>Обсадки</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Обсадки"></table>
+			</div>
+	    </div>
+		<div id="x_Площадки">
+			<h3>Специализированне площадки</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Площадки"></table>
+			</div>
+	    </div>
+		<div id="x_Урны">
+			<h3>Мусорные урны</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Урны"></table>
+			</div>
+	    </div>
+		<div id="x_Скамейки">
+			<h3>Скамейки</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Скамейки"></table>
+			</div>
+	    </div>
+		<div id="x_Достопримечательности">
+			<h3>Достопримечательности</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Достопримечательности"></table>
+			</div>
+	    </div>
+		<div id="x_Малые_формы">
+			<h3>Малые формы</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Малые_формы"></table>
+			</div>
+	    </div>
+		<div id="x_Объекты_культурного_наследия">
+			<h3>Объекты культурного наследия</h3>
+			<div class="objTable">
+				<table class="dataTable" id="Объекты_культурного_наследия"></table>
+			</div>
+	    </div>
 	</div>
-	<h3>Справочные объекты</h3>	
-	<div class="objTable">
-		<table class="dataTable" id="Справочные_объекты"></table>
-	</div>
-	<h3>Водотоки</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Водотоки"></table>
-	</div>
-	<h3>Дорожки</h3>	
-	<div class="objTable">
-		<table class="dataTable" id="Дорожно_тропиночая_сеть"></table>
-	</div>
-	<h3>Обсадки</h3>	
-	<div class="objTable">
-		<table class="dataTable" id="Обсадки"></table>
-	</div>
-	<h3>Специализированне площадки</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Площадки"></table>
-	</div>
-	<h3>Урны</h3>	
-	<div class="objTable">
-		<table class="dataTable" id="Урны"></table>
-	</div>
-	<h3>Скамейки</h3>	
-	<div class="objTable">
-		<table class="dataTable" id="Скамейки"></table>
-	</div>
-	<h3>Достопримечательности</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Достопримечательности"></table>
-	 </div>
-	<h3>Малые формы</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Малые_формы"></table>
-	</div>
-	<h3>Объекты культурного наследия</h3>
-	<div class="objTable">
-		<table class="dataTable" id="Объекты_культурного_наследия"></table>
-	 </div>
+
 	<h3>Объекты фотосайта</h3>
 	<div class="objTable">
 		<table class="dataTable" id="Ref_Sirius_msk"></table>
@@ -294,7 +405,7 @@
                 				"scrollX": true,
                 				language: dataTablesRu,
 				                "dom": '<"wrapper"flipt>',
-								"pageLength": 15
+								"pageLength": 10
 				                }
                 			);
                 			new $.fn.dataTable.Buttons( t, {
@@ -307,23 +418,12 @@
 			var source = data['Маточные площадки'].data;
 			var export_obj = dataOutput.filterExportData(source);
 			dataOutput.exportSQL(export_obj, '"Маточные площадки"', 'Маточные площадки');
-			$('table.dataTable').DataTable( {
-				"scrollY": 300,
+			$('table.dataTable').DataTable( {				
 				"scrollX": true,
 				//data: export_obj,
 				//"columns": dataOutput.dataColumns(export_obj[0]),
 				language: dataTablesRu,
-				buttons: [
-					'pdf',
-					'selectAll',
-					'selectCells',
-					'selectColumns',
-					'selectNone',
-					'selectRows',
-					'selected',
-					'selectedSingle'
-				],
-				"dom": '<"wrapper"flipt>'
+
 				}
 			);*/
 			},
