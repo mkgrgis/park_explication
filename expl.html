@@ -6,19 +6,19 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<link rel="stylesheet" href="js/leaflet.css" />
 
-	 <link rel="stylesheet" type="text/css" href="DataTables/datatables.css"/>
+	<link rel="stylesheet" type="text/css" href="DataTables/datatables.css"/>
 
-	 <!--script type="text/javascript" src="js/jquery.js"></script-->
-	 <script type="text/javascript" src="DataTables/datatables.js"></script>
+	<!--script type="text/javascript" src="js/jquery.js"></script-->
+	<script type="text/javascript" src="DataTables/datatables.js"></script>
 
 	<style>
 		p {
 			font-size: 14px;
 		}
-		a {  
-  			color: #ff8800; 
-			text-decoration: underline; 
-		}  
+		a {
+  			color: #ff8800;
+			text-decoration: underline;
+		}
 		a.text:Hover,
 		a:Hover {
 			color: #0000ff
@@ -38,7 +38,7 @@
 			margin-right: auto;
 		}
 		/*table.dataTable.no-footer {
-/*			margin-left: auto; 
+/*			margin-left: auto;
 			margin-right: 0px;
 		}*/
 		th[role=expl] {
@@ -157,7 +157,7 @@
 
 		<input type="radio" name="inset" value="" id="tab_Объекты_культурного_наследия">
 		<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
-		
+
 		<div id="x_Маточные_площадки">
 			<h3>Маточные площадки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
@@ -441,17 +441,17 @@
 								"pageLength": 10
 								}
 							);
-							new $.fn.dataTable.as( t, {
+							/*new $.fn.dataTable.as( t, {
 								as: [
 											'copy', 'excel', 'pdf'
 										 ]
-								} );
+								} );*/
 						}
 				 }/*
 			var source = data['Маточные площадки'].data;
 			var export_obj = dataOutput.filterExportData(source);
 			dataOutput.exportSQL(export_obj, '"Маточные площадки"', 'Маточные площадки');
-			$('table.dataTable').DataTable( {				
+			$('table.dataTable').DataTable( {
 				"scrollX": true,
 				//data: export_obj,
 				//"columns": dataOutput.dataColumns(export_obj[0]),

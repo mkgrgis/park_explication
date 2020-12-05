@@ -11,16 +11,16 @@
 	</div>
 </body>
 <script type="text/javascript">
-function loadJSON(file_url,callback) {   
-    var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
-    xobj.open('GET', file_url, true); 
-    xobj.onreadystatechange = function () {
-          if (xobj.readyState == 4 && xobj.status == "200") {
-            callback(xobj.responseText);
-          }
-    };
-    xobj.send(null);  
+function loadJSON(file_url,callback) {
+	var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+	xobj.open('GET', file_url, true);
+	xobj.onreadystatechange = function () {
+		  if (xobj.readyState == 4 && xobj.status == "200") {
+			callback(xobj.responseText);
+		  }
+	};
+	xobj.send(null);
 }
 
 function file_selected() {
@@ -43,7 +43,7 @@ function loadJSON(JSON_data) {
 	for (var i in JSON_data){
 		var obj = JSON_data[i];
 		console.log(obj);
-		// Любую обработку можно вписать сюда	
+		// Любую обработку можно вписать сюда
 	}
 }
 </script>
