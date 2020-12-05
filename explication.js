@@ -478,12 +478,12 @@ geoAlb_lib.osmRelationGeoJson = function (xml, rel_id) {
 
 explication.osm = {
 	function_general: function (
-	    geoJsonGeneral,
-	    участки,
-	    L_mapLayer,
-	    L_mapNames,
-	    map_params,
-	    explicationDataProcess
+		geoJsonGeneral,
+		участки,
+		L_mapLayer,
+		L_mapNames,
+		map_params,
+		explicationDataProcess
 	) {
 		log('Получены исходные данные ');
 		var hronofiltr = map_params.start_date ?? null;
@@ -571,13 +571,13 @@ explication.osm = {
 	 	log('Отрисовка данных подготовлена');
 
 	 	if (typeof explicationDataProcess == "function"){
-	 	    try {
-	 		    explicationDataProcess(explication.osm.object);
-	 		    } catch (e) {
-	 		    console.log("explicationDataProcess ERR");
-	 		    console.log(e);
-	 		    }
-        }
+	 		try {
+	 			explicationDataProcess(explication.osm.object);
+	 			} catch (e) {
+	 			console.log("explicationDataProcess ERR");
+	 			console.log(e);
+	 			}
+		}
 		
 		log('Экспликация показана ');
 		document.getElementById('status').innerText = '';

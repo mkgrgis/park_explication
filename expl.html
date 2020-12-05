@@ -12,6 +12,17 @@
 	 <script type="text/javascript" src="DataTables/datatables.js"></script>
 
 	<style>
+		p {
+			font-size: 14px;
+		}
+		a {  
+  			color: #ff8800; 
+			text-decoration: underline; 
+		}  
+		a.text:Hover,
+		a:Hover {
+			color: #0000ff
+		}
 		table[role=expl] {
 			border-collapse: collapse;
 			/* Убираем двойные линии между ячейками */
@@ -24,17 +35,20 @@
 		thead {
 			background: #b0e0e6;
 			margin-left: auto;
-		    margin-right: auto;
+			margin-right: auto;
 		}
+		/*table.dataTable.no-footer {
+/*			margin-left: auto; 
+			margin-right: 0px;
+		}*/
 		th[role=expl] {
 			background: #b0e0e6;
 		}
 		th[role=expl] {
-			position: sticky;
 			top: 0;
 		}
 		table.dataTable tbody th, table.dataTable tbody td {
-    		padding: 2px 4px;
+			padding: 2px 4px;
 		}
 		table.dataTable {
 			border-collapse: collapse;
@@ -54,38 +68,38 @@
 		}
 		div.objTable {
 			margin-left: auto;
-		    margin-right: auto;
+			margin-right: auto;
 			width: auto;
 			border-collapse: collapse;
 		}
 		div.dataTables_scrollHeadInner{
 			margin-left: auto;
-		    margin-right: auto;
+			margin-right: auto;
 		}
 
 		.tabs { width: 100%; padding: 0px; margin: 0 auto; }
 		.tabs>input { display: none; }
 		.tabs>div {
-		    display: none;
-		    padding: 12px;
-		    border: 1px solid #C0C0C0;
-		    background: #FFFFFF;
+			display: none;
+			padding: 12px;
+			border: 1px solid #C0C0C0;
+			background: #FFFFFF;
 		}
 		.tabs>label {
-		    display: inline-block;
-		    padding: 7px;
-		    margin: 0 -5px -1px 0;
-		    text-align: center;
-		    color: #666666;
-		    border: 1px solid #C0C0C0;
-		    background: #E0E0E0;
-		    cursor: pointer;
+			display: inline-block;
+			padding: 7px;
+			margin: 0 -5px -1px 0;
+			text-align: center;
+			color: #666666;
+			border: 1px solid #C0C0C0;
+			background: #E0E0E0;
+			cursor: pointer;
 		}
 		.tabs>input:checked + label {
-		    color: #000000;
-		    border: 1px solid #C0C0C0;
-		    border-bottom: 1px solid #FFFFFF;
-		    background: #FFFFFF;
+			color: #000000;
+			border: 1px solid #C0C0C0;
+			border-bottom: 1px solid #FFFFFF;
+			background: #FFFFFF;
 		}
 		#tab_Маточные_площадки:checked ~ #x_Маточные_площадки,
 		#tab_Справочные_объекты:checked ~ #x_Справочные_объекты,
@@ -114,102 +128,102 @@
 	<div id="map" style="height: 700px; width:98%"></div>
 	<p></p>
 	<div class="tabs">
-	    <input type="radio" name="inset" value="" id="tab_Маточные_площадки" checked>
-	    <label for="tab_Маточные_площадки">Маточные площадки</label>
+		<input type="radio" name="inset" value="" id="tab_Маточные_площадки" checked>
+		<label for="tab_Маточные_площадки">Маточные площадки</label>
 
-    	<input type="radio" name="inset" value="" id="tab_Справочные_объекты">
-	    <label for="tab_Справочные_объекты">Справочные объекты</label>
+		<input type="radio" name="inset" value="" id="tab_Справочные_объекты">
+		<label for="tab_Справочные_объекты">Справочные объекты</label>
 
-    	<input type="radio" name="inset" value="" id="tab_Дорожно_тропиночая_сеть">
-	    <label for="tab_Дорожно_тропиночая_сеть">Дорожно тропиночая сеть</label>
+		<input type="radio" name="inset" value="" id="tab_Дорожно_тропиночая_сеть">
+		<label for="tab_Дорожно_тропиночая_сеть">Дорожно тропиночая сеть</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Водотоки">
-    	<label for="tab_Водотоки">Водотоки</label>
+		<input type="radio" name="inset" value="" id="tab_Водотоки">
+		<label for="tab_Водотоки">Водотоки</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Обсадки">
-    	<label for="tab_Обсадки">Обсадки</label>
+		<input type="radio" name="inset" value="" id="tab_Обсадки">
+		<label for="tab_Обсадки">Обсадки</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Площадки">
-    	<label for="tab_Площадки">Площадки</label>
+		<input type="radio" name="inset" value="" id="tab_Площадки">
+		<label for="tab_Площадки">Площадки</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Урны">
-    	<label for="tab_Урны">Урны</label>
+		<input type="radio" name="inset" value="" id="tab_Урны">
+		<label for="tab_Урны">Урны</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Скамейки">
-    	<label for="tab_Скамейки">Скамейки</label>
+		<input type="radio" name="inset" value="" id="tab_Скамейки">
+		<label for="tab_Скамейки">Скамейки</label>
 
-	    <input type="radio" name="inset" value="" id="tab_Малые_формы">
-    	<label for="tab_Малые_формы">Малые архитектурные формы</label>
+		<input type="radio" name="inset" value="" id="tab_Малые_формы">
+		<label for="tab_Малые_формы">Малые архитектурные формы</label>
 
 		<input type="radio" name="inset" value="" id="tab_Объекты_культурного_наследия">
-    	<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
+		<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
 		
-	    <div id="x_Маточные_площадки">
-			<h3>Маточные площадки</h3>
+		<div id="x_Маточные_площадки">
+			<h3>Маточные площадки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Маточные_площадки"></table>
 			</div>
-	    </div>
-	    <div id="x_Справочные_объекты">
-			<h3>Справочные объекты</h3>	
+		</div>
+		<div id="x_Справочные_объекты">
+			<h3>Справочные объекты</h3>	<p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Справочные_объекты"></table>
 			</div>
-	    </div>
-	    <div id="x_Дорожно_тропиночая_сеть">
-			<h3>Дорожки</h3>	
+		</div>
+		<div id="x_Дорожно_тропиночая_сеть">
+			<h3>Дорожки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Дорожно_тропиночая_сеть"></table>
 			</div>
-	    </div>
-	    <div id="x_Водотоки">
-			<h3>Водотоки</h3>
+		</div>
+		<div id="x_Водотоки">
+			<h3>Водотоки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Водотоки"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Обсадки">
-			<h3>Обсадки</h3>
+			<h3>Обсадки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Обсадки"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Площадки">
-			<h3>Специализированне площадки</h3>
+			<h3>Специализированне площадки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Площадки"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Урны">
-			<h3>Мусорные урны</h3>
+			<h3>Мусорные урны</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Урны"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Скамейки">
-			<h3>Скамейки</h3>
+			<h3>Скамейки</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Скамейки"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Достопримечательности">
-			<h3>Достопримечательности</h3>
+			<h3>Достопримечательности</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Достопримечательности"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Малые_формы">
-			<h3>Малые формы</h3>
+			<h3>Малые формы</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Малые_формы"></table>
 			</div>
-	    </div>
+		</div>
 		<div id="x_Объекты_культурного_наследия">
-			<h3>Объекты культурного наследия</h3>
+			<h3>Объекты культурного наследия</h3> <p>Экспорт данных <a onclick="exportJSON(this)">JSON</a> <a onclick="exportSQL(this)">SQL</a></p>
 			<div class="objTable">
 				<table class="dataTable" id="Объекты_культурного_наследия"></table>
 			</div>
-	    </div>
+		</div>
 	</div>
 
 	<h3>Объекты фотосайта</h3>
@@ -322,6 +336,22 @@
 				dataOutput.explicationDataProcess
 			);
 		}
+		function exportSQL(t){
+			t.background = '#ff0000';
+			var id = t.parentNode.parentNode.id.substring(2);
+			var dataObj = explication.osm.object[id].data;
+			dataObj = dataOutput.filterExportData(dataObj);
+			dataOutput.exportSQL(dataObj, '"' + id.replaceAll('_', ' ') + '"', id.replaceAll('_', ' '));
+			t.background = '#00ff00';
+		}
+		function exportJSON(t){
+			t.background = '#ff0000';
+			var id = t.parentNode.parentNode.id.substring(2);
+			var dataObj = explication.osm.object[id].data;
+			dataObj = dataOutput.filterExportData(dataObj);
+			dataOutput.exportJSON(dataObj, id.replaceAll('_', ' '));
+			t.background = '#00ff00';
+		}
 
 		dataOutput = {
 			dataColumns : function (sample){
@@ -353,8 +383,11 @@
 							var v = exportObj[i][a];
 							if (v == null)
 								 ins += "NULL, ";
-							else
-								 ins += "'" + v + "', ";
+							else {
+								if (v)
+									v = v.toString().replaceAll("'", "''");
+								ins += "'" + v + "', ";
+							}
 					}
 					ins.slice(0, -2);
 					ins += ");\n";
@@ -374,7 +407,7 @@
 				for (var i in source){
 					var ex_a = {};
 					for (var j in source[i]){
-						 if (j.indexOf('_') == -1)
+						 if (j && j[0] != '_')
 							 ex_a[j] = source[i][j];
 					}
 					res.push(ex_a);
@@ -392,27 +425,27 @@
 							dataOutput.tabulation(nd, data_obj, oi);
 							console.log(oi);
 							var t = $(nd).DataTable( {
-	    						buttons: [
-                                    'copy', 'excel', 'pdf',
-                                    'selectAll',
-                					'selectCells',
-				                	'selectColumns',
-                					'selectNone',
-				                	'selectRows',
-				                	'selected',
-				                	'selectedSingle'
-                                ],
-                				"scrollX": true,
-                				language: dataTablesRu,
-				                "dom": '<"wrapper"flipt>',
+								as: [
+									'copy', 'excel', 'pdf',
+									'selectAll',
+									'selectCells',
+									'selectColumns',
+									'selectNone',
+									'selectRows',
+									'selected',
+									'selectedSingle'
+								],
+								"scrollX": true,
+								language: dataTablesRu,
+								"dom": '<"wrapper"flipt>',
 								"pageLength": 10
-				                }
-                			);
-                			new $.fn.dataTable.Buttons( t, {
-                                buttons: [
-                                            'copy', 'excel', 'pdf'
-                                         ]
-                                } );
+								}
+							);
+							new $.fn.dataTable.as( t, {
+								as: [
+											'copy', 'excel', 'pdf'
+										 ]
+								} );
 						}
 				 }/*
 			var source = data['Маточные площадки'].data;

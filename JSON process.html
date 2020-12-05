@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title></title>
+</head>
+
+<body lang="ru-RU" dir="ltr">
+	<div>
+		<input type="file" id="uploaded_file" onchange="file_selected();" accept="application/json" multiple/>
+	</div>
+</body>
+<script type="text/javascript">
+function loadJSON(file_url,callback) {   
+    var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+    xobj.open('GET', file_url, true); 
+    xobj.onreadystatechange = function () {
+          if (xobj.readyState == 4 && xobj.status == "200") {
+            callback(xobj.responseText);
+          }
+    };
+    xobj.send(null);  
+}
+
+function file_selected() {
+	var target = document.getElementById('uploaded_file');
+	var files = target.files;
+	for (var i = 0, f; f = files[i]; i++) {
+		if (!f.type.match('application/json'))
+			continue;
+		var fr = new FileReader();
+		fr.f = f;
+		fr.addEventListener("load", e => {
+			loadJSON(JSON.parse(fr.result));
+		});
+		fr.readAsText(f);
+	}
+}
+
+function loadJSON(JSON_data) {
+	console.table(JSON_data);
+	for (var i in JSON_data){
+		var obj = JSON_data[i];
+		console.log(obj);
+		// Любую обработку можно вписать сюда	
+	}
+}
+</script>
+</html>
