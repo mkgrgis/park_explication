@@ -15,6 +15,9 @@
 		p {
 			font-size: 14px;
 		}
+		p[role="popup_card"] {
+			font-size: 11px;
+		}
 		a {
   			color: #ff8800;
 			text-decoration: underline;
@@ -116,7 +119,9 @@
 	<script src="js/osmtogeojson.js" type="text/javascript"></script>
 	<script src="js/leaflet-providers.js" type="text/javascript"></script>
 	<script src="js/leaflet.textpath.js" type="text/javascript"></script>
+	<script src="js/OsmGeoDocLib.js" type="text/javascript"></script>
 	<script src="explication.js" type="text/javascript"></script>
+	<script src="explication_blocks.js" type="text/javascript"></script>
 
 </head>
 
@@ -279,7 +284,7 @@
 		function start_expl_process (osm_relation_id) {
 			var t0 = new Date().getTime();
 			log('Данные по контуру Дендропарка запрошены ', t0);
-			explication.get_data(osm_relation_id, subAreaFilter);
+			this.park_explication = new L.OSM.park_explication(osm_relation_id, subAreaFilter);
 		}
 
 		window.addEventListener('hashchange', function (event) {
@@ -309,23 +314,21 @@
 			log('Внутренние данные получены ');
 			var xml = xhr.responseXML;
 			// Выделяем участки дендропарка
-			var osm_id_участки = geoAlb_lib.getSubAreas(xml, xhr.osm_relation_id);
-			var geoJsonGeneral = osmtogeojson(xml);
+			var osm_id_участки = this.OsmGDlib.getSubAreas(xml, xhr.ini_obj.osm_relation_id);
+			this.geoJsonGeneral = osmtogeojson(xml);
 			var участки = [];
 			for (var i in osm_id_участки) {
 				var id = osm_id_участки[i];
-				var n = geoAlb_lib.relationSelfPolygon(geoJsonGeneral, id);
-				участки.push(geoJsonGeneral.features[n]);
+				var n = this.OsmGDlib.relationSelfPolygon(this.geoJsonGeneral, id);
+				участки.push(this.geoJsonGeneral.features[n]);
 			}
 			log('Участки выделены ');
-			geoJsonGeneral.osm_relation_id = xhr.osm_relation_id;
 
 			var el = decodeURI(location.hash).replace('#', '').split(';');
 			var filter = el[1] ? el[1] : null;
 
 			document.getElementById('filter').innerText = filter;
-			explication.osm.function_general(
-				geoJsonGeneral,
+			this.function_general(
 				участки,
 				[
 					'Esri.WorldImagery',
@@ -372,17 +375,23 @@
 		function exportSQL(t){
 			t.background = '#ff0000';
 			var id = t.parentNode.parentNode.id.substring(2);
-			var dataObj = explication.osm.object[id].data;
-			dataObj = dataOutput.filterExportData(dataObj);
-			dataOutput.exportSQL(dataObj, '"' + id.replaceAll('_', ' ') + '"', id.replaceAll('_', ' '));
+			var Obj = this.park_explication.block[id].obj;
+			data = [];
+			for (var i in Obj)
+				data.push(Obj[i].data);
+			//data = dataOutput.filterExportData(data);
+			dataOutput.exportSQL(data, '"' + id.replaceAll('_', ' ') + '"', id.replaceAll('_', ' '));
 			t.background = '#00ff00';
 		}
 		function exportJSON(t){
 			t.background = '#ff0000';
 			var id = t.parentNode.parentNode.id.substring(2);
-			var dataObj = explication.osm.object[id].data;
-			dataObj = dataOutput.filterExportData(dataObj);
-			dataOutput.exportJSON(dataObj, id.replaceAll('_', ' '));
+			var Obj = this.park_explication.block[id].obj;
+			data = [];
+			for (var i in Obj)
+				data.push(Obj[i].data);
+			//data = dataOutput.filterExportData(data);
+			dataOutput.exportJSON(data, id.replaceAll('_', ' '));
 			t.background = '#00ff00';
 		}
 
@@ -450,48 +459,40 @@
 			explicationDataProcess : function (expl_data){
 				// Заполнение всех табоиц
 				for (var oi in expl_data) {
-					var data_obj = expl_data[oi].data;
+					var expl_objs = expl_data[oi].obj;
+					var webData = [];
+					for (var i in expl_objs)
+						webData.push(expl_objs[i].webData);
 					var nd = document.getElementById(oi);
-						if (data_obj.length == 0){
-							nd.parentNode.style.display = 'none';
-						} else {
-							dataOutput.tabulation(nd, data_obj, oi);
-							console.log(oi);
-							var t = $(nd).DataTable( {
-								as: [
-									'copy', 'excel', 'pdf',
-									'selectAll',
-									'selectCells',
-									'selectColumns',
-									'selectNone',
-									'selectRows',
-									'selected',
-									'selectedSingle'
-								],
-								"scrollX": true,
-								language: dataTablesRu,
-								"dom": '<"wrapper"flipt>',
-								"pageLength": 10
-								}
-							);
-							/*new $.fn.dataTable.as( t, {
-								as: [
-											'copy', 'excel', 'pdf'
-										 ]
-								} );*/
-						}
-				 }/*
-			var source = data['Маточные площадки'].data;
-			var export_obj = dataOutput.filterExportData(source);
-			dataOutput.exportSQL(export_obj, '"Маточные площадки"', 'Маточные площадки');
-			$('table.dataTable').DataTable( {
-				"scrollX": true,
-				//data: export_obj,
-				//"columns": dataOutput.dataColumns(export_obj[0]),
-				language: dataTablesRu,
-
-				}
-			);*/
+					if (webData.length == 0){
+						nd.parentNode.style.display = 'none';
+					} else {
+						dataOutput.tabulation(nd, webData, oi);
+						// console.log(oi);
+						var t = $(nd).DataTable( {
+							as: [
+								'copy', 'excel', 'pdf',
+								'selectAll',
+								'selectCells',
+								'selectColumns',
+								'selectNone',
+								'selectRows',
+								'selected',
+								'selectedSingle'
+							],
+							"scrollX": true,
+							language: dataTablesRu,
+							"dom": '<"wrapper"flipt>',
+							"pageLength": 10
+							}
+						);
+						/*new $.fn.dataTable.as( t, {
+							as: [
+										'copy', 'excel', 'pdf'
+									 ]
+							} );*/
+					}
+				 }
 			},
 			// Формирование экспликационной таблицы по массиву
 			tabulation : function (tbl, table_obj, title) {
@@ -515,6 +516,8 @@
 					var tobji = table_obj[i_];
 					var tr = document.createElement('tr');
 					tr.setAttribute('role', 'expl');
+					tr.setAttribute('id', title + '_' + tobji.No);
+					tobji.No ='<a onclick="dataOutput.activate(this);">' + tobji.No + '</a>';
 					for (var j in tobji) {
 						if (j.indexOf('_') == 0)
 							continue;
@@ -526,6 +529,12 @@
 				tbd.appendChild(tr);
 				}
 				tbl.appendChild(tbd);
+			},
+			activate: function(a){
+				var id = a.parentNode.parentNode.id;
+				var d = id.split("_");
+				console.log(d);
+				window.park_explication.activate(d[d.length - 1], id.split("_", d.length - 1).join('_'));
 			}
 		};
 
