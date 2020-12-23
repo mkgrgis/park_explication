@@ -19,6 +19,33 @@ expl_func_blocks = {
 				data_obj.Нужно_доработать = data_obj.Нужно_доработать ? ('<span style="color: red">' + data_obj.Нужно_доработать + '</span>') : null;
 				return data_obj;
 			},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Участок: "varchar(8)",
+				Год_учёта: "timestamp",
+				Номер_площадки:  "varchar(8)",
+				Подтверждение_вида:  "varchar(256)",
+				Род: "varchar(256)",
+				Вид: "varchar(256)",
+				Genus: "varchar(256)",
+				Spieces: "varchar(256)",
+				Род2: "varchar(256)",
+				Вид2: "varchar(256)",
+				Genus2: "varchar(256)",
+				Spieces2: "varchar(256)",
+				Тип: "varchar(256)",
+				Сезонность: "varchar(256)",
+				Листва: "varchar(256)",
+				Площадь: "varchar(256)",
+				Заметки: "varchar(256)",
+				Датировка: "varchar(256)",
+				Описание: "varchar(256)",
+				Вырублен: "varchar(256)",
+				Нужно_доработать: "varchar(256)",
+				Табличка: "varchar(256)",
+				_ref: "varchar(256)"
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 
@@ -139,6 +166,11 @@ expl_func_blocks = {
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
 			},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Участок: "varchar(8)"			
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 

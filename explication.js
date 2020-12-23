@@ -120,8 +120,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		for (var oi in expl_func_blocks) {
 			this.block[oi] = new L.OSM.park_explication_block(expl_func_blocks[oi]);
 		}
-
-		var geoNodes = [];
+	
 		for (var i in this.geoJsonGeneral.features) {
 			var osmGeoJSON_obj = this.geoJsonGeneral.features[i];
 			if (hronofiltr) { // Фильтрация по дате
@@ -147,20 +146,22 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 				console.log(min_date + " " + max_date + " " + osmGeoJSON_obj.properties.tags['start_date']);
 			}
 
-			geoNodes[i] = this.OsmGDlib.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+			var geoNd = this.OsmGDlib.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+
 			var ok = false;
-			for (var j_n in geoNodes[i]) {
-				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNodes[i][j_n], main_rel, { ignoreBoundary: true }));
+			for (var j_n in geoNd) {
+				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], main_rel, { ignoreBoundary: true }));
 			}
+
 			// Проход по всем блокам для фильтрации объекта и определения принадлежности к участку
 			for (var oi in this.block) {
 				block = this.block[oi];
 				if (ok && block.f_obj.filter(this, osmGeoJSON_obj)) {
 					var eo = new L.OSM.park_explication_obj();
 					eo.geoJSON = osmGeoJSON_obj;
-					eo.geoNodes = geoNodes[i];
+					eo.geoNodes = geoNd;
 					// К какому участку относится объект
-					var SPGJ = nd_superParts(geoNodes[i], участки, this);
+					var SPGJ = nd_superParts(geoNd, участки, this); // К какому участку относится объект
 					eo.superPartGeoJSON = SPGJ;
 					var sP = (SPGJ.length == 1) ? superPart(SPGJ) : null;
 					// Заполняем основные данные объекта
@@ -177,6 +178,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 				}
 			}
 		}
+		log('Первичная фильтрация объектов завершена');
 
 		function Участок_всех_точек (уч_geoJson) {
 			if (уч_geoJson.length == 0) // Нет точек ни в одном участке
@@ -279,6 +281,11 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		}
 	 	log('Отрисовка данных подготовлена');
 
+		if (main_rel.properties.tags.name == 'Бирюлёвский дендропарк'){
+			this.привязка_указателей(this.block);
+		 	log('Маточные площадки привязаны к указателям');
+		} 
+
 	 	if (typeof explicationDataProcess == "function"){
 	 		try {
 	 			explicationDataProcess(this.block);
@@ -289,10 +296,6 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		}
 		
 		log('Экспликация показана ');
-
-		if (main_rel.properties.id == 5851116){
-			this.привязка_указателей(this.block);
-		} 
 
 		document.getElementById('status').innerText = '';
 		var t1 = new Date().getTime();
@@ -406,31 +409,29 @@ L.OSM.park_explication.prototype.biolog_format = function (bio) { // Получ�
 
 L.OSM.park_explication.prototype.привязка_указателей = function(osm_tables){
 		function привязка(мп, со, x){
-			if (мп.Табличка && x)
-				console.log(мп);
-			мп.Табличка = со.Объект_OSM;
-			if (со.Площадка && x)
-				console.log(со);
-			со.Площадка = мп.Объект_OSM;
+			if (x)
+				console.log(мп.webData, со.webData);
+			мп.webData.Табличка = со.webData.OSM;
+			со.webData.Площадка = мп.webData.OSM;
 		}
-		var мп = osm_tables["Маточные_площадки"].webData;
-		var со = osm_tables["Справочные_объекты"].webData;
+		var мп = osm_tables["Маточные_площадки"].obj;
+		var со = osm_tables["Справочные_объекты"].obj;
 		var index_мп = {};
 		for (var i in мп){
-			var u = мп[i].Участок;
+			var u = мп[i].data.Участок;
 			if (!index_мп[u])
 				index_мп[u] = [];
 			index_мп[u].push(мп[i]);
 		}
 		var index_со = {};
 		for (var i in со){
-			var u = со[i].Участок;
+			var u = со[i].data.Участок;
 			if (!index_со[u])
 				index_со[u] = [];
 			index_со[u].push(со[i]);
 		}
 		for (var i in мп){
-			var мп_ = мп[i];
+			var мп_ = мп[i].data;
 			var u = мп_.Участок;
 			if (!index_со[u])
 				continue;
@@ -438,8 +439,9 @@ L.OSM.park_explication.prototype.привязка_указателей = functio
 			var мп_р = мп_.Род;
 			var мп_s = мп_.Spieces;
 			var мп_g = мп_.Genus;
-			for (var j in index_со[u]){
-				var со_ = index_со[u][j];
+			var iu = index_со[u];
+			for (var j in iu){
+				var со_ = iu[j].data;
 				var со_в = со_.Вид;
 				var со_р = со_.Род;
 				var со_s = со_.Spieces;
@@ -448,28 +450,28 @@ L.OSM.park_explication.prototype.привязка_указателей = functio
 				if(!со_n || (!мп_в && !мп_р && !мп_g && !мп_s))
 					continue;
 				if ((мп_в==со_в && мп_р==со_р) || (мп_s==со_s && мп_g==со_g)) // || (n.indexOf(в) != -1 && n.indexOf(р) != -1 && n.indexOf(g) != -1 && n.indexOf(s) != -1)
-					привязка(мп_, со_, true);
+					привязка(мп[i], iu[j], 0);
 			}
 		}
 
 		for (var i in мп){
 			var o = мп[i];
-			var п = o.Подтверждение_вида;
+			var п = o.data.Подтверждение_вида;
 			if (п != "Щит с описанием")
 				continue;
-			if (!o.Табличка)
-				o.Подтверждение_вида = '<b><span style="color: red">' + п + '</span></b>';
+			if (!o.webData.Табличка)
+				o.webData.Подтверждение_вида = '<b><span style="color: red">' + п + '</span></b>';
 			else
-				o.Подтверждение_вида = '<span style="color: green">' + п + '</span>';
+				o.webData.Подтверждение_вида = '<span style="color: green">' + п + '</span>';
 		}
 		for (var i in со){
 			var o = со[i];
-			var п = o.Тип_информации;
+			var п = o.data.Тип_информации;
 			if (п != "о растительности")
 				continue;
-			if (!o.Площадка)
-				o.Тип_информации = '<b><span style="color: red">' + п + '</span></b>';
+			if (!o.webData.Площадка)
+				o.webData.Тип_информации = '<b><span style="color: red">' + п + '</span></b>';
 			else
-				o.Тип_информации = '<span style="color: green">' + п + '</span>';
+				o.webData.Тип_информации = '<span style="color: green">' + п + '</span>';
 		}
 	};
