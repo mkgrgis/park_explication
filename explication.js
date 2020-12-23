@@ -314,7 +314,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 			var block = this.block[oi];
 			this.md.Control.addOverlay(block.layerGroup, oi.replaceAll('_', ' '));
 				if (map_params.obj && map_params.obj == oi)
-				ogroup.addTo(this.md.map);				
+					block.layerGroup.addTo(this.md.map);				
 		}
 		this.md.Control.expand();
 	}; // Конец основной алгоритмической ветви
