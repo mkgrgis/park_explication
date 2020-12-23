@@ -45,6 +45,7 @@ expl_func_blocks = {
 				Нужно_доработать: "varchar(256)",
 				Табличка: "varchar(256)",
 				_ref: "varchar(256)"
+			}
 		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
@@ -169,7 +170,8 @@ expl_func_blocks = {
 		SQL: function(){
 			return {
 				No: "integer not null",
-				Участок: "varchar(8)"			
+				Участок: "varchar(8)"
+			}
 		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
