@@ -114,8 +114,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		log('Получены исходные данные ');
 		var hronofiltr = map_params.start_date ?? null;
 		var main_rel = this.general_rel_geoJson();
-		document.getElementById('obj_title').innerText = main_rel.properties.tags.name;
-
+		document.getElementById('obj_title').innerText = main_rel.properties.tags.name +  (map_params.start_date ? (" (" + map_params.start_date + ")") : "");
 		this.block = {};
 		for (var oi in expl_func_blocks) {
 			this.block[oi] = new L.OSM.park_explication_block(expl_func_blocks[oi]);
@@ -335,6 +334,63 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		}
 //		this.md.map.addLayer();
 	};
+
+		L.OSM.park_explication.prototype.exportJSON = function (exportObj, exportFile){
+			 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+			 var specialNode = document.createElement('a');
+			 specialNode.setAttribute("href",	  dataStr);
+			 specialNode.setAttribute("download", exportFile + ".json");
+			 document.body.appendChild(specialNode); // required for firefox
+			 specialNode.click();
+			 specialNode.remove();
+		};
+		L.OSM.park_explication.prototype.exportSQL = function (exportObj, tableName, exportFile){
+			 var SQL = "";
+			 for (var i in exportObj){
+				var ins = "INSERT INTO " + tableName + " ("
+				for (var a in exportObj[i])
+						ins += "\"" + a + "\", ";
+				ins.slice(0, -2);
+				ins += ") VALUES (";
+				for (var a in exportObj[i]){
+						var v = exportObj[i][a];
+						if (v == null)
+							 ins += "NULL, ";
+						else {
+							if (v)
+								v = v.toString().replaceAll("'", "''");
+							ins += "'" + v + "', ";
+						}
+				}
+				ins.slice(0, -2);
+				ins += ");\n";
+					SQL += ins;
+			 }
+			 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(SQL);
+			 var specialNode = document.createElement('a');
+			 specialNode.setAttribute("href",	  dataStr);
+			 specialNode.setAttribute("download", exportFile + ".sql");
+			 document.body.appendChild(specialNode); // required for firefox
+			 specialNode.click();
+			 specialNode.remove();
+		};
+		L.OSM.park_explication.prototype.exportObj = function (id_block, element){
+			var obj = this.block[id_block].obj;
+			data = [];
+			for (var i in obj)
+				data.push(obj[i][element]);
+			return data;
+		}
+
+		L.OSM.park_explication.prototype.exportData = function (id_block, element, format, exportFile, tableName){
+			var eo = this.exportObj(id_block, element);
+			exportFile = exportFile ?? ('"' + id_block.replaceAll('_', ' ') + '"');
+			tableName = tableName ?? ('"' + id_block.replaceAll('_', ' ') + '"');	
+			if (format == "SQL")
+				this.exportSQL(eo, tableName, exportFile);
+			else
+				this.exportJSON(eo, exportFile);
+		}
 
 /**
 * Представляет карту, действующую в блоке

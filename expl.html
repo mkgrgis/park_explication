@@ -370,87 +370,17 @@
 		function exportSQL(t){
 			t.background = '#ff0000';
 			var id = t.parentNode.parentNode.id.substring(2);
-			var Obj = this.park_explication.block[id].obj;
-			data = [];
-			for (var i in Obj)
-				data.push(Obj[i].data);
-			//data = dataOutput.filterExportData(data);
-			dataOutput.exportSQL(data, '"' + id.replaceAll('_', ' ') + '"', id.replaceAll('_', ' '));
+			this.park_explication.exportData(id, 'data', 'SQL');
 			t.background = '#00ff00';
 		}
 		function exportJSON(t){
 			t.background = '#ff0000';
 			var id = t.parentNode.parentNode.id.substring(2);
-			var Obj = this.park_explication.block[id].obj;
-			data = [];
-			for (var i in Obj)
-				data.push(Obj[i].data);
-			//data = dataOutput.filterExportData(data);
-			dataOutput.exportJSON(data, id.replaceAll('_', ' '));
+			this.park_explication.exportData(id, 'data', 'JSON');
 			t.background = '#00ff00';
 		}
 
-		dataOutput = {
-			dataColumns : function (sample){
-				 var ac = [];
-				 for (var a in sample){
-					 if (a.indexOf('_') == -1)
-							ac.push({ data : a, title : a });
-				 }
-				 return ac;
-			},
-			exportJSON : function (exportObj, exportName){
-				 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
-				 var specialNode = document.createElement('a');
-				 specialNode.setAttribute("href",	  dataStr);
-				 specialNode.setAttribute("download", exportName + ".json");
-				 document.body.appendChild(specialNode); // required for firefox
-				 specialNode.click();
-				 specialNode.remove();
-			},
-			exportSQL : function (exportObj, tableName, exportName){
-				 var SQL = "";
-				 for (var i in exportObj){
-					var ins = "INSERT INTO " + tableName + " ("
-					for (var a in exportObj[i])
-							ins += "\"" + a + "\", ";
-					ins.slice(0, -2);
-					ins += ") VALUES (";
-					for (var a in exportObj[i]){
-							var v = exportObj[i][a];
-							if (v == null)
-								 ins += "NULL, ";
-							else {
-								if (v)
-									v = v.toString().replaceAll("'", "''");
-								ins += "'" + v + "', ";
-							}
-					}
-					ins.slice(0, -2);
-					ins += ");\n";
-						SQL += ins;
-				 }
-
-				 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(SQL);
-				 var specialNode = document.createElement('a');
-				 specialNode.setAttribute("href",	  dataStr);
-				 specialNode.setAttribute("download", exportName + ".sql");
-				 document.body.appendChild(specialNode); // required for firefox
-				 specialNode.click();
-				 specialNode.remove();
-			},
-			filterExportData: function(source){
-				var res = [];
-				for (var i in source){
-					var ex_a = {};
-					for (var j in source[i]){
-						 if (j && j[0] != '_')
-							 ex_a[j] = source[i][j];
-					}
-					res.push(ex_a);
-				}
-				return res;
-			},
+		dataOutput = {		
 			explicationDataProcess : function (expl_data){
 				// Заполнение всех табоиц
 				for (var oi in expl_data) {
