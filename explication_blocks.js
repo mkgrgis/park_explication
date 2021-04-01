@@ -1,4 +1,80 @@
 expl_func_blocks = {
+	Участки: {
+		filter: function (base, osmGeoJSON_obj) {
+			return false; // Участки не фильтруются
+		},
+		webData_object: function (base, osmGeoJSON_obj, data_obj){
+				data_obj.Нужно_доработать = data_obj.Нужно_доработать ? ('<span style="color: red">' + data_obj.Нужно_доработать + '</span>') : null;
+				return data_obj;
+			},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Год_учёта: "timestamp",
+				Код:  "varchar(8)",
+				Площадь: "varchar(256)",
+				Заметки: "varchar(256)",
+				Датировка: "varchar(256)",
+				Описание: "varchar(256)",
+				Нужно_доработать: "varchar(256)",
+				_ref: "varchar(256)"
+			}
+		},
+		data_object: function (base, osmGeoJSON_obj, Уч) {
+			var t = osmGeoJSON_obj.properties.tags;
+
+			var name = t['name'] ?? '';
+			var ref = t['ref'] ?? null;
+			//var ref_start = t['ref:start_date'] ?? '';
+			var note = t['note'] ?? null;
+			var start = t['start_date'] ?? null;
+			var descr = t['description'] ?? null;
+			var fm = t['fixme'] ?? null;
+			var sq = base.OsmGDlib.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
+			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
+			var участок = {
+				No: null,
+                Название: name,
+                Код: ref,
+				//Год_учёта: ref_start,
+				Описание: descr,
+				Площадь: sq,
+				Заметки: note,
+				Датировка: start,
+				Нужно_доработать: fm,
+				_ref: ref
+			};
+			return участок;
+		},
+		interactive: function (base, block, участок) {
+			return {
+				tooltip : участок.Название + (участок.Код ? (" (" + участок.Код + ")") : ''), //+ "×" + "∀",
+				popup : base.popup(участок, '<b>Карточка</br>участка/района парка</b></br><i>№ в таблице</i> ', block)
+					};			
+		},
+		geoJSON_style: function (base, osmGeoJSON_obj, участок) {
+			var S = {};
+			if (участок.код)
+				S.weight = 1;
+			else if (участок.название)
+				S.weight = 2;
+			else
+				S.weight = 1;
+			S.fillColor = "#44ff00";
+			S.fillOpacity = 0.1;
+			S.color = "#f2872f";
+			return S;
+		},
+		sort: function (a, b) {
+			var ka = a.Название ?? a.ref;
+			var kb = b.Название ?? b.ref;
+			if (ka < kb) return -1;
+			if (ka > kb) return 1;
+			if (a.data._ref < b.data._ref) return -1;
+			if (a.data._ref > b.data._ref) return 1;
+			return 0;
+		}
+	},
 	Маточные_площадки: {
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
@@ -57,7 +133,7 @@ expl_func_blocks = {
 				nt = 'scurb';
 			var stx =  t['source:taxon'];
 			var stx1 = base.osm.data.source_taxon[stx];
-			stx = stx1 ? stx1 : (stx ? stx : null);
+			stx = stx1 ?? stx ?? null;
 			var bio_lat = base.biolog_format({
 				genus: t['genus'],
 				spieces: t['spieces'],
@@ -68,16 +144,12 @@ expl_func_blocks = {
 				spieces: t['spieces:ru'],
 				taxon: t['taxon:ru'] ? t['taxon:ru'] : t['was:taxon:ru']
 			});
-			var note = t['note'];
+			var note = t['note'] ?? null;
 			var start = t['start_date'];
 			var descr = t['description'];
-			var lc = t['leaf_cycle'];
-			var lt = t['leaf_type'];
-			lc = lc ? lc : null;
-			lt = lt ? lt : null;
-			nt = nt ? nt : null;
-			var fm = t['fixme'];
-			fm = fm ? fm : null;
+			var lc = t['leaf_cycle'] ?? null;
+			var lt = t['leaf_type'] ?? null;
+			var fm = t['fixme'] ?? null;
 			var sq = base.OsmGDlib.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var маточная_площадка = {
@@ -179,9 +251,9 @@ expl_func_blocks = {
 			var nt = t['natural'];
 			var ww = t['waterway'];
 			var am = t['amenity'];
-			var note = t['note'];
-			var start = t['start_date'];
-			var descr = t['description'];
+			var note = t['note'] ?? null;
+			var start = t['start_date'] ?? '';
+			var descr = t['description'] ?? '';
 			if (nt == 'water')
 				ww = 'pond';
 			if (nt == 'spring')
@@ -190,20 +262,16 @@ expl_func_blocks = {
 				ww = 'fountain';
 
 			var wt = base.osm.data.water[ww];
-			var n = t['name'];
-			n = n ? n : t['alt_name'];
-			n = n ? n : t['local_name'];
-			n = n ? n : '';
-			var wd = t['width'];
-			wd = wd ? wd : '';
+			var n = t['name'] ?? t['alt_name'] ?? t['local_name'] ?? '';
+			var wd = t['width'] ?? '';
 			var mt_len = base.OsmGDlib.γεωμετρία.len(osmGeoJSON_obj.geometry);
 			var sq = base.OsmGDlib.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var водоток = {
 				No: null,
 				Название: n,
-				Другое_название: t['alt_name'] ? t['alt_name'] : '',
-				Местное: t['local_name'] ? t['local_name'] : '',
+				Другое_название: t['alt_name'] ?? '',
+				Местное: t['local_name'] ?? '',
 				Тип: wt,
 				Пересыхает: t['intermittent'] ? 'Есть' : 'Нет',
 				Сезонность: t['seasonal'] ? 'Есть' : 'Нет',
@@ -211,10 +279,10 @@ expl_func_blocks = {
 				Длина_части: mt_len ? '≈' + mt_len.toFixed(1) + 'м' : '',
 				Ширина: wd,
 				Площадь: sq,
-				Заметки: note ? note : null,
-				Датировка: start ? start : '',
-				Описание: descr ? descr : '',
-				Датировка: start ? start : '',
+				Заметки: note,
+				Датировка: start,
+				Описание: descr,
+				Датировка: start,
 				Подтверждение_направления_течения: base.osm.data.source_direction[t['source:direction']],
 			};
 			return водоток;
@@ -289,23 +357,16 @@ expl_func_blocks = {
 			var hw = t['highway'];
 			var hs = t['surface'];
 			var ht = base.osm.data.highway[hw];
-			var hst = '';
-			if (hs)
-				hst = base.osm.data.surface[hs];
-			hst = hst ? hst : hs;
-			var n = t['name'];
-			n = n ? n : '';
-			var an = t['alt_name'];
-			an = an ? an : '';
-			var ln = t['local_name'];
-			ln = ln ? ln : '';
+			hst = base.osm.data.surface[hs] ?? hs ?? '';
+			var an = t['alt_name'] ?? '';
+			var ln = t['local_name'] ?? '';
+			var n = t['name'] ?? an ?? ln ?? '';
 
-			var wd = t['width'];
-			wd = wd ? wd : '';
+			var wd = t['width'] ?? '';
 
-			var note = t['note'];
-			var start = t['start_date'];
-			var descr = t['description'];
+			var note = t['note'] ?? null;
+			var start = t['start_date'] ?? '';
+			var descr = t['description'] ?? '';
 			var mt_len = base.OsmGDlib.γεωμετρία.len(osmGeoJSON_obj.geometry);
 
 			var дорожка = {
@@ -314,13 +375,13 @@ expl_func_blocks = {
 				Другое_название: an,
 				Местное: ln,
 				Тип: ht,
-				Покрытие: hst ? hst : '',
+				Покрытие: hst,
 				Длина_части: mt_len ? '≈' + mt_len.toFixed(1) + 'м' : '',
 				Ширина: wd,
 				Мост: t['bridge'] ? 'Да' : '',
-				Заметки: note ? note : null,
-				Датировка: start ? start : '',
-				Описание: descr ? descr : '',
+				Заметки: note,
+				Датировка: start,
+				Описание: descr
 			};
 			return дорожка;
 		},
@@ -442,18 +503,15 @@ expl_func_blocks = {
 			var l = t['leisure'];
 			var lt = base.osm.data.leisure[l];
 			var sp = t['sport'];
-			var st = base.osm.data.sport[sp];
+			var st = base.osm.data.sport[sp] ?? sp ?? '';
 			var sq = base.OsmGDlib.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var площадка = {
 				No: null,
 				Участок: Уч,
 				Тип: lt,
-				Спорт: st ? st : '',
-				Площадь: sq,
-				//Заметки: note ? note : null,
-				//Датировка: start ? start : '',
-				//Описание: descr ? descr : '',
+				Спорт: st,
+				Площадь: sq
 			};
 			return площадка;
 		},
@@ -501,10 +559,10 @@ expl_func_blocks = {
 
 			var i = t['information'];
 			var bt = t['board_type'];
-			var note = t['note'];
+			var note = t['note'] ?? null;
 			var name = t['name'];
-			var start = t['start_date'];
-			var descr = t['description'];
+			var start = t['start_date'] ?? null;
+			var descr = t['description'] ?? '';
 			var bio_lat = base.biolog_format({
 				genus: t['genus'],
 				spieces: t['spieces'],
@@ -529,9 +587,9 @@ expl_func_blocks = {
 				Вид2: bio_rus[1] ? bio_rus[1].spieces.join(' ') : '',
 				Genus2: bio_lat[1] ? bio_lat[1].genus : '',
 				Spieces2: bio_lat[1] ? bio_lat[1].spieces.join(' ') : '',
-				Заметки: note ? note : null,
-				Датировка: start ? start : '',
-				Описание: descr ? descr : '',
+				Заметки: note,
+				Датировка: start,
+				Описание: descr,
 				Площадка: null
 			};
 			return справочный_объект;
@@ -571,27 +629,25 @@ expl_func_blocks = {
 
 			var t = osmGeoJSON_obj.properties.tags;
 
-			var r = t['ref:ЕГРОКН'];
-			var r1 = t['ref:okn'];				
-			var ref = r ? r : r1;				
-			var name = t['name'];
-			var start = t['start_date'];
-			var descr = t['description'];
-			var note = t['note'];
-			var at = t['architect'];
-			var ar = t['artist_name'];				
+			var ref = t['ref:ЕГРОКН'] ?? t['ref:okn'] ?? null;
+			var name = t['name'] ?? null;
+			var start = t['start_date'] ?? null;
+			var descr = t['description'] ?? '';
+			var note = t['note'] ?? null;
+			var at = t['architect'] ?? null;
+			var ar = t['artist_name'] ?? null;				
 			ref = '<a href="https://ru_monuments.toolforge.org/get_info.php?id=' + ref + '">' + ref + '</a>';
 			
 			var ОКН = {
 				No: null,					
 				Участок : Уч ?? null,
-				Код_ЕГРОКН : ref ?? null,
-				Название : name ?? null,
-				Датировка: start ?? '',
-				Архитектор: at ?? null,
-				Автор_худ_решения: ar ?? null,					
-				Заметки: note ?? null,
-				Описание: descr ?? ''
+				Код_ЕГРОКН : ref,
+				Название : name ,
+				Датировка: start,
+				Архитектор: at,
+				Автор_худ_решения: ar,					
+				Заметки: note,
+				Описание: descr
 			};
 			return ОКН;
 		},
@@ -680,16 +736,15 @@ expl_func_blocks = {
 			var bc = t['backrest'];
 			var mt = t['material'];
 			var cl = t['color'];
+			var start = t['start_date'] ?? null;
 			var mtt = base.osm.data.material[mt];
 			var скамейка = {
 				No: null,
 				Спинка: (bc == 'yes') ? 'есть' : 'нет',					
 				Метариал: mtt ? mtt : (mt ? mt : ''),
 				Цвет: cl ? cl : '',
-			/*	Заметки: note ? note : null,
-				Датировка: start ? start : '',
-				Описание: descr ? descr : '',*/				
-				Участок: Уч
+				Участок: Уч,
+				Датировка: start
 			};
 			return скамейка;
 		},
@@ -728,20 +783,20 @@ expl_func_blocks = {
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 
-			var n = t['name'];
+			var n = t['name'] ?? '';
 			var at = t['artwork_type'];
 			var mt = t['material'];
-			var au = t['artist_name'];
-			var start = t['start_date'];				
-			var note = t['note'];
+			var au = t['artist_name'] ?? '';
+			var start = t['start_date'] ?? null;				
+			var note = t['note'] ?? '';
 			var mtt = base.osm.data.material[mt];
 			var дпр = {
 				No: null,
 				Тип: at ? base.osm.data.artwork_type[at] : '',
-				Название: n ? n : '',
-				Автор: au ? au : '',
-				Заметки: note ? note : '',
-				Датировка: start ? start : '',					
+				Название: n,
+				Автор: au,
+				Заметки: note,
+				Датировка: start,
 				Участок: Уч
 			};
 			return дпр;
@@ -791,17 +846,13 @@ expl_func_blocks = {
 			var t = osmGeoJSON_obj.properties.tags;
 
 			var l = t['amenity'];
-			var bc = t['backrest'];
 			var mt = t['material'];
-			var n = t['name'];
-			var mtt = base.osm.data.material[mt];
+			var n = t['name'] ?? '';
+			var mtt = base.osm.data.material[mt] ?? mt ?? null;
 			var малая_форма = {
 				No: null,
-				Название: n ? n : '',
-				Метариал: mtt ? mtt : (mt ? mt : ''),					
-			/*	Заметки: note ? note : null,
-				Датировка: start ? start : '',
-				Описание: descr ? descr : '',*/
+				Название: n,
+				Метариал: mtt,
 				Участок: Уч
 			};
 			return малая_форма;

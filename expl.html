@@ -104,6 +104,7 @@
 			border-bottom: 1px solid #FFFFFF;
 			background: #FFFFFF;
 		}
+		#tab_Участки:checked ~ #x_Участки,
 		#tab_Маточные_площадки:checked ~ #x_Маточные_площадки,
 		#tab_Справочные_объекты:checked ~ #x_Справочные_объекты,
 		#tab_Дорожно_тропиночая_сеть:checked ~ #x_Дорожно_тропиночая_сеть,
@@ -133,6 +134,9 @@
 	<div id="map" style="height: 700px; width:98%"></div>
 	<p></p>
 	<div class="tabs">
+		<input type="radio" name="inset" value="" id="tab_Участки" checked>
+		<label for="tab_Участки">Участки</label>
+
 		<input type="radio" name="inset" value="" id="tab_Маточные_площадки" checked>
 		<label for="tab_Маточные_площадки">Маточные площадки</label>
 
@@ -163,6 +167,15 @@
 		<input type="radio" name="inset" value="" id="tab_Объекты_культурного_наследия">
 		<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
 
+		<div id="x_Участки">
+			<h3>Участки</h3> <p>Экспорт данных
+				<a onclick="exportJSON(this)">JSON</a>
+				<a onclick="exportSQL(this)">SQL</a>
+			</p>
+			<div class="objTable">
+				<table class="dataTable" id="Участки"></table>
+			</div>
+		</div>		
 		<div id="x_Маточные_площадки">
 			<h3>Маточные площадки</h3> <p>Экспорт данных
 				<a onclick="exportJSON(this)">JSON</a>

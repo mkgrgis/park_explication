@@ -178,6 +178,30 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 			}
 		}
 		log('Первичная фильтрация объектов завершена');
+		for (var i in участки) {
+			var osmGeoJSON_obj = участки[i];
+
+			var geoNd = this.OsmGDlib.γεωμετρία.geo_nodes(osmGeoJSON_obj);
+			var ok = false;
+			for (var j_n in geoNd) {
+				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], main_rel, { ignoreBoundary: true }));
+			}
+			block = this.block['Участки'];
+
+			var eo = new L.OSM.park_explication_obj();
+			eo.geoJSON = osmGeoJSON_obj;
+			eo.geoNodes = geoNd;
+			var data = block.f_obj.data_object(this, osmGeoJSON_obj, null);
+			// Декорируем данные объекта для веб
+			var wD = block.f_obj.webData_object(this, osmGeoJSON_obj, Object.assign({}, data));
+			wD.OSM = OSM_href(osmGeoJSON_obj);
+			eo.webData = wD;
+
+			OSM_data(osmGeoJSON_obj, data);
+			eo.data = data;
+
+			block.obj.push(eo);			
+		}
 
 		function Участок_всех_точек (уч_geoJson) {
 			if (уч_geoJson.length == 0) // Нет точек ни в одном участке
