@@ -358,7 +358,11 @@
 					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}',
 						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_norm' }),
 					L.tileLayer('https://tiles.openaerialmap.org/5fac2fcd3729bf000552677c/0/5fac2fcd3729bf000552677d/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_or' })
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_or' }),
+					L.tileLayer('https://tiles.openaerialmap.org/607ec5595415000005a5283a/0/607ec5595415000005a5283b/{z}/{x}/{y}',
+						{ maxZoom: 22, attribution: '&copy; Сергей Астахов,нормаль аэрортофото города Пушкин', id: 'puschkin_2021_aero_norm' }),
+					L.tileLayer('https://tiles.openaerialmap.org/607ec4fc5415000005a52838/0/607ec4fc5415000005a52839/{z}/{x}/{y}',
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'puschkin_2021_aero_or' })
 				],
 				[
 					'Снимки от Esri',
@@ -374,7 +378,9 @@
 					'Карта google',
 					'Гибрид google',
 					'Нормализ. аэроротофото Павловского парка 2020 г.',
-					'Оригинальное аэроротофото Павловского парка 2020 г.'
+					'Оригинальное аэроротофото Павловского парка 2020 г.',
+					'Нормализ. аэроротофото города Пушкина 2021 г.',
+					'Оригинальное аэроротофото города Пушкина 2021 г.'
 				],
 				getJsonFromUrl(),
 				dataOutput.explicationDataProcess
