@@ -228,10 +228,13 @@ expl_func_blocks = {
 			var nt = t['natural'];
 			var ww = t['waterway'];
 			var am = t['amenity'];
+			var mm = t['man_made'];
 			if (!ww && nt != 'water' && nt != 'spring' && am != 'fountain')
 				return false;
 			if (ww == 'dam')
 				return false;
+			if (mm && mm == 'water_well')
+				return true;
 			if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
 				osmGeoJSON_obj.properties.showDirection = true;
 			return true;
