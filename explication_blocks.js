@@ -955,7 +955,7 @@ expl_func_blocks = {
 			var am = t['amenity'];
 			var mt = t['material'];	
 			
-			S.color = (am == 'shelter') ? '#00ff00' : (b == 'roof')? '#ff0000' : (b == 'yes') ? '#0ff000';
+			S.color = (am == 'shelter') ? '#00ff00' : (b == 'roof')? '#ff0000' : (b == 'yes') ? '#0ff000' : '#000ff0';
 			return S;
 		},
 		sort: function (a, b) {
