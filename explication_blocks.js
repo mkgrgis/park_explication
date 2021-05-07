@@ -605,7 +605,8 @@ expl_func_blocks = {
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, пл) {
 			var S = {};
-			S.weight = 4;				
+			S.weight = 3;
+			S.color = '#ff0000';
 			return S;
 		},
 		sort: function (a, b) {
@@ -709,7 +710,8 @@ expl_func_blocks = {
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, урна) {
 			var S = {};
-			S.weight = 4;				
+			S.weight = 2;
+			S.color = '#0ff000';
 			return S;
 		},
 		sort: function (a, b) {
@@ -759,7 +761,8 @@ expl_func_blocks = {
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, скамейка) {
 			var S = {};
-			S.weight = 4;				
+			S.weight = 1;
+			S.color = '#00ff00';
 			return S;
 		},
 		sort: function (a, b) {
@@ -868,7 +871,8 @@ expl_func_blocks = {
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, малая_форма) {
 			var S = {};
-			S.weight = 4;				
+			S.weight = 2;
+			S.color = '#000ff0';
 			return S;
 		},
 		sort: function (a, b) {
