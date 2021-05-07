@@ -892,7 +892,7 @@ expl_func_blocks = {
 			var t = osmGeoJSON_obj.properties.tags;
 			var b = t['building'];			
 			var am = t['amenity'];
-			if (b || am = 'shelter')
+			if (b || am == 'shelter')
 				return true;			
 			return false;
 		},
