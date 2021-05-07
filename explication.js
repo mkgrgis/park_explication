@@ -282,7 +282,13 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 				var act = block.f_obj.interactive(this, oi, eo.webData);
 
 				var st = block.f_obj.geoJSON_style(this, gj, data);
-				var l = L.geoJSON(eo.geoJSON, st);
+				var l = L.geoJSON(eo.geoJSON, {
+					style: st,
+					pointToLayer: function(feature, latlng) {
+						return L.circleMarker(latlng, { radius: 4, weight: 3 });
+					}
+				});
+				
 				if (eo.geoJSON.properties.showDirection)
 					l.setText(st.text, st.textStyle);
 				if (act.popup){
