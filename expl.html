@@ -113,7 +113,8 @@
 		#tab_Урны:checked ~ #x_Урны,
 		#tab_Достопримечательности:checked ~ #x_Достопримечательности,
 		#tab_Малые_формы:checked ~ #x_Малые_формы,
-		#tab_Объекты_культурного_наследия:checked ~ #x_Объекты_культурного_наследия { display: block; }
+		#tab_Объекты_культурного_наследия:checked ~ #x_Объекты_культурного_наследия,
+		#tab_Здания_и_сооружения:checked ~ #x_Здания_и_сооружения { display: block; }
 
 	</style>
 	<script src="js/leaflet.js" type="text/javascript"></script>
@@ -166,6 +167,9 @@
 
 		<input type="radio" name="inset" value="" id="tab_Объекты_культурного_наследия">
 		<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
+		
+		<input type="radio" name="inset" value="" id="tab_Здания_и_сооружения">
+		<label for="tab_Здания_и_сооружения">Здания и сооружения</label>		
 
 		<div id="x_Участки">
 			<h3>Участки</h3> <p>Экспорт данных
@@ -273,6 +277,15 @@
 			</p>
 			<div class="objTable">
 				<table class="dataTable" id="Объекты_культурного_наследия"></table>
+			</div>
+		</div>
+		<div id="x_Здания_и_сооружения">
+			<h3>Здания и сооружения</h3> <p>Экспорт данных
+				<a onclick="exportJSON(this)">JSON</a>
+				<a onclick="exportSQL(this)">SQL</a>
+			</p>
+			<div class="objTable">
+				<table class="dataTable" id="Здания_и_сооружения"></table>
 			</div>
 		</div>
 	</div>
