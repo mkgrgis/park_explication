@@ -886,5 +886,91 @@ expl_func_blocks = {
 				return (a.data.Название < b.data.Название) ? -1 : 1;
 			}*/
 		}
+	},
+	Здания_и_сооружения: {
+		filter: function (base, osmGeoJSON_obj) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var b = t['building'];			
+			var am = t['amenity'];
+			if (b || am = 'shelter')
+				return true;			
+			return false;
+		},
+		webData_object: function (base, osmGeoJSON_obj, data_obj){
+			return data_obj;
+			},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Участок: "varchar(8)"
+			}
+		},
+		data_object: function (base, osmGeoJSON_obj, Уч) {
+			var t = osmGeoJSON_obj.properties.tags;
+
+			var b = t['building'];			
+			var am = t['amenity'];
+			var mt = t['material'];	
+			var h = t['height'] ?? '';
+			var rh = t['roof:height'] ?? '';
+			var rs = t['roof:shape'] ?? '';
+			var mtt = base.osm.data.material[mt] ?? mt ?? null;
+			var note = t['note'] ?? null;
+			var start = t['start_date'] ?? '';
+			var descr = t['description'] ?? '';
+			var n = t['name'] ?? t['alt_name'] ?? t['local_name'] ?? '';
+			var wd = t['width'] ?? '';
+			var mt_len = base.OsmGDlib.γεωμετρία.len(osmGeoJSON_obj.geometry);
+			var sq = base.OsmGDlib.γεωμετρία.sqf(osmGeoJSON_obj.geometry);
+			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
+			var здание = {
+				No: null,
+				Название: n,
+				Другое_название: t['alt_name'] ?? '',
+				Местное: t['local_name'] ?? '',				
+				Длина_части: mt_len ? '≈' + mt_len.toFixed(1) + 'м' : '',
+				Материал: mtt,
+				Площадь: sq,
+			 	Высота: h,
+				ВысотаКровли: rh,
+				ТипКровли: rs,
+				Заметки: note,
+				Датировка: start,
+				Описание: descr,
+				Датировка: start				
+			};
+			return здание;
+		},
+		interactive: function (base, block, здание) {
+			return {
+				tooltip : здание.Название ? здание.Название : здание.Местное ? здание.Местное : здание.Другое_название ? здание.Другое_название : '',
+				popup : base.popup(здание, '<b>Карточка здания/сооружения</b></br><i>№ в таблице</i> ', block)
+					};
+		},
+		geoJSON_style: function (base, osmGeoJSON_obj, зд) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var S = {};
+			
+			var b = t['building'];			
+			var am = t['amenity'];
+			var mt = t['material'];	
+			
+			S.color =  (am = 'shelter') ? '#00ff00' : (b == 'roof')? '#ff0000' : (b == 'yes') ? '#0ff000';
+			return S;
+		},
+		sort: function (a, b) {
+			if (a.data.Название === b.data.Название) {
+				return 0;
+			}
+			else if (!a.data.Название) {
+				return 1;
+			}
+			else if (!b.data.Название) {
+				return -1;
+			}
+			else {
+				return (a.data.Название < b.data.Название) ? -1 : 1;
+			}
+		}
 	}
 };
