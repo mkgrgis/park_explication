@@ -912,7 +912,8 @@ expl_func_blocks = {
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 
-			var b = t['building'];			
+			var b = t['building'];
+			var tb = base.osm.data.building[b] ?? b ?? null;
 			var am = t['amenity'];
 			var mt = t['material'];	
 			var h = t['height'] ?? '';
@@ -929,6 +930,7 @@ expl_func_blocks = {
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var здание = {
 				No: null,
+			    	Тип: tb,
 				Название: n,
 				Другое_название: t['alt_name'] ?? '',
 				Местное: t['local_name'] ?? '',				
