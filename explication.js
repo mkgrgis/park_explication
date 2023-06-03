@@ -23,7 +23,9 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 	this.osm_relation_id = osm_relation_id;
 	this.f_fin_ok = f_fin_ok;
 	this.get_data();
-	var xhttp = new XMLHttpRequest();
+	this.osm = {};
+	this.osm.data = JSON.parse('{	"leaf_type":{		"broadleaved":{			"ru" : "Широколиственная",			"color" : "#8DB600"		},		"needleleaved":{			"ru" : "Хвойная",			"color" : "#397262"		},		"mixed":{			"ru" : "Смешанный",			"color" : "#888888"		},		"leafless":{			"ru" : "Безлистная",			"color" : "#000000"		},		"null":{			"ru" : "?",			"color" : "#ffff00"		}	},	"leaf_cycle":{		"evergreen":{			"ru" : "Вечнозелёные",			"color" : "#397262"		},		"deciduous":{			"ru" : "Листопадные",			"color" : "#8DB600"		},		"semi_evergreen":{			"ru" : "Полулистопадные",			"color" : "#00ffa0"		},		"semi_deciduous":{			"ru" : "С коротким безлиственным периодом",			"color" : "#476300"		},		"mixed":{			"ru" : "смешанные",			"color" : "#888888"		},		"null":{			"ru" : "?",			"color" : "#ffff00"		}	},	"natural":{		"wood" : "Древесная посадка",		"tree" : "Отдельное дерево",		"tree_row" : "Ряд деревьев",		"scrub" : "Кусты",		"null" : "?"	},	"water":{		"spring" : "Родник",		"pond" : "Водная гладь",		"river" : "Речка",		"stream" : "Ручей",		"drain" : "Сток",		"ditch" : "Канава",		"waterfall" : "Водопад",		"weir" : "Плотина",		"riverbank" : "Большая река",		"fountain" : "Фонтан",		"null" : "?"	},	"highway":{		"path" : "Тропинка",		"footway" : "Дорожка",		"footpath" : "Дорожка",		"service" : "Проезжая дорога",		"track" : "Парковая дорога",		"steps" : "Лестница",		"pedestrian" : "Пешеходная улица",		"null" : "?"	},	"surface":{		"dirt" : "Грязь",		"ground" : "Земля",		"unpaved" : "Земля",		"compacted" : "Утрамбовано",		"tiles" : "Плитка",		"paving_stones" : "Мощение",		"asphalt" : "Асфальт",		"gravel" : "Гравий",		"paved" : "Твёрдое",		"wood" : "Дерево",		"metal" : "Металл",		"pebblestone" : "Галька",		"fine_gravel" : "Камнегравийный слой",		"grass" : "Трава",		"null" : ""	},	"surface_color":{		"dirt" : "#9b7653",		"ground" : "#9b76ff",		"compacted" : "#442d25",		"tiles" : "#303030",		"paving_stones" : "#774444",		"asphalt" : "#444444",		"gravel" : "yellow",		"paved" : "#111111",		"wood" : "#0a5F38",		"pebblestone" : "#888888",		"fine_gravel" : "#f8f32b",		"grass" : "#8DB600",		"null" : "red"	},	"leisure": {		"pitch" : "Спортивная площадка",		"playground" : "Игровая площадка",		"dog_park" : "Собачья площадка"	},	"sport": {		"fitness" : "фитнес",		"table_tennis" : "настольный тенис"	},	"artwork":{		"sculpture" : "скульптура"	},	"material":{		"wood" : "дерево",		"metal" : "металл",		"stone" : "камень",		"marble" : "мрамор",		"glass" : "стекло",		"steel" : "сталь",		"concrete" : "заливной бетон"	},	"artwork_type":{		"sculpture" : "скульптура",		"statue" : "статуя",		"painting" : "живописное",		"mosaic" : "мозаика",		"mural" : "фреска",		"architecture" : "архитектурный объект",		"installation" : "инсталляция"	},	"source_taxon":{		"board" : "Щит с описанием",		"survey" : "Осмотр",		"label" : "Бирка на саженцах",		"null" : "нет"	},	"information":{		"board" : "Щит с описанием",		"office" : "Cправочная служба",		"terminal" : "Терминал информационной системы",		"audioguide" : "Аудиогид",		"map" : "Карта или план",		"tactile_map" : "Тактильная карта",		"tactile_model" : "Тактильная модель",		"guidepost" : "Указатель направлений",		"trail_blaze" : "Маршрутная метка или табличка",		"route_marker" : "Маршрутная метка или табличка"	},	"board_type":{		"geology" : "о геологии",		"history" : "об истории",		"nature" : "о природе или климате",		"plants" : "о растительности",		"notice" : "о мероприятиях",		"wildlife" : "о животном мире",		"null" : "не указан"	},	"source_direction":{		"isoline" : "Пересекает изолинию или видимый наклон",		"survey" : "Осмотр, зафиксировано направление течения",		"null" : "нет"	},	"building":{		"yes": "Здание общего типа",		"shed": "Вспомогательная постройка",		"farm_auxiliary": "Сельскохозяйственное здание",		"roof": "Навес",		"kiosk": "Будка",		"cabin": "Кабина",		"null": "не указан"	}}');
+	/*var xhttp = new XMLHttpRequest();
 	xhttp.__ = this;
 	xhttp.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
@@ -32,7 +34,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 	};
 	xhttp.open("GET", "osmdata.json", true);
 	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.send();
+	xhttp.send(); */
 };
 
 	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_rel_xml) {
@@ -40,7 +42,9 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		var gJs = L.geoJSON(mr);
 
 		var xhr = new XMLHttpRequest();
-		xhr.url = 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
+		var b = gJs.getBounds();
+		xhr.url = "https://overpass-api.de/api/interpreter?data=[out:xml];(++node(" + b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() + ");<;);(._;>;);out+meta;";
+		// 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
 		xhr.open('GET', xhr.url, true);
 		xhr.ini_obj = this;
 		xhr.send();
