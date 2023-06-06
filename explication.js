@@ -28,9 +28,9 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 	/*var xhttp = new XMLHttpRequest();
 	xhttp.__ = this;
 	xhttp.onreadystatechange = function() {
-	    if (this.readyState == 4 && this.status == 200) {
+		if (this.readyState == 4 && this.status == 200) {
 			this.__.osm = { data : JSON.parse(this.responseText)};
-	    }
+		}
 	};
 	xhttp.open("GET", "osmdata.json", true);
 	xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -57,7 +57,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 					xhr.ini_obj.f_fin_ok(xhr);
 			}
 		}
-	};    
+	};
 	L.OSM.park_explication.prototype.get_data = function () {
 		xhr = new XMLHttpRequest();
 		xhr.url = this.OsmGDlib.OSM_URL('relation', this.osm_relation_id, 'full');
@@ -97,7 +97,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		var mr = L.geoJSON(mrg, { fillOpacity: 0, color: "#F2872F" });
 		md.map.fitBounds(mr.getBounds());
 		md.Control.addOverlay(mr, n);
-		md.map.addLayer(mr); 
+		md.map.addLayer(mr);
 		return md;
 	};
 	L.OSM.park_explication.prototype.general_rel_geoJson = function() {
@@ -350,6 +350,24 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 					block.layerGroup.addTo(this.md.map);				
 		}
 		this.md.Control.expand();
+		
+		L.GridLayer.GridDebug = L.GridLayer.extend({
+			createTile: function (coords) {
+				const tile = document.createElement('div');
+				tile.style.outline = '1px solid green';
+				tile.style.fontWeight = 'bold';
+				tile.style.fontSize = '14pt';
+				tile.style.color = '#ffff00';
+				tile.innerHTML = [coords.z, coords.x, coords.y].join('/');
+				return tile;
+			},
+		});
+
+		L.gridLayer.gridDebug = function (opts) {
+			return new L.GridLayer.GridDebug(opts);
+		};
+
+		this.md.Control.addOverlay(L.gridLayer.gridDebug(), "сетка WMS");
 	}; // Конец основной алгоритмической ветви
 
 	L.OSM.park_explication.prototype.activate = function (id, object_class){
@@ -455,7 +473,22 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 		for (var i in provider)
 			TileLayers.push(L_TileSource(provider[i]));
 	}
-  	this.ini_layer = TileLayers[map_params.tile ?? 0] ?? TileLayers[0];
+  	this.ini_layer = TileLayers[0];
+	   	
+  	if (map_params.tile)
+  	{  	 
+		for (var i in TileLayers) {
+			var tl = TileLayers[i];
+			if (!tl.options || !tl.options.id)
+				continue;
+			if (tl.options.id == map_params.tile)
+			{
+				this.ini_layer = tl;
+				break;
+			}
+		}
+  	}
+  	
 	if (controls) {
 		this.Control = new L.Control.Layers();
 		for (var i in TileLayers){
