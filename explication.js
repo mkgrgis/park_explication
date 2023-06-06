@@ -456,7 +456,16 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 */
 function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params) {
 	function L_TileSource (prov) {
-		return (typeof prov === 'string') ? L.tileLayer.provider(prov) : prov;		
+		if(typeof prov === 'string')
+		{
+			var p = L.tileLayer.provider(prov);
+			if (!p.options)
+				p.options = {};
+			p.options.id = prov;
+			return p;
+		}
+		else
+			return prov;
 	}
 	this.div = div;
 	this.map = L.map(div.getAttribute('id'), { keyboard: false });
