@@ -370,7 +370,13 @@
 					L.tileLayer('https://tiles.openaerialmap.org/607ec5595415000005a5283a/0/607ec5595415000005a5283b/{z}/{x}/{y}',
 						{ maxZoom: 22, attribution: '&copy; Сергей Астахов,нормаль аэрортофото города Пушкин', id: 'puschkin_2021_aero_norm' }),
 					L.tileLayer('https://tiles.openaerialmap.org/607ec4fc5415000005a52838/0/607ec4fc5415000005a52839/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'puschkin_2021_aero_or' })
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'puschkin_2021_aero_or' }),
+					L.tileLayer('../Parc_de_Pavlovsk_WMS/1792/{z}/{x}/{y}.jpg',
+						{ maxZoom: 20, maxNativeZoom: 18, attribution: '<a href="http://retromap.ru/1417981_59.685832,30.45423">retromap.ru</a>', id: 'Павловск1792' }),
+					L.tileLayer('../Parc_de_Pavlovsk_WMS/1803/{z}/{x}/{y}.jpg',
+						{ maxZoom: 20, maxNativeZoom: 17, attribution: '<a href="http://retromap.ru/1418033_59.685832,30.45423">retromap.ru</a>', id: 'Павловск1803' }),
+					L.tileLayer('../Parc_de_Pavlovsk_WMS/1842/{z}/{x}/{y}.jpg',
+						{ maxZoom: 20, maxNativeZoom: 17, attribution: '<a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>', id: 'Павловск1842' })
 				],
 				[
 					'Снимки от Esri',
@@ -385,7 +391,10 @@
 					'Нормализ. аэроротофото Павловского парка 2020 г.',
 					'Оригинальное аэроротофото Павловского парка 2020 г.',
 					'Нормализ. аэроротофото города Пушкина 2021 г.',
-					'Оригинальное аэроротофото города Пушкина 2021 г.'
+					'Оригинальное аэроротофото города Пушкина 2021 г.',
+					'Павловск, 1792 г.',
+					'Павловск, 1803 г.',
+					'Павловск, 1842 г.'
 				],
 				getJsonFromUrl(),
 				dataOutput.explicationDataProcess
