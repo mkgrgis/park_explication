@@ -350,6 +350,8 @@
 			var filter = el[1] ? el[1] : null;
 
 			document.getElementById('filter').innerText = filter;
+
+			var ParcDePavlovskWMSbaseURL = 'https://mkgrgis.github.io/Parc_de_Pavlovsk_WMS';
 			this.function_general(
 				участки,
 				[
@@ -364,19 +366,43 @@
 					gLayer('p'),
 					gLayer('y'),
 					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}',
-						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_norm' }),
+						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка', id: 'Павловск2020аэроортоНорм' }),
 					L.tileLayer('https://tiles.openaerialmap.org/5fac2fcd3729bf000552677c/0/5fac2fcd3729bf000552677d/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'pavlovsc_2020_aero_or' }),
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'Павловск2020аэроортоОриг' }),
 					L.tileLayer('https://tiles.openaerialmap.org/607ec5595415000005a5283a/0/607ec5595415000005a5283b/{z}/{x}/{y}',
-						{ maxZoom: 22, attribution: '&copy; Сергей Астахов,нормаль аэрортофото города Пушкин', id: 'puschkin_2021_aero_norm' }),
+						{ maxZoom: 22, attribution: '&copy; Сергей Астахов,нормаль аэрортофото города Пушкин', id: 'Пушкин2021аэроортоНорм' }),
 					L.tileLayer('https://tiles.openaerialmap.org/607ec4fc5415000005a52838/0/607ec4fc5415000005a52839/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'puschkin_2021_aero_or' }),
-					L.tileLayer('../Parc_de_Pavlovsk_WMS/1798/{z}/{x}/{y}.jpg',
-						{ maxZoom: 20, maxNativeZoom: 18, attribution: '<a href="http://retromap.ru/1417981_59.685832,30.45423">retromap.ru</a>', id: 'Павловск1798' }),
-					L.tileLayer('../Parc_de_Pavlovsk_WMS/1803/{z}/{x}/{y}.jpg',
-						{ maxZoom: 20, maxNativeZoom: 17, attribution: '<a href="http://retromap.ru/1418033_59.685832,30.45423">retromap.ru</a>', id: 'Павловск1803' }),
-					L.tileLayer('../Parc_de_Pavlovsk_WMS/1842/{z}/{x}/{y}.jpg',
-						{ maxZoom: 20, maxNativeZoom: 17, attribution: '<a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>', id: 'Павловск1842' })
+						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'Пушкин2021аэроортоОриг' }),
+					L.tileLayer( ParcDePavlovskWMSbaseURL + '/1798/{z}/{x}/{y}.jpg', {
+    					maxZoom: 20,
+    					maxNativeZoom: 18,
+    					attribution: 'Привязка и публикация <a href="http://retromap.ru/1417981_59.685832,30.45423">retromap.ru</a>',
+    					id: 'Павловск1798'
+    					}),
+    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1803/{z}/{x}/{y}.jpg', {
+        				maxZoom: 20,
+    				    maxNativeZoom: 18,
+        				attribution: 'Привязка и публикация <a href="http://retromap.ru/1418033_59.685832,30.45423">retromap.ru</a>',
+        				id: 'Павловск1803'
+    				}),
+    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1842/{z}/{x}/{y}.jpg', {
+        				maxZoom: 20,
+        				maxNativeZoom: 17,
+        				attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
+        				id: 'Павловск1842'
+    				}),
+    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1876/{z}/{x}/{y}.jpg', {
+        				maxZoom: 20,
+        				maxNativeZoom: 17,
+        				attribution: 'Привязка и публикация <a href="http://retromap.ru/14187624_59.685702,30.453672">retromap.ru</a>',
+        				id: 'Павловск1876'
+   					}),
+   					L.tileLayer(ParcDePavlovskWMSbaseURL + '/1915/{z}/{x}/{y}.jpg', {
+       					maxZoom: 18,
+       					maxNativeZoom: 15,
+       					attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
+       					id: 'Павловск1915'
+   					})
 				],
 				[
 					'Снимки от Esri',
@@ -394,7 +420,9 @@
 					'Оригинальное аэроротофото города Пушкина 2021 г.',
 					'Павловск, 1792 г.',
 					'Павловск, 1803 г.',
-					'Павловск, 1842 г.'
+					'Павловск, 1842 г.',
+					'Павловск, 1876 г.',
+					'Павловск, 1915 г.'
 				],
 				getJsonFromUrl(),
 				dataOutput.explicationDataProcess
