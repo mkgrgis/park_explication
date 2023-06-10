@@ -501,7 +501,7 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 	if (controls) {
 		this.Control = new L.Control.Layers();
 		for (var i in TileLayers){
-			var provStr = providerName[i] ?? ((typeof prov === 'string') ? prov : '?');
+			var provStr = providerName[i] ?? ((typeof prov === 'string') ? prov : (TileLayers[i].options && TileLayers[i].options) ? TileLayers[i].options.id : '?');
 			this.Control.addBaseLayer(TileLayers[i], provStr);
 		}
 		this.map.addControl(this.Control);
