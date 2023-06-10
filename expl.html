@@ -365,14 +365,48 @@
 						{ maxZoom: 28, attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' + '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' + 'Imagery © <a href="http://mapbox.com">Mapbox</a>', id: 'mapbox.streets' }),					
 					gLayer('p'),
 					gLayer('y'),
-					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}',
-						{ maxZoom: 22, attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка', id: 'Павловск2020аэроортоНорм' }),
-					L.tileLayer('https://tiles.openaerialmap.org/5fac2fcd3729bf000552677c/0/5fac2fcd3729bf000552677d/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка', id: 'Павловск2020аэроортоОриг' }),
-					L.tileLayer('https://tiles.openaerialmap.org/607ec5595415000005a5283a/0/607ec5595415000005a5283b/{z}/{x}/{y}',
-						{ maxZoom: 22, attribution: '&copy; Сергей Астахов,нормаль аэрортофото города Пушкин', id: 'Пушкин2021аэроортоНорм' }),
-					L.tileLayer('https://tiles.openaerialmap.org/607ec4fc5415000005a52838/0/607ec4fc5415000005a52839/{z}/{x}/{y}',
-						{ maxZoom: 24, attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин', id: 'Пушкин2021аэроортоОриг' }),
+					// Набор современных аэроортофото карт по Павловску и Пушкину
+					L.tileLayer('https://tiles.openaerialmap.org/5fac302c3729bf000552677e/0/5fac302c3729bf000552677f/{z}/{x}/{y}', {
+						maxZoom: 22,
+						attribution: '&copy; Сергей Астахов, нормаль аэрортофото Павловского Парка',
+						id: 'Павловск2020аэроортоНорм'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/5fac2fcd3729bf000552677c/0/5fac2fcd3729bf000552677d/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, оригинал аэрортофото Павловского Парка',
+						id: 'Павловск2020аэроортоОриг'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/607ec5595415000005a5283a/0/607ec5595415000005a5283b/{z}/{x}/{y}', {
+						maxZoom: 22,
+						attribution: '&copy; Сергей Астахов, нормаль аэрортофото города Пушкин',
+						id: 'Пушкин2021аэроортоНорм'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/607ec4fc5415000005a52838/0/607ec4fc5415000005a52839/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Пушкин',
+						id: 'Пушкин2021аэроортоОриг'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/610111715a90f10006fd3035/0/610111715a90f10006fd3036/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, нормаль аэрортофото Отдельного парка и Тярлево',
+						id: 'ОтдельныйТярлево2021аэроортоОриг'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/6101115d5a90f10006fd3033/0/6101115d5a90f10006fd3034/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, оригинал аэрортофото Отдельного парка и Тярлево',
+						id: 'ОтдельныйТярлево2021аэроортоОриг'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/60b815e7fd80620005e340f0/0/60b815e7fd80620005e340f1/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, оригинал аэрортофото города Павловска',
+						id: 'ПавловскГород2021аэроортоОриг'
+					}),
+					L.tileLayer('https://tiles.openaerialmap.org/60b81600fd80620005e340f2/0/60b81600fd80620005e340f3/{z}/{x}/{y}', {
+						maxZoom: 24,
+						attribution: '&copy; Сергей Астахов, нормализация аэрортофото города Павловска',
+						id: 'ПавловскГород2021аэроортоНорм'
+					}),					
+					// Набор исторических карт по Павловскому парку
 					L.tileLayer( ParcDePavlovskWMSbaseURL + '/1798/{z}/{x}/{y}.jpg', {
     					maxZoom: 20,
     					maxNativeZoom: 18,
@@ -418,6 +452,10 @@
 					'Оригинальное аэроротофото Павловского парка 2020 г.',
 					'Нормализ. аэроротофото города Пушкина 2021 г.',
 					'Оригинальное аэроротофото города Пушкина 2021 г.',
+					'Нормализ. аэроротофото Отдельного парка и Тярлево 2021 г.',
+					'Оригинальное аэроротофото Отдельного парка и Тярлево 2021 г.',
+					'Нормализ. аэроротофото города Павловска 2021 г.',
+					'Оригинальное аэроротофото города Павловска 2021 г.',
 					'Павловск, 1792 г.',
 					'Павловск, 1803 г.',
 					'Павловск, 1842 г.',
