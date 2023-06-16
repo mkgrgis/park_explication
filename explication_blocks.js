@@ -34,8 +34,8 @@ expl_func_blocks = {
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var участок = {
 				No: null,
-                Название: name,
-                Код: ref,
+				Название: name,
+				Код: ref,
 				//Год_учёта: ref_start,
 				Описание: descr,
 				Площадь: sq,
@@ -930,7 +930,7 @@ expl_func_blocks = {
 			sq = sq ? '≈' + sq.toFixed(1) + 'м²' : '';
 			var здание = {
 				No: null,
-			    	Тип: tb,
+				Тип: tb,
 				Название: n,
 				Другое_название: t['alt_name'] ?? '',
 				Местное: t['local_name'] ?? '',				
@@ -976,6 +976,70 @@ expl_func_blocks = {
 			}
 			else {
 				return (a.data.Название < b.data.Название) ? -1 : 1;
+			}
+		}
+	},
+	Камни: {
+		filter: function (base, osmGeoJSON_obj) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var n = t['natural'];
+			if (n == 'stone')
+				return true;			
+			return false;
+		},
+		webData_object: function (base, osmGeoJSON_obj, data_obj){
+			return data_obj;
+			},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Участок: "varchar(8)",
+				Высота: "double precision",
+				Ширина: "double precision"				
+			}
+		},
+		data_object: function (base, osmGeoJSON_obj, Уч) {
+			var t = osmGeoJSON_obj.properties.tags;
+
+			var nt = t['natural'];
+			var h = t['height'] ?? '';;
+			var wd = t['width'] ?? '';
+			var descr = t['description'] ?? '';
+			var n = t['name'] ?? t['alt_name'] ?? t['local_name'] ?? '';
+			var камень = {
+				No: null,
+				Название: n,
+			 	Высота: h,
+				Ширина: wd,
+				Описание: descr
+			};
+			return камень;
+		},
+		interactive: function (base, block, камень) {
+			return {
+				tooltip : камень.Название ? камень.Название : (камень.Высота ? (камень.Ширина ? камень.Высота + ' м / ' + камень.Ширина + ' м ' : камень.Высота + ' м') : ''),
+				popup : base.popup(камень, '<b>Карточка камня</b></br><i>№ в таблице</i> ', block)
+					};
+		},
+		geoJSON_style: function (base, osmGeoJSON_obj, зд) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var S = {};
+		
+			S.color = '#ff4400';
+			return S;
+		},
+		sort: function (a, b) {
+			if (a.data.Высота === b.data.Высота) {
+				return 0;
+			}
+			else if (!a.data.Высота) {
+				return 1;
+			}
+			else if (!b.data.Высота) {
+				return -1;
+			}
+			else {
+				return (a.data.Высота < b.data.Высота) ? -1 : 1;
 			}
 		}
 	}

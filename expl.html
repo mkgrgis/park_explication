@@ -114,7 +114,8 @@
 		#tab_Достопримечательности:checked ~ #x_Достопримечательности,
 		#tab_Малые_формы:checked ~ #x_Малые_формы,
 		#tab_Объекты_культурного_наследия:checked ~ #x_Объекты_культурного_наследия,
-		#tab_Здания_и_сооружения:checked ~ #x_Здания_и_сооружения { display: block; }
+		#tab_Здания_и_сооружения:checked ~ #x_Здания_и_сооружения,
+		#tab_Камни:checked ~ #x_Камни { display: block; }
 
 	</style>
 	<script src="js/leaflet.js" type="text/javascript"></script>
@@ -169,7 +170,10 @@
 		<label for="tab_Объекты_культурного_наследия">Объекты культурного наследия</label>
 		
 		<input type="radio" name="inset" value="" id="tab_Здания_и_сооружения">
-		<label for="tab_Здания_и_сооружения">Здания и сооружения</label>		
+		<label for="tab_Здания_и_сооружения">Здания и сооружения</label>
+
+		<input type="radio" name="inset" value="" id="tab_Камни">
+		<label for="tab_Камни">Камни</label>
 
 		<div id="x_Участки">
 			<h3>Участки</h3> <p>Экспорт данных
@@ -286,6 +290,15 @@
 			</p>
 			<div class="objTable">
 				<table class="dataTable" id="Здания_и_сооружения"></table>
+			</div>
+		</div>
+		<div id="x_Камни">
+			<h3>Камни</h3> <p>Экспорт данных
+				<a onclick="exportJSON(this)">JSON</a>
+				<a onclick="exportSQL(this)">SQL</a>
+			</p>
+			<div class="objTable">
+				<table class="dataTable" id="Камни"></table>
 			</div>
 		</div>
 	</div>
@@ -408,34 +421,34 @@
 					}),					
 					// Набор исторических карт по Павловскому парку
 					L.tileLayer( ParcDePavlovskWMSbaseURL + '/1798/{z}/{x}/{y}.jpg', {
-    					maxZoom: 20,
-    					maxNativeZoom: 18,
-    					attribution: 'Привязка и публикация <a href="http://retromap.ru/1417981_59.685832,30.45423">retromap.ru</a>',
-    					id: 'Павловск1798'
-    					}),
-    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1803/{z}/{x}/{y}.jpg', {
-        				maxZoom: 20,
-    				    maxNativeZoom: 18,
-        				attribution: 'Привязка и публикация <a href="http://retromap.ru/1418033_59.685832,30.45423">retromap.ru</a>',
-        				id: 'Павловск1803'
-    				}),
-    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1842/{z}/{x}/{y}.jpg', {
-        				maxZoom: 20,
-        				maxNativeZoom: 17,
-        				attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
-        				id: 'Павловск1842'
-    				}),
-    				L.tileLayer(ParcDePavlovskWMSbaseURL + '/1876/{z}/{x}/{y}.jpg', {
-        				maxZoom: 20,
-        				maxNativeZoom: 17,
-        				attribution: 'Привязка и публикация <a href="http://retromap.ru/14187624_59.685702,30.453672">retromap.ru</a>',
-        				id: 'Павловск1876'
+						maxZoom: 20,
+						maxNativeZoom: 18,
+						attribution: 'Привязка и публикация <a href="http://retromap.ru/1417981_59.685832,30.45423">retromap.ru</a>',
+						id: 'Павловск1798'
+						}),
+					L.tileLayer(ParcDePavlovskWMSbaseURL + '/1803/{z}/{x}/{y}.jpg', {
+						maxZoom: 20,
+						maxNativeZoom: 18,
+						attribution: 'Привязка и публикация <a href="http://retromap.ru/1418033_59.685832,30.45423">retromap.ru</a>',
+						id: 'Павловск1803'
+					}),
+					L.tileLayer(ParcDePavlovskWMSbaseURL + '/1842/{z}/{x}/{y}.jpg', {
+						maxZoom: 20,
+						maxNativeZoom: 17,
+						attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
+						id: 'Павловск1842'
+					}),
+					L.tileLayer(ParcDePavlovskWMSbaseURL + '/1876/{z}/{x}/{y}.jpg', {
+						maxZoom: 20,
+						maxNativeZoom: 17,
+						attribution: 'Привязка и публикация <a href="http://retromap.ru/14187624_59.685702,30.453672">retromap.ru</a>',
+						id: 'Павловск1876'
    					}),
    					L.tileLayer(ParcDePavlovskWMSbaseURL + '/1915/{z}/{x}/{y}.jpg', {
-       					maxZoom: 18,
-       					maxNativeZoom: 15,
-       					attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
-       					id: 'Павловск1915'
+	   					maxZoom: 18,
+	   					maxNativeZoom: 15,
+	   					attribution: 'Привязка и публикация <a href="http://retromap.ru/1418421_59.685800,30.453844">retromap.ru</a>',
+	   					id: 'Павловск1915'
    					})
 				],
 				[
