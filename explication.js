@@ -18,9 +18,10 @@ L.OSM.park_explication_obj = function(f_obj){
 	};
 };
 
-L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
+L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 	this.OsmGDlib = new OsmGeoDocLib();
-	this.osm_relation_id = osm_relation_id;
+	this.osm_obj_type = osm_obj_type;
+	this.osm_obj_id =  osm_obj_id;
 	this.f_fin_ok = f_fin_ok;
 	this.get_data();
 	this.osm = {};
@@ -37,12 +38,20 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 	xhttp.send(); */
 };
 
-	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_rel_xml) {
-		var mr = this.OsmGDlib.osmRelationGeoJson(osm_main_rel_xml, this.osm_relation_id);
+	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_obj_xml) {		
+		var mr =  (this.osm_obj_type == 'relation') ? this.OsmGDlib.osmRelationGeoJson(osm_main_obj_xml, this.osm_obj_id) : ((this.osm_obj_type == 'way') ? this.OsmGDlib.osmWayGeoJson(osm_main_obj_xml, this.osm_obj_id) : null);
+		var t = mr.tags;
+		if (t && t.wikidata)
+		{		
+			var wikiDataQ = t.wikidata;
+			log('WikiData ' + wikiDataQ);
+		}
 		var gJs = L.geoJSON(mr);
-
-		var xhr = new XMLHttpRequest();
+		this.get_wikidata(t ? t.wikidata : null);
 		var b = gJs.getBounds();
+		console.log(b, gJs, this.osm_obj_type);
+		
+		var xhr = new XMLHttpRequest();
 		xhr.url = "https://overpass-api.de/api/interpreter?data=[out:xml];(++node(" + b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() + ");<;);(._;>;);out+meta;";
 		// 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
 		xhr.open('GET', xhr.url, true);
@@ -59,8 +68,8 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		}
 	};
 	L.OSM.park_explication.prototype.get_data = function () {
-		xhr = new XMLHttpRequest();
-		xhr.url = this.OsmGDlib.OSM_URL('relation', this.osm_relation_id, 'full');
+		var xhr = new XMLHttpRequest();
+		xhr.url = this.OsmGDlib.OSM_URL(this.osm_obj_type, this.osm_obj_id, 'full');
 		xhr.ini_obj = this;
 		xhr.open('GET', xhr.url, true);
 		xhr.send();
@@ -77,6 +86,211 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 			console.log (xhr.status);
 		}
 	};
+	L.OSM.park_explication.prototype.get_wikidata = function (Q) {
+		function getBindNode(xml, name, tag) {
+			for (var cn in xml.childNodes)
+			{
+				var n = xml.childNodes[cn]
+				if (n.nodeName != 'binding')
+					continue;
+				if (n.getAttribute("name") == name)
+					return n.getElementsByTagName(tag)[0].textContent;
+			}
+			return null;
+		}
+		var xhr = new XMLHttpRequest();
+		xhr.url = "https://query.wikidata.org/sparql?query=";
+		var WikiDataOsmP = { 'relation' : 'P402', 'way' : 'P10689', 'node' : 'P11693'};
+		var SPQL = !Q ?
+				   "SELECT ?item ?itemLabel ?wdComCat ?geoCoord " +
+				   "WHERE " +
+				   "{" +
+				   "  ?item wdt:P373 ?wdComCat." +
+				   "  ?item wdt:P625 ?geoCoord." +				   
+				   "  ?item p:" + WikiDataOsmP[this.osm_obj_type] + " ?statement0." +
+				   "  ?statement0 (ps:" + WikiDataOsmP[this.osm_obj_type] + ") \"" + this.osm_obj_id + "\".  " +
+				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +
+				   "}"
+				   :
+				   "SELECT ?item ?itemLabel ?wdComCat ?geoCoord " + 
+				   "WHERE " +
+				   "{" +
+				   "  wd:" + Q + " wdt:P373 ?wdComCat. " +
+   				   "  wd:" + Q + " wdt:P625 ?geoCoord. " +
+   				   "  ?item wdt:P373 ?wdComCat. " +
+				   "  ?item wdt:P625 ?geoCoord. " +
+				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +				   
+   				   "}";
+		xhr.url += SPQL;
+		// log('SPARQL ' + SPQL);
+		xhr.ini_obj = this;
+		xhr.open('GET', xhr.url, true);
+		xhr.send();
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState != 4) return;
+			if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
+				alert("Ошибка WikiDataSparQL! " + xhr.url);
+				return;
+			} else {
+				var Res0 = xhr.responseXML.getElementsByTagName('sparql')[0].getElementsByTagName('results')[0].getElementsByTagName('result')[0];
+				if (!Res0)
+				{
+					log('Данные по WikiData пусты');
+					return;
+				}
+				log('Данные по WikiData получены');
+				var Quri = getBindNode(Res0, 'item', 'uri');				
+				var WikiCommCat = getBindNode(Res0, 'wdComCat', 'literal');
+				var WikiDataName = getBindNode(Res0, 'itemLabel', 'literal');
+				var WikiDataGeo = getBindNode(Res0, 'geoCoord', 'literal');
+				var Qa = Quri.split("/");
+				var Qcode = Qa[Qa.length-1];
+				log (Quri + "  " + WikiCommCat + "  " + WikiDataName + "  " + Qcode + " " + WikiDataGeo );
+				xhr.ini_obj.wikidataQ = Qcode
+				xhr.ini_obj.WikiCommons = {};
+				xhr.ini_obj.WikiCommons.Cat = WikiCommCat;
+				xhr.ini_obj.WikiCommons.n_xhr = 0;
+				xhr.ini_obj.WikiCommons.Cat_OK = {};
+				xhr.ini_obj.WikiCommons.WCLG = new L.LayerGroup();
+				xhr.ini_obj.getWikiCommonsData("Category:" + WikiCommCat.replace(/ /g, '_'), -1);
+				return;
+			}
+			console.log (xhr.status);
+		}
+	};
+L.OSM.park_explication.prototype.getWikiCommonsData = function (categ, lv) {
+		var xhr = new XMLHttpRequest();
+/*
+
+fetch(url)
+	.then(function(response){return response.json();})
+	.then(function(response) {
+		var category = response.query.categorymembers;
+		for (var cat in category) {
+			console.log(category[cat].title);
+		}
+	})
+	.catch(function(error){console.log(error);});*/
+
+		
+	//	xhr.url = //"https://cats-php.toolforge.org/?cat=" + this.WikiCommCat.replace(' ', '_') + "&depth=7&json=1&lang=commons&type=6";
+		//"https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=categorymembers&cmtitle=Category:" + this.WikiCommCat.replace(' ', '_') + "&format=json"; //&cmtype=file&prop=imageinfo&iiprop=extmetadata"
+//			"https://wikimap.toolforge.org/api.php?origin=*&cat=" + this.WikiCommCat.replace(' ', '_') + "&lang=ru&subcats=&subcatdepth=7";
+//list=allcategories&
+//categorymembers
+xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generator=categorymembers&gcmtitle=" + categ + "&gcmtype=subcat|file&prop=imageinfo&iiprop=url&iiprop=extmetadata&format=json&gcmlimit=500";
+		xhr.ini_obj = this;
+		this.WikiCommons.n_xhr++;
+		xhr.lv = lv + 1;
+		xhr.WCcateg = categ;
+		xhr.open('GET', xhr.url, true);
+		xhr.send();
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState != 4) return;
+			if (xhr.status != 200 && (xhr.status != 0 || xhr.response)) {
+				alert("Ошибка получения данных с ВикиСклада! " + xhr.url);
+				return;
+			} else {
+			console.log("++ " + xhr.lv + " K " + xhr.WCcateg + " " + xhr.readyState + " " + xhr.status);
+				try
+				{
+					var WCmeta = JSON.parse(xhr.responseText);
+				}
+				catch (e)
+				{
+					alert("Ошибка разбора данных с ВикиСклада! \n" + xhr.url);
+					return;
+				}
+				if (WCmeta.batchcomplete != "")
+				{
+					log("Ошибка запроса данных с ВикиСклада! \n" + xhr.url);
+					return;
+				}
+			//	console.log('Данные ВикиСклада получены: ' + xhr.WCcateg);
+				if (!xhr.ini_obj.WikiCommons.images)
+					xhr.ini_obj.WikiCommons.images = [];
+				if (!WCmeta.query)
+				{
+					log (WCmeta);
+					return;
+				}
+				xhr.ini_obj.WikiCommons.Cat_OK[xhr.WCcateg] = true;
+				for (var i in WCmeta.query.pages)
+				{
+					var mtobj = WCmeta.query.pages[i];
+					if (mtobj.ns == 6)
+					{
+						var ii = mtobj.imageinfo[0].extmetadata;
+						delete mtobj.imageinfo;
+						mtobj.meta = ii;
+						xhr.ini_obj.WikiCommons.images.push(mtobj);
+						//console.log("--+f " + xhr.lv + " " + xhr.ini_obj.WikiCommons.images.length + ' K '  + xhr.WCcateg + " " + xhr.readyState + " " + xhr.status);
+					}
+					if (mtobj.ns == 14)
+					{
+						var ct = mtobj.title.replace(/ /g, '_')
+	   					if (!xhr.ini_obj.WikiCommons.Cat_OK[ct])
+						{
+							xhr.ini_obj.getWikiCommonsData(ct, xhr.lv);
+							console.log(" c+ " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
+						}
+						else
+							console.log(" c- " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
+					}
+				}
+				xhr.ini_obj.WikiCommons.n_xhr--;
+				if (!xhr.ini_obj.WikiCommons.n_xhr)
+				{
+					xhr.ini_obj.addWikiCommonsData();
+				}
+				return;
+			}
+			console.log (xhr.status);
+		}
+	};
+	
+	L.OSM.park_explication.prototype.addWikiCommonsData = function () {	
+		var st = {weight : 2, color : '#ffffff', radius: 4, fillColor: '#ff0000', fillOpacity: 0.7};		
+		var ix = 0;
+		for (var i in this.WikiCommons.images) 
+		{
+			ix++;
+			var im_data = this.WikiCommons.images[i];
+			if (!im_data.meta.GPSLatitude || !im_data.meta.GPSLongitude)
+				continue;
+			var p = {lat: im_data.meta.GPSLatitude.value, lng: im_data.meta.GPSLongitude.value};
+			var l = L.circleMarker(p, st);
+			l.im_data = im_data;
+			var fn = im_data.title.split("File:")[1];
+			fn = fn.replace(/ /g, '_');
+			var s_md5 = md5(fn)
+			
+			var wp = s_md5.substring(0, 1) + "/" + s_md5.substring(0, 2) + "/";
+			var th_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + wp + encodeURI(fn) + '/320px-' + encodeURI(fn);
+
+var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p><table role="popup_card"><tr><th role="popup_card">Свойство</th><th role="popup_card">Значение</th></tr>';
+		for (var k in im_data.meta) {
+			if (k[0] == '_' || k == 'No' || !im_data.meta[k] || im_data.meta[k] == '?' || im_data.meta[k] == '-')
+				continue;
+			html += '<tr role="popup_card"><td role="popup_card">' + k.replace('_', ' ').replace('_', ' ') + '</td><td role="popup_card">' + JSON.stringify(im_data.meta[k].value) + '</td></tr>';
+		}
+		html += '</table></details>';
+			l.bindPopup('<a href="https://commons.wikimedia.org/wiki/' + encodeURI(im_data.title) + '" target="_blank"><center><img src="' + th_url + '" width="150"><p><small>' + fn + '</small></a><small><br>' + (im_data.meta.ImageDescription ?im_data.meta.ImageDescription.value : '') + '<br>' + im_data.meta.LicenseShortName.value + '<br>' + (im_data.meta.Artist ?im_data.meta.Artist.value : '') + '<br>' + (im_data.meta.DateTimeOriginal ? im_data.meta.DateTimeOriginal.value : '') + '</small></p></center>' + html);
+
+			l.bindTooltip(im_data.meta.ImageDescription && im_data.meta.ImageDescription.value ? im_data.meta.ImageDescription.value : fn);
+			l.on('mouseover', function (e) {
+				var tt = e.target.getTooltip();
+				if (!tt)
+					return;
+				tt.setLatLng(e.latlng);
+			});
+			this.WikiCommons.WCLG.addLayer(l);
+		}
+		console.log(' Изображений ' + ix);
+		if (this.md && this.md.Control)
+			this.md.Control.addOverlay(this.WikiCommons.WCLG, "ВикиСклад");	
+	}
+	
 	L.OSM.park_explication.prototype.map = function (div, map_prov, map_params) {
 		var cen = this.geoJsonGeneral.features[0].geometry.coordinates[0][0];
 		var md = new mapDiv(
@@ -103,7 +317,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 	L.OSM.park_explication.prototype.general_rel_geoJson = function() {
 		for (var i in this.geoJsonGeneral.features) {
 			var el = this.geoJsonGeneral.features[i];
-			if (el.properties.id == this.osm_relation_id)
+			if (el.properties.id == this.osm_obj_id && el.properties.type == this.osm_obj_type)
 				return el;
 		}
 		return null;
@@ -156,28 +370,32 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], main_rel, { ignoreBoundary: true }));
 			}
 
-			// Проход по всем блокам для фильтрации объекта и определения принадлежности к участку
+   			// Проход по всем блокам для фильтрации объекта и определения принадлежности к участку
 			for (var oi in this.block) {
 				block = this.block[oi];
 				if (ok && block.f_obj.filter(this, osmGeoJSON_obj)) {
 					var eo = new L.OSM.park_explication_obj();
 					eo.geoJSON = osmGeoJSON_obj;
 					eo.geoNodes = geoNd;
+					var sP = null;
+					if (участки.length > 0)
+					{
 					// К какому участку относится объект
-					var SPGJ = nd_superParts(geoNd, участки, this); // К какому участку относится объект
-					eo.superPartGeoJSON = SPGJ;
-					var sP = (SPGJ.length == 1) ? superPart(SPGJ) : null;
-					// Заполняем основные данные объекта
-					var data = block.f_obj.data_object(this, osmGeoJSON_obj, sP);
-					// Декорируем данные объекта для веб
-					var wD = block.f_obj.webData_object(this, osmGeoJSON_obj, Object.assign({}, data));
-					wD.OSM = OSM_href(osmGeoJSON_obj);
-					eo.webData = wD;
+						var SPGJ = nd_superParts(geoNd, участки, this); // К какому участку относится объект
+						eo.superPartGeoJSON = SPGJ;
+						var sP = (SPGJ.length == 1) ? superPart(SPGJ) : null;
+					}	   				
+	   				// Заполняем основные данные объекта
+	   				var data = block.f_obj.data_object(this, osmGeoJSON_obj, sP);
+	   				// Декорируем данные объекта для веб
+	   				var wD = block.f_obj.webData_object(this, osmGeoJSON_obj, Object.assign({}, data));
+	   				wD.OSM = OSM_href(osmGeoJSON_obj);
+	   				eo.webData = wD;
 
-					OSM_data(osmGeoJSON_obj, data);
-					eo.data = data;
+	   				OSM_data(osmGeoJSON_obj, data);
+	   				eo.data = data;
 
-					block.obj.push(eo);
+	   				block.obj.push(eo);
 				}
 			}
 		}
@@ -329,10 +547,10 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 		}
 		
 		log('Экспликация показана ');
-
-		document.getElementById('status').innerText = '';
+		
 		var t1 = new Date().getTime();
 		document.getElementById('note').innerText = 'Сформировано за ' + (t1 - t0) / 1000 + ' сек.';
+		document.getElementById('status').innerText = '';
 
 		this.md = this.map(
 			document.getElementById('map'),
@@ -342,6 +560,9 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 			},
 			map_params
 		);
+		
+	    if (this.WikiCommons)
+			this.md.Control.addOverlay(this.WikiCommons.WCLG, "ВикиСклад");
 		// Вывод всех слоёв на карту по группам
 		for (var oi in this.block) {
 			var block = this.block[oi];
@@ -349,6 +570,7 @@ L.OSM.park_explication = function(osm_relation_id, f_fin_ok){
 				if (map_params.obj && map_params.obj == oi)
 					block.layerGroup.addTo(this.md.map);				
 		}
+		
 		this.md.Control.expand();
 		
 		L.GridLayer.GridDebug = L.GridLayer.extend({
@@ -607,3 +829,688 @@ L.OSM.park_explication.prototype.привязка_указателей = functio
 				o.webData.Тип_информации = '<span style="color: green">' + п + '</span>';
 		}
 	};
+	
+/**
+ * [js-md5]{@link https://github.com/emn178/js-md5}
+ *
+ * @namespace md5
+ * @version 0.7.3
+ * @author Chen, Yi-Cyuan [emn178@gmail.com]
+ * @copyright Chen, Yi-Cyuan 2014-2017
+ * @license MIT
+ */
+(function () {
+  'use strict';
+
+  var ERROR = 'input is invalid type';
+  var WINDOW = typeof window === 'object';
+  var root = WINDOW ? window : {};
+  if (root.JS_MD5_NO_WINDOW) {
+	WINDOW = false;
+  }
+  var WEB_WORKER = !WINDOW && typeof self === 'object';
+  var NODE_JS = !root.JS_MD5_NO_NODE_JS && typeof process === 'object' && process.versions && process.versions.node;
+  if (NODE_JS) {
+	root = global;
+  } else if (WEB_WORKER) {
+	root = self;
+  }
+  var COMMON_JS = !root.JS_MD5_NO_COMMON_JS && typeof module === 'object' && module.exports;
+  var AMD = typeof define === 'function' && define.amd;
+  var ARRAY_BUFFER = !root.JS_MD5_NO_ARRAY_BUFFER && typeof ArrayBuffer !== 'undefined';
+  var HEX_CHARS = '0123456789abcdef'.split('');
+  var EXTRA = [128, 32768, 8388608, -2147483648];
+  var SHIFT = [0, 8, 16, 24];
+  var OUTPUT_TYPES = ['hex', 'array', 'digest', 'buffer', 'arrayBuffer', 'base64'];
+  var BASE64_ENCODE_CHAR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split('');
+
+  var blocks = [], buffer8;
+  if (ARRAY_BUFFER) {
+	var buffer = new ArrayBuffer(68);
+	buffer8 = new Uint8Array(buffer);
+	blocks = new Uint32Array(buffer);
+  }
+
+  if (root.JS_MD5_NO_NODE_JS || !Array.isArray) {
+	Array.isArray = function (obj) {
+	  return Object.prototype.toString.call(obj) === '[object Array]';
+	};
+  }
+
+  if (ARRAY_BUFFER && (root.JS_MD5_NO_ARRAY_BUFFER_IS_VIEW || !ArrayBuffer.isView)) {
+	ArrayBuffer.isView = function (obj) {
+	  return typeof obj === 'object' && obj.buffer && obj.buffer.constructor === ArrayBuffer;
+	};
+  }
+
+  /**
+   * @method hex
+   * @memberof md5
+   * @description Output hash as hex string
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {String} Hex string
+   * @example
+   * md5.hex('The quick brown fox jumps over the lazy dog');
+   * // equal to
+   * md5('The quick brown fox jumps over the lazy dog');
+   */
+  /**
+   * @method digest
+   * @memberof md5
+   * @description Output hash as bytes array
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {Array} Bytes array
+   * @example
+   * md5.digest('The quick brown fox jumps over the lazy dog');
+   */
+  /**
+   * @method array
+   * @memberof md5
+   * @description Output hash as bytes array
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {Array} Bytes array
+   * @example
+   * md5.array('The quick brown fox jumps over the lazy dog');
+   */
+  /**
+   * @method arrayBuffer
+   * @memberof md5
+   * @description Output hash as ArrayBuffer
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {ArrayBuffer} ArrayBuffer
+   * @example
+   * md5.arrayBuffer('The quick brown fox jumps over the lazy dog');
+   */
+  /**
+   * @method buffer
+   * @deprecated This maybe confuse with Buffer in node.js. Please use arrayBuffer instead.
+   * @memberof md5
+   * @description Output hash as ArrayBuffer
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {ArrayBuffer} ArrayBuffer
+   * @example
+   * md5.buffer('The quick brown fox jumps over the lazy dog');
+   */
+  /**
+   * @method base64
+   * @memberof md5
+   * @description Output hash as base64 string
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {String} base64 string
+   * @example
+   * md5.base64('The quick brown fox jumps over the lazy dog');
+   */
+  var createOutputMethod = function (outputType) {
+	return function (message) {
+	  return new Md5(true).update(message)[outputType]();
+	};
+  };
+
+  /**
+   * @method create
+   * @memberof md5
+   * @description Create Md5 object
+   * @returns {Md5} Md5 object.
+   * @example
+   * var hash = md5.create();
+   */
+  /**
+   * @method update
+   * @memberof md5
+   * @description Create and update Md5 object
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {Md5} Md5 object.
+   * @example
+   * var hash = md5.update('The quick brown fox jumps over the lazy dog');
+   * // equal to
+   * var hash = md5.create();
+   * hash.update('The quick brown fox jumps over the lazy dog');
+   */
+  var createMethod = function () {
+	var method = createOutputMethod('hex');
+	if (NODE_JS) {
+	  method = nodeWrap(method);
+	}
+	method.create = function () {
+	  return new Md5();
+	};
+	method.update = function (message) {
+	  return method.create().update(message);
+	};
+	for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
+	  var type = OUTPUT_TYPES[i];
+	  method[type] = createOutputMethod(type);
+	}
+	return method;
+  };
+
+  var nodeWrap = function (method) {
+	var crypto = eval("require('crypto')");
+	var Buffer = eval("require('buffer').Buffer");
+	var nodeMethod = function (message) {
+	  if (typeof message === 'string') {
+		return crypto.createHash('md5').update(message, 'utf8').digest('hex');
+	  } else {
+		if (message === null || message === undefined) {
+		  throw ERROR;
+		} else if (message.constructor === ArrayBuffer) {
+		  message = new Uint8Array(message);
+		}
+	  }
+	  if (Array.isArray(message) || ArrayBuffer.isView(message) ||
+		message.constructor === Buffer) {
+		return crypto.createHash('md5').update(new Buffer(message)).digest('hex');
+	  } else {
+		return method(message);
+	  }
+	};
+	return nodeMethod;
+  };
+
+  /**
+   * Md5 class
+   * @class Md5
+   * @description This is internal class.
+   * @see {@link md5.create}
+   */
+  function Md5(sharedMemory) {
+	if (sharedMemory) {
+	  blocks[0] = blocks[16] = blocks[1] = blocks[2] = blocks[3] =
+	  blocks[4] = blocks[5] = blocks[6] = blocks[7] =
+	  blocks[8] = blocks[9] = blocks[10] = blocks[11] =
+	  blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
+	  this.blocks = blocks;
+	  this.buffer8 = buffer8;
+	} else {
+	  if (ARRAY_BUFFER) {
+		var buffer = new ArrayBuffer(68);
+		this.buffer8 = new Uint8Array(buffer);
+		this.blocks = new Uint32Array(buffer);
+	  } else {
+		this.blocks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	  }
+	}
+	this.h0 = this.h1 = this.h2 = this.h3 = this.start = this.bytes = this.hBytes = 0;
+	this.finalized = this.hashed = false;
+	this.first = true;
+  }
+
+  /**
+   * @method update
+   * @memberof Md5
+   * @instance
+   * @description Update hash
+   * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+   * @returns {Md5} Md5 object.
+   * @see {@link md5.update}
+   */
+  Md5.prototype.update = function (message) {
+	if (this.finalized) {
+	  return;
+	}
+
+	var notString, type = typeof message;
+	if (type !== 'string') {
+	  if (type === 'object') {
+		if (message === null) {
+		  throw ERROR;
+		} else if (ARRAY_BUFFER && message.constructor === ArrayBuffer) {
+		  message = new Uint8Array(message);
+		} else if (!Array.isArray(message)) {
+		  if (!ARRAY_BUFFER || !ArrayBuffer.isView(message)) {
+			throw ERROR;
+		  }
+		}
+	  } else {
+		throw ERROR;
+	  }
+	  notString = true;
+	}
+	var code, index = 0, i, length = message.length, blocks = this.blocks;
+	var buffer8 = this.buffer8;
+
+	while (index < length) {
+	  if (this.hashed) {
+		this.hashed = false;
+		blocks[0] = blocks[16];
+		blocks[16] = blocks[1] = blocks[2] = blocks[3] =
+		blocks[4] = blocks[5] = blocks[6] = blocks[7] =
+		blocks[8] = blocks[9] = blocks[10] = blocks[11] =
+		blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
+	  }
+
+	  if (notString) {
+		if (ARRAY_BUFFER) {
+		  for (i = this.start; index < length && i < 64; ++index) {
+			buffer8[i++] = message[index];
+		  }
+		} else {
+		  for (i = this.start; index < length && i < 64; ++index) {
+			blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
+		  }
+		}
+	  } else {
+		if (ARRAY_BUFFER) {
+		  for (i = this.start; index < length && i < 64; ++index) {
+			code = message.charCodeAt(index);
+			if (code < 0x80) {
+			  buffer8[i++] = code;
+			} else if (code < 0x800) {
+			  buffer8[i++] = 0xc0 | (code >> 6);
+			  buffer8[i++] = 0x80 | (code & 0x3f);
+			} else if (code < 0xd800 || code >= 0xe000) {
+			  buffer8[i++] = 0xe0 | (code >> 12);
+			  buffer8[i++] = 0x80 | ((code >> 6) & 0x3f);
+			  buffer8[i++] = 0x80 | (code & 0x3f);
+			} else {
+			  code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
+			  buffer8[i++] = 0xf0 | (code >> 18);
+			  buffer8[i++] = 0x80 | ((code >> 12) & 0x3f);
+			  buffer8[i++] = 0x80 | ((code >> 6) & 0x3f);
+			  buffer8[i++] = 0x80 | (code & 0x3f);
+			}
+		  }
+		} else {
+		  for (i = this.start; index < length && i < 64; ++index) {
+			code = message.charCodeAt(index);
+			if (code < 0x80) {
+			  blocks[i >> 2] |= code << SHIFT[i++ & 3];
+			} else if (code < 0x800) {
+			  blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+			} else if (code < 0xd800 || code >= 0xe000) {
+			  blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+			} else {
+			  code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
+			  blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+			  blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+			}
+		  }
+		}
+	  }
+	  this.lastByteIndex = i;
+	  this.bytes += i - this.start;
+	  if (i >= 64) {
+		this.start = i - 64;
+		this.hash();
+		this.hashed = true;
+	  } else {
+		this.start = i;
+	  }
+	}
+	if (this.bytes > 4294967295) {
+	  this.hBytes += this.bytes / 4294967296 << 0;
+	  this.bytes = this.bytes % 4294967296;
+	}
+	return this;
+  };
+
+  Md5.prototype.finalize = function () {
+	if (this.finalized) {
+	  return;
+	}
+	this.finalized = true;
+	var blocks = this.blocks, i = this.lastByteIndex;
+	blocks[i >> 2] |= EXTRA[i & 3];
+	if (i >= 56) {
+	  if (!this.hashed) {
+		this.hash();
+	  }
+	  blocks[0] = blocks[16];
+	  blocks[16] = blocks[1] = blocks[2] = blocks[3] =
+	  blocks[4] = blocks[5] = blocks[6] = blocks[7] =
+	  blocks[8] = blocks[9] = blocks[10] = blocks[11] =
+	  blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
+	}
+	blocks[14] = this.bytes << 3;
+	blocks[15] = this.hBytes << 3 | this.bytes >>> 29;
+	this.hash();
+  };
+
+  Md5.prototype.hash = function () {
+	var a, b, c, d, bc, da, blocks = this.blocks;
+
+	if (this.first) {
+	  a = blocks[0] - 680876937;
+	  a = (a << 7 | a >>> 25) - 271733879 << 0;
+	  d = (-1732584194 ^ a & 2004318071) + blocks[1] - 117830708;
+	  d = (d << 12 | d >>> 20) + a << 0;
+	  c = (-271733879 ^ (d & (a ^ -271733879))) + blocks[2] - 1126478375;
+	  c = (c << 17 | c >>> 15) + d << 0;
+	  b = (a ^ (c & (d ^ a))) + blocks[3] - 1316259209;
+	  b = (b << 22 | b >>> 10) + c << 0;
+	} else {
+	  a = this.h0;
+	  b = this.h1;
+	  c = this.h2;
+	  d = this.h3;
+	  a += (d ^ (b & (c ^ d))) + blocks[0] - 680876936;
+	  a = (a << 7 | a >>> 25) + b << 0;
+	  d += (c ^ (a & (b ^ c))) + blocks[1] - 389564586;
+	  d = (d << 12 | d >>> 20) + a << 0;
+	  c += (b ^ (d & (a ^ b))) + blocks[2] + 606105819;
+	  c = (c << 17 | c >>> 15) + d << 0;
+	  b += (a ^ (c & (d ^ a))) + blocks[3] - 1044525330;
+	  b = (b << 22 | b >>> 10) + c << 0;
+	}
+
+	a += (d ^ (b & (c ^ d))) + blocks[4] - 176418897;
+	a = (a << 7 | a >>> 25) + b << 0;
+	d += (c ^ (a & (b ^ c))) + blocks[5] + 1200080426;
+	d = (d << 12 | d >>> 20) + a << 0;
+	c += (b ^ (d & (a ^ b))) + blocks[6] - 1473231341;
+	c = (c << 17 | c >>> 15) + d << 0;
+	b += (a ^ (c & (d ^ a))) + blocks[7] - 45705983;
+	b = (b << 22 | b >>> 10) + c << 0;
+	a += (d ^ (b & (c ^ d))) + blocks[8] + 1770035416;
+	a = (a << 7 | a >>> 25) + b << 0;
+	d += (c ^ (a & (b ^ c))) + blocks[9] - 1958414417;
+	d = (d << 12 | d >>> 20) + a << 0;
+	c += (b ^ (d & (a ^ b))) + blocks[10] - 42063;
+	c = (c << 17 | c >>> 15) + d << 0;
+	b += (a ^ (c & (d ^ a))) + blocks[11] - 1990404162;
+	b = (b << 22 | b >>> 10) + c << 0;
+	a += (d ^ (b & (c ^ d))) + blocks[12] + 1804603682;
+	a = (a << 7 | a >>> 25) + b << 0;
+	d += (c ^ (a & (b ^ c))) + blocks[13] - 40341101;
+	d = (d << 12 | d >>> 20) + a << 0;
+	c += (b ^ (d & (a ^ b))) + blocks[14] - 1502002290;
+	c = (c << 17 | c >>> 15) + d << 0;
+	b += (a ^ (c & (d ^ a))) + blocks[15] + 1236535329;
+	b = (b << 22 | b >>> 10) + c << 0;
+	a += (c ^ (d & (b ^ c))) + blocks[1] - 165796510;
+	a = (a << 5 | a >>> 27) + b << 0;
+	d += (b ^ (c & (a ^ b))) + blocks[6] - 1069501632;
+	d = (d << 9 | d >>> 23) + a << 0;
+	c += (a ^ (b & (d ^ a))) + blocks[11] + 643717713;
+	c = (c << 14 | c >>> 18) + d << 0;
+	b += (d ^ (a & (c ^ d))) + blocks[0] - 373897302;
+	b = (b << 20 | b >>> 12) + c << 0;
+	a += (c ^ (d & (b ^ c))) + blocks[5] - 701558691;
+	a = (a << 5 | a >>> 27) + b << 0;
+	d += (b ^ (c & (a ^ b))) + blocks[10] + 38016083;
+	d = (d << 9 | d >>> 23) + a << 0;
+	c += (a ^ (b & (d ^ a))) + blocks[15] - 660478335;
+	c = (c << 14 | c >>> 18) + d << 0;
+	b += (d ^ (a & (c ^ d))) + blocks[4] - 405537848;
+	b = (b << 20 | b >>> 12) + c << 0;
+	a += (c ^ (d & (b ^ c))) + blocks[9] + 568446438;
+	a = (a << 5 | a >>> 27) + b << 0;
+	d += (b ^ (c & (a ^ b))) + blocks[14] - 1019803690;
+	d = (d << 9 | d >>> 23) + a << 0;
+	c += (a ^ (b & (d ^ a))) + blocks[3] - 187363961;
+	c = (c << 14 | c >>> 18) + d << 0;
+	b += (d ^ (a & (c ^ d))) + blocks[8] + 1163531501;
+	b = (b << 20 | b >>> 12) + c << 0;
+	a += (c ^ (d & (b ^ c))) + blocks[13] - 1444681467;
+	a = (a << 5 | a >>> 27) + b << 0;
+	d += (b ^ (c & (a ^ b))) + blocks[2] - 51403784;
+	d = (d << 9 | d >>> 23) + a << 0;
+	c += (a ^ (b & (d ^ a))) + blocks[7] + 1735328473;
+	c = (c << 14 | c >>> 18) + d << 0;
+	b += (d ^ (a & (c ^ d))) + blocks[12] - 1926607734;
+	b = (b << 20 | b >>> 12) + c << 0;
+	bc = b ^ c;
+	a += (bc ^ d) + blocks[5] - 378558;
+	a = (a << 4 | a >>> 28) + b << 0;
+	d += (bc ^ a) + blocks[8] - 2022574463;
+	d = (d << 11 | d >>> 21) + a << 0;
+	da = d ^ a;
+	c += (da ^ b) + blocks[11] + 1839030562;
+	c = (c << 16 | c >>> 16) + d << 0;
+	b += (da ^ c) + blocks[14] - 35309556;
+	b = (b << 23 | b >>> 9) + c << 0;
+	bc = b ^ c;
+	a += (bc ^ d) + blocks[1] - 1530992060;
+	a = (a << 4 | a >>> 28) + b << 0;
+	d += (bc ^ a) + blocks[4] + 1272893353;
+	d = (d << 11 | d >>> 21) + a << 0;
+	da = d ^ a;
+	c += (da ^ b) + blocks[7] - 155497632;
+	c = (c << 16 | c >>> 16) + d << 0;
+	b += (da ^ c) + blocks[10] - 1094730640;
+	b = (b << 23 | b >>> 9) + c << 0;
+	bc = b ^ c;
+	a += (bc ^ d) + blocks[13] + 681279174;
+	a = (a << 4 | a >>> 28) + b << 0;
+	d += (bc ^ a) + blocks[0] - 358537222;
+	d = (d << 11 | d >>> 21) + a << 0;
+	da = d ^ a;
+	c += (da ^ b) + blocks[3] - 722521979;
+	c = (c << 16 | c >>> 16) + d << 0;
+	b += (da ^ c) + blocks[6] + 76029189;
+	b = (b << 23 | b >>> 9) + c << 0;
+	bc = b ^ c;
+	a += (bc ^ d) + blocks[9] - 640364487;
+	a = (a << 4 | a >>> 28) + b << 0;
+	d += (bc ^ a) + blocks[12] - 421815835;
+	d = (d << 11 | d >>> 21) + a << 0;
+	da = d ^ a;
+	c += (da ^ b) + blocks[15] + 530742520;
+	c = (c << 16 | c >>> 16) + d << 0;
+	b += (da ^ c) + blocks[2] - 995338651;
+	b = (b << 23 | b >>> 9) + c << 0;
+	a += (c ^ (b | ~d)) + blocks[0] - 198630844;
+	a = (a << 6 | a >>> 26) + b << 0;
+	d += (b ^ (a | ~c)) + blocks[7] + 1126891415;
+	d = (d << 10 | d >>> 22) + a << 0;
+	c += (a ^ (d | ~b)) + blocks[14] - 1416354905;
+	c = (c << 15 | c >>> 17) + d << 0;
+	b += (d ^ (c | ~a)) + blocks[5] - 57434055;
+	b = (b << 21 | b >>> 11) + c << 0;
+	a += (c ^ (b | ~d)) + blocks[12] + 1700485571;
+	a = (a << 6 | a >>> 26) + b << 0;
+	d += (b ^ (a | ~c)) + blocks[3] - 1894986606;
+	d = (d << 10 | d >>> 22) + a << 0;
+	c += (a ^ (d | ~b)) + blocks[10] - 1051523;
+	c = (c << 15 | c >>> 17) + d << 0;
+	b += (d ^ (c | ~a)) + blocks[1] - 2054922799;
+	b = (b << 21 | b >>> 11) + c << 0;
+	a += (c ^ (b | ~d)) + blocks[8] + 1873313359;
+	a = (a << 6 | a >>> 26) + b << 0;
+	d += (b ^ (a | ~c)) + blocks[15] - 30611744;
+	d = (d << 10 | d >>> 22) + a << 0;
+	c += (a ^ (d | ~b)) + blocks[6] - 1560198380;
+	c = (c << 15 | c >>> 17) + d << 0;
+	b += (d ^ (c | ~a)) + blocks[13] + 1309151649;
+	b = (b << 21 | b >>> 11) + c << 0;
+	a += (c ^ (b | ~d)) + blocks[4] - 145523070;
+	a = (a << 6 | a >>> 26) + b << 0;
+	d += (b ^ (a | ~c)) + blocks[11] - 1120210379;
+	d = (d << 10 | d >>> 22) + a << 0;
+	c += (a ^ (d | ~b)) + blocks[2] + 718787259;
+	c = (c << 15 | c >>> 17) + d << 0;
+	b += (d ^ (c | ~a)) + blocks[9] - 343485551;
+	b = (b << 21 | b >>> 11) + c << 0;
+
+	if (this.first) {
+	  this.h0 = a + 1732584193 << 0;
+	  this.h1 = b - 271733879 << 0;
+	  this.h2 = c - 1732584194 << 0;
+	  this.h3 = d + 271733878 << 0;
+	  this.first = false;
+	} else {
+	  this.h0 = this.h0 + a << 0;
+	  this.h1 = this.h1 + b << 0;
+	  this.h2 = this.h2 + c << 0;
+	  this.h3 = this.h3 + d << 0;
+	}
+  };
+
+  /**
+   * @method hex
+   * @memberof Md5
+   * @instance
+   * @description Output hash as hex string
+   * @returns {String} Hex string
+   * @see {@link md5.hex}
+   * @example
+   * hash.hex();
+   */
+  Md5.prototype.hex = function () {
+	this.finalize();
+
+	var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3;
+
+	return HEX_CHARS[(h0 >> 4) & 0x0F] + HEX_CHARS[h0 & 0x0F] +
+	  HEX_CHARS[(h0 >> 12) & 0x0F] + HEX_CHARS[(h0 >> 8) & 0x0F] +
+	  HEX_CHARS[(h0 >> 20) & 0x0F] + HEX_CHARS[(h0 >> 16) & 0x0F] +
+	  HEX_CHARS[(h0 >> 28) & 0x0F] + HEX_CHARS[(h0 >> 24) & 0x0F] +
+	  HEX_CHARS[(h1 >> 4) & 0x0F] + HEX_CHARS[h1 & 0x0F] +
+	  HEX_CHARS[(h1 >> 12) & 0x0F] + HEX_CHARS[(h1 >> 8) & 0x0F] +
+	  HEX_CHARS[(h1 >> 20) & 0x0F] + HEX_CHARS[(h1 >> 16) & 0x0F] +
+	  HEX_CHARS[(h1 >> 28) & 0x0F] + HEX_CHARS[(h1 >> 24) & 0x0F] +
+	  HEX_CHARS[(h2 >> 4) & 0x0F] + HEX_CHARS[h2 & 0x0F] +
+	  HEX_CHARS[(h2 >> 12) & 0x0F] + HEX_CHARS[(h2 >> 8) & 0x0F] +
+	  HEX_CHARS[(h2 >> 20) & 0x0F] + HEX_CHARS[(h2 >> 16) & 0x0F] +
+	  HEX_CHARS[(h2 >> 28) & 0x0F] + HEX_CHARS[(h2 >> 24) & 0x0F] +
+	  HEX_CHARS[(h3 >> 4) & 0x0F] + HEX_CHARS[h3 & 0x0F] +
+	  HEX_CHARS[(h3 >> 12) & 0x0F] + HEX_CHARS[(h3 >> 8) & 0x0F] +
+	  HEX_CHARS[(h3 >> 20) & 0x0F] + HEX_CHARS[(h3 >> 16) & 0x0F] +
+	  HEX_CHARS[(h3 >> 28) & 0x0F] + HEX_CHARS[(h3 >> 24) & 0x0F];
+  };
+
+  /**
+   * @method toString
+   * @memberof Md5
+   * @instance
+   * @description Output hash as hex string
+   * @returns {String} Hex string
+   * @see {@link md5.hex}
+   * @example
+   * hash.toString();
+   */
+  Md5.prototype.toString = Md5.prototype.hex;
+
+  /**
+   * @method digest
+   * @memberof Md5
+   * @instance
+   * @description Output hash as bytes array
+   * @returns {Array} Bytes array
+   * @see {@link md5.digest}
+   * @example
+   * hash.digest();
+   */
+  Md5.prototype.digest = function () {
+	this.finalize();
+
+	var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3;
+	return [
+	  h0 & 0xFF, (h0 >> 8) & 0xFF, (h0 >> 16) & 0xFF, (h0 >> 24) & 0xFF,
+	  h1 & 0xFF, (h1 >> 8) & 0xFF, (h1 >> 16) & 0xFF, (h1 >> 24) & 0xFF,
+	  h2 & 0xFF, (h2 >> 8) & 0xFF, (h2 >> 16) & 0xFF, (h2 >> 24) & 0xFF,
+	  h3 & 0xFF, (h3 >> 8) & 0xFF, (h3 >> 16) & 0xFF, (h3 >> 24) & 0xFF
+	];
+  };
+
+  /**
+   * @method array
+   * @memberof Md5
+   * @instance
+   * @description Output hash as bytes array
+   * @returns {Array} Bytes array
+   * @see {@link md5.array}
+   * @example
+   * hash.array();
+   */
+  Md5.prototype.array = Md5.prototype.digest;
+
+  /**
+   * @method arrayBuffer
+   * @memberof Md5
+   * @instance
+   * @description Output hash as ArrayBuffer
+   * @returns {ArrayBuffer} ArrayBuffer
+   * @see {@link md5.arrayBuffer}
+   * @example
+   * hash.arrayBuffer();
+   */
+  Md5.prototype.arrayBuffer = function () {
+	this.finalize();
+
+	var buffer = new ArrayBuffer(16);
+	var blocks = new Uint32Array(buffer);
+	blocks[0] = this.h0;
+	blocks[1] = this.h1;
+	blocks[2] = this.h2;
+	blocks[3] = this.h3;
+	return buffer;
+  };
+
+  /**
+   * @method buffer
+   * @deprecated This maybe confuse with Buffer in node.js. Please use arrayBuffer instead.
+   * @memberof Md5
+   * @instance
+   * @description Output hash as ArrayBuffer
+   * @returns {ArrayBuffer} ArrayBuffer
+   * @see {@link md5.buffer}
+   * @example
+   * hash.buffer();
+   */
+  Md5.prototype.buffer = Md5.prototype.arrayBuffer;
+
+  /**
+   * @method base64
+   * @memberof Md5
+   * @instance
+   * @description Output hash as base64 string
+   * @returns {String} base64 string
+   * @see {@link md5.base64}
+   * @example
+   * hash.base64();
+   */
+  Md5.prototype.base64 = function () {
+	var v1, v2, v3, base64Str = '', bytes = this.array();
+	for (var i = 0; i < 15;) {
+	  v1 = bytes[i++];
+	  v2 = bytes[i++];
+	  v3 = bytes[i++];
+	  base64Str += BASE64_ENCODE_CHAR[v1 >>> 2] +
+		BASE64_ENCODE_CHAR[(v1 << 4 | v2 >>> 4) & 63] +
+		BASE64_ENCODE_CHAR[(v2 << 2 | v3 >>> 6) & 63] +
+		BASE64_ENCODE_CHAR[v3 & 63];
+	}
+	v1 = bytes[i];
+	base64Str += BASE64_ENCODE_CHAR[v1 >>> 2] +
+	  BASE64_ENCODE_CHAR[(v1 << 4) & 63] +
+	  '==';
+	return base64Str;
+  };
+
+  var exports = createMethod();
+
+  if (COMMON_JS) {
+	module.exports = exports;
+  } else {
+	/**
+	 * @method md5
+	 * @description Md5 hash function, export to global in browsers.
+	 * @param {String|Array|Uint8Array|ArrayBuffer} message message to hash
+	 * @returns {String} md5 hashes
+	 * @example
+	 * md5(''); // d41d8cd98f00b204e9800998ecf8427e
+	 * md5('The quick brown fox jumps over the lazy dog'); // 9e107d9d372bb6826bd81d3542a419d6
+	 * md5('The quick brown fox jumps over the lazy dog.'); // e4d909c290d0fb1ca068ffaddf22cbd0
+	 *
+	 * // It also supports UTF-8 encoding
+	 * md5('中文'); // a7bac2239fcdcb3a067903d8077c4a07
+	 *
+	 * // It also supports byte `Array`, `Uint8Array`, `ArrayBuffer`
+	 * md5([]); // d41d8cd98f00b204e9800998ecf8427e
+	 * md5(new Uint8Array([])); // d41d8cd98f00b204e9800998ecf8427e
+	 */
+	root.md5 = exports;
+	if (AMD) {
+	  define(function () {
+		return exports;
+	  });
+	}
+  }
+})();
+	

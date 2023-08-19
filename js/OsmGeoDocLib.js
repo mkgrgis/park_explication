@@ -136,14 +136,13 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 	this.geoJsonDecomposeSubAreas = function (geoJson, osm_rl_id) {
 		var subrel = []; var j = 0;
 		for (var i = 0; i < geoJson.features.length; i++) {
-			if (geoJson.features[i].geometry.type.indexOf('Polygon') + 1)
-				if (geoJson.features[i].id.indexOf('relation/') + 1) {
-					if (geoJson.features[i].id != 'relation/' + osm_rl_id) {
-						geoJson.features.splice(i--, 1);
-					}
-				}
-				else // Полигоны от линий удаляем
-					geoJson.features.splice(i--, 1);
+			var gf = geoJson.features[i];
+			if (gf.id == 'relation/' + osm_rl_id)
+			{
+				geoJson.tags = gf.properties.tags;
+				continue;
+			}
+				geoJson.features.splice(i--, 1);
 		}
 		return geoJson;
 	};
@@ -151,8 +150,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 	// Оставляет собственный полигон заданного отношения
 	this.relationSelfPolygon = function (geoJson, osm_rl_id) {
 		for (var i = 0; i < geoJson.features.length; i++) {
-			if ((geoJson.features[i].geometry.type.indexOf('Polygon') + 1) &&
-				(geoJson.features[i].id == 'relation/' + osm_rl_id))
+			if (geoJson.features[i].id == 'relation/' + osm_rl_id)
 				return i;
 		}
 		return null;
@@ -187,6 +185,24 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		return geoJson2;
 	};
 	
+	// Создание GeoJson из контура, представленного в xml документе
+	this.osmWayGeoJson = function (xml, way_id) {
+		var geoJson0 = osmtogeojson(xml);
+		var geoJson = this.geoJsonRemoveOsmNodes(geoJson0);
+		geoJson.osm_way_id = way_id;
+		for (var i = 0; i < geoJson.features.length; i++) {
+			var gf = geoJson.features[i];
+			if (gf.geometry.type != 'Polygon') {
+				geoJson.features.splice(i--, 1);
+				continue;
+				}
+			if (gf.id != 'way/' + way_id)
+				geoJson.features.splice(i--, 1);
+			else
+				geoJson.tags = gf.properties.tags;
+		}
+		return geoJson;
+	};
 	// Добавляет ссылку на объявленные в свойствах объекты OSM после последнего элемента секции.
 	this.OSM_href = function (div, id, type) {
 		var e = document.createElement('br');
