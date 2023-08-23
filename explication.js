@@ -1,7 +1,7 @@
 L.OSM = {};
 
 L.OSM.park_explication_block = function(f_obj){
-	this.obj = [];	
+	this.obj = [];
 	this.webTable = {};
 	this.layerGroup = new L.LayerGroup();
 	this.f_obj = f_obj;
@@ -38,11 +38,11 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 	xhttp.send(); */
 };
 
-	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_obj_xml) {		
+	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_obj_xml) {
 		var mr =  (this.osm_obj_type == 'relation') ? this.OsmGDlib.osmRelationGeoJson(osm_main_obj_xml, this.osm_obj_id) : ((this.osm_obj_type == 'way') ? this.OsmGDlib.osmWayGeoJson(osm_main_obj_xml, this.osm_obj_id) : null);
 		var t = mr.tags;
 		if (t && t.wikidata)
-		{		
+		{
 			var wikiDataQ = t.wikidata;
 			log('WikiData ' + wikiDataQ);
 		}
@@ -50,7 +50,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		this.get_wikidata(t ? t.wikidata : null);
 		var b = gJs.getBounds();
 		console.log(b, gJs, this.osm_obj_type);
-		
+
 		var xhr = new XMLHttpRequest();
 		xhr.url = "https://overpass-api.de/api/interpreter?data=[out:xml];(++node(" + b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() + ");<;);(._;>;);out+meta;";
 		// 'https://www.openstreetmap.org/api/0.6/map?bbox=' + gJs.getBounds().toBBoxString();
@@ -106,21 +106,20 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 				   "WHERE " +
 				   "{" +
 				   "  ?item wdt:P373 ?wdComCat." +
-				   "  ?item wdt:P625 ?geoCoord." +				   
 				   "  ?item p:" + WikiDataOsmP[this.osm_obj_type] + " ?statement0." +
 				   "  ?statement0 (ps:" + WikiDataOsmP[this.osm_obj_type] + ") \"" + this.osm_obj_id + "\".  " +
+   				   "  OPTIONAL { ?item wdt:P625 ?geoCoord.} " +				   
 				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +
 				   "}"
 				   :
-				   "SELECT ?item ?itemLabel ?wdComCat ?geoCoord " + 
+				   "SELECT ?item ?itemLabel ?wdComCat ?geoCoord " +
 				   "WHERE " +
 				   "{" +
 				   "  wd:" + Q + " wdt:P373 ?wdComCat. " +
-   				   "  wd:" + Q + " wdt:P625 ?geoCoord. " +
    				   "  ?item wdt:P373 ?wdComCat. " +
-				   "  ?item wdt:P625 ?geoCoord. " +
-				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +				   
-   				   "}";
+   				   "  OPTIONAL { ?item wdt:P625 ?geoCoord.} " +
+				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +				  
+   				   "}";				   
 		xhr.url += SPQL;
 		// log('SPARQL ' + SPQL);
 		xhr.ini_obj = this;
@@ -139,7 +138,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 					return;
 				}
 				log('Данные по WikiData получены');
-				var Quri = getBindNode(Res0, 'item', 'uri');				
+				var Quri = getBindNode(Res0, 'item', 'uri');
 				var WikiCommCat = getBindNode(Res0, 'wdComCat', 'literal');
 				var WikiDataName = getBindNode(Res0, 'itemLabel', 'literal');
 				var WikiDataGeo = getBindNode(Res0, 'geoCoord', 'literal');
@@ -172,7 +171,7 @@ fetch(url)
 	})
 	.catch(function(error){console.log(error);});*/
 
-		
+
 	//	xhr.url = //"https://cats-php.toolforge.org/?cat=" + this.WikiCommCat.replace(' ', '_') + "&depth=7&json=1&lang=commons&type=6";
 		//"https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=categorymembers&cmtitle=Category:" + this.WikiCommCat.replace(' ', '_') + "&format=json"; //&cmtype=file&prop=imageinfo&iiprop=extmetadata"
 //			"https://wikimap.toolforge.org/api.php?origin=*&cat=" + this.WikiCommCat.replace(' ', '_') + "&lang=ru&subcats=&subcatdepth=7";
@@ -248,11 +247,11 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 			console.log (xhr.status);
 		}
 	};
-	
-	L.OSM.park_explication.prototype.addWikiCommonsData = function () {	
-		var st = {weight : 2, color : '#ffffff', radius: 4, fillColor: '#ff0000', fillOpacity: 0.7};		
+
+	L.OSM.park_explication.prototype.addWikiCommonsData = function () {
+		var st = {weight : 2, color : '#ffffff', radius: 4, fillColor: '#ff0000', fillOpacity: 0.7};
 		var ix = 0;
-		for (var i in this.WikiCommons.images) 
+		for (var i in this.WikiCommons.images)
 		{
 			ix++;
 			var im_data = this.WikiCommons.images[i];
@@ -264,7 +263,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 			var fn = im_data.title.split("File:")[1];
 			fn = fn.replace(/ /g, '_');
 			var s_md5 = md5(fn)
-			
+
 			var wp = s_md5.substring(0, 1) + "/" + s_md5.substring(0, 2) + "/";
 			var th_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + wp + encodeURI(fn) + '/320px-' + encodeURI(fn);
 
@@ -288,9 +287,9 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 		}
 		console.log(' Изображений ' + ix);
 		if (this.md && this.md.Control)
-			this.md.Control.addOverlay(this.WikiCommons.WCLG, "ВикиСклад");	
+			this.md.Control.addOverlay(this.WikiCommons.WCLG, "ВикиСклад");
 	}
-	
+
 	L.OSM.park_explication.prototype.map = function (div, map_prov, map_params) {
 		var cen = this.geoJsonGeneral.features[0].geometry.coordinates[0][0];
 		var md = new mapDiv(
@@ -337,7 +336,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 		for (var oi in expl_func_blocks) {
 			this.block[oi] = new L.OSM.park_explication_block(expl_func_blocks[oi]);
 		}
-	
+
 		for (var i in this.geoJsonGeneral.features) {
 			var osmGeoJSON_obj = this.geoJsonGeneral.features[i];
 			if (hronofiltr) { // Фильтрация по дате
@@ -384,7 +383,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 						var SPGJ = nd_superParts(geoNd, участки, this); // К какому участку относится объект
 						eo.superPartGeoJSON = SPGJ;
 						var sP = (SPGJ.length == 1) ? superPart(SPGJ) : null;
-					}	   				
+					}	   
 	   				// Заполняем основные данные объекта
 	   				var data = block.f_obj.data_object(this, osmGeoJSON_obj, sP);
 	   				// Декорируем данные объекта для веб
@@ -422,7 +421,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 			OSM_data(osmGeoJSON_obj, data);
 			eo.data = data;
 
-			block.obj.push(eo);			
+			block.obj.push(eo);
 		}
 
 		function Участок_всех_точек (уч_geoJson) {
@@ -487,7 +486,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 				o.webData.No = Number(i) + 1;
 			}
 		}
-		for (var oi in this.block) {			
+		for (var oi in this.block) {
 			var block = this.block[oi];
 			if (block.f_obj.sort) {
 				block.obj.sort(block.f_obj.sort);
@@ -510,7 +509,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 						return L.circleMarker(latlng, { radius: 4, weight: 3 });
 					}
 				});
-				
+
 				if (eo.geoJSON.properties.showDirection)
 					l.setText(st.text, st.textStyle);
 				if (act.popup){
@@ -535,7 +534,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 		if (main_rel.properties.tags.name == 'Бирюлёвский дендропарк'){
 			this.привязка_указателей(this.block);
 		 	log('Маточные площадки привязаны к указателям');
-		} 
+		}
 
 	 	if (typeof explicationDataProcess == "function"){
 	 		try {
@@ -545,9 +544,9 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 	 			console.log(e);
 	 			}
 		}
-		
+
 		log('Экспликация показана ');
-		
+
 		var t1 = new Date().getTime();
 		document.getElementById('note').innerText = 'Сформировано за ' + (t1 - t0) / 1000 + ' сек.';
 		document.getElementById('status').innerText = '';
@@ -560,19 +559,19 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 			},
 			map_params
 		);
-		
-	    if (this.WikiCommons)
+
+		if (this.WikiCommons)
 			this.md.Control.addOverlay(this.WikiCommons.WCLG, "ВикиСклад");
 		// Вывод всех слоёв на карту по группам
 		for (var oi in this.block) {
 			var block = this.block[oi];
 			this.md.Control.addOverlay(block.layerGroup, oi.replaceAll('_', ' '));
 				if (map_params.obj && map_params.obj == oi)
-					block.layerGroup.addTo(this.md.map);				
+					block.layerGroup.addTo(this.md.map);
 		}
-		
+
 		this.md.Control.expand();
-		
+
 		L.GridLayer.GridDebug = L.GridLayer.extend({
 			createTile: function (coords) {
 				const tile = document.createElement('div');
@@ -659,7 +658,7 @@ var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p
 		L.OSM.park_explication.prototype.exportData = function (id_block, element, format, exportFile, tableName){
 			var eo = this.exportObj(id_block, element);
 			exportFile = exportFile ?? ('"' + id_block.replaceAll('_', ' ') + '"');
-			tableName = tableName ?? ('"' + id_block.replaceAll('_', ' ') + '"');	
+			tableName = tableName ?? ('"' + id_block.replaceAll('_', ' ') + '"');
 			if (format == "SQL")
 				this.exportSQL(eo, tableName, exportFile);
 			else
@@ -705,9 +704,9 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 			TileLayers.push(L_TileSource(provider[i]));
 	}
   	this.ini_layer = TileLayers[0];
-	   	
+	   
   	if (map_params.tile)
-  	{  	 
+  	{  
 		for (var i in TileLayers) {
 			var tl = TileLayers[i];
 			if (!tl.options || !tl.options.id)
@@ -719,7 +718,7 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 			}
 		}
   	}
-  	
+  
 	if (controls) {
 		this.Control = new L.Control.Layers();
 		for (var i in TileLayers){
@@ -829,7 +828,7 @@ L.OSM.park_explication.prototype.привязка_указателей = functio
 				o.webData.Тип_информации = '<span style="color: green">' + п + '</span>';
 		}
 	};
-	
+
 /**
  * [js-md5]{@link https://github.com/emn178/js-md5}
  *
