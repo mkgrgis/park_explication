@@ -47,7 +47,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			log('WikiData ' + wikiDataQ);
 		}
 		var gJs = L.geoJSON(mr);
-		this.get_wikidata(t ? t.wikidata : null);
+		this.getWikiData(t ? t.wikidata : null);
 		var b = gJs.getBounds();
 		console.log(b, gJs, this.osm_obj_type);
 
@@ -86,18 +86,8 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			console.log (xhr.status);
 		}
 	};
-	L.OSM.park_explication.prototype.get_wikidata = function (Q) {
-		function getBindNode(xml, name, tag) {
-			for (var cn in xml.childNodes)
-			{
-				var n = xml.childNodes[cn]
-				if (n.nodeName != 'binding')
-					continue;
-				if (n.getAttribute("name") == name)
-					return n.getElementsByTagName(tag)[0].textContent;
-			}
-			return null;
-		}
+
+	L.OSM.park_explication.prototype.getWikiData = function (Q) {		
 		var xhr = new XMLHttpRequest();
 		xhr.url = "https://query.wikidata.org/sparql?query=";
 		var WikiDataOsmP = { 'relation' : 'P402', 'way' : 'P10689', 'node' : 'P11693'};
@@ -131,28 +121,43 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 				alert("Ошибка WikiDataSparQL! " + xhr.url);
 				return;
 			} else {
-				var Res0 = xhr.responseXML.getElementsByTagName('sparql')[0].getElementsByTagName('results')[0].getElementsByTagName('result')[0];
-				if (!Res0)
-				{
-					log('Данные по WikiData пусты');
-					return;
-				}
-				log('Данные по WikiData получены');
-				var Quri = getBindNode(Res0, 'item', 'uri');
-				var WikiCommCat = getBindNode(Res0, 'wdComCat', 'literal');
-				var WikiDataName = getBindNode(Res0, 'itemLabel', 'literal');
-				var WikiDataGeo = getBindNode(Res0, 'geoCoord', 'literal');
-				var Qa = Quri.split("/");
-				var Qcode = Qa[Qa.length-1];
-				log (Quri + "  " + WikiCommCat + "  " + WikiDataName + "  " + Qcode + " " + WikiDataGeo );
-				xhr.ini_obj.wikidataQ = Qcode;
-				xhr.ini_obj.iniWikiCommons(WikiCommCat);
-				xhr.ini_obj.getWikiCommonsData("Category:" + WikiCommCat.replace(/ /g, '_'), -1);
-				return;
+				xhr.ini_obj.useWikiData(xhr.responseXML);
 			}
-			console.log (xhr.status);
 		}
 	};
+	
+	L.OSM.park_explication.prototype.useWikiData = function (wikiDataXml) {
+		function getBindNode(xml, name, tag) {
+			for (var cn in xml.childNodes)
+			{
+				var n = xml.childNodes[cn]
+				if (n.nodeName != 'binding')
+					continue;
+				if (n.getAttribute("name") == name)
+					return n.getElementsByTagName(tag)[0].textContent;
+			}
+			return null;
+		}
+		
+		var Res0 = wikiDataXml.getElementsByTagName('sparql')[0].getElementsByTagName('results')[0].getElementsByTagName('result')[0];
+		if (!Res0)
+		{
+			log('Данные по WikiData пусты');
+			return;
+		}
+		this.wikidata = {
+			uri : getBindNode(Res0, 'item', 'uri'),
+			CommonsCat : getBindNode(Res0, 'wdComCat', 'literal'),
+			Name : getBindNode(Res0, 'itemLabel', 'literal'),
+			Geo : getBindNode(Res0, 'geoCoord', 'literal')
+		};
+		log('WikiData');
+		log (this.wikidata);
+		/* var Qa = this.wikidata.uri.split("/");
+		var Qcode = Qa[Qa.length-1]; */
+		this.iniWikiCommons(this.wikidata.CommonsCat);
+		this.getWikiCommonsData("Category:" + this.wikidata.CommonsCat, -1);
+	}
 
 	L.OSM.park_explication.prototype.iniWikiCommons = function (WikiCommCat) {
 		this.WikiCommons = {
@@ -176,13 +181,10 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 
 	L.OSM.park_explication.prototype.getWikiCommonsData = function (categ, lv) {
 		var xhr = new XMLHttpRequest();
-/*
-	xhr.url = //"https://cats-php.toolforge.org/?cat=" + this.WikiCommCat.replace(' ', '_') + "&depth=7&json=1&lang=commons&type=6";
+/* xhr.url = //"https://cats-php.toolforge.org/?cat=" + this.WikiCommCat.replace(' ', '_') + "&depth=7&json=1&lang=commons&type=6";
 		//"https://commons.wikimedia.org/w/api.php?origin=*&action=query&list=categorymembers&cmtitle=Category:" + this.WikiCommCat.replace(' ', '_') + "&format=json"; //&cmtype=file&prop=imageinfo&iiprop=extmetadata"
-//			"https://wikimap.toolforge.org/api.php?origin=*&cat=" + this.WikiCommCat.replace(' ', '_') + "&lang=ru&subcats=&subcatdepth=7";
-//list=allcategories&
-//categorymembers */
-xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generator=categorymembers&gcmtitle=" + categ + "&gcmtype=subcat|file&prop=imageinfo&iiprop=timestamp|user|url|size|mime|mediatype|extmetadata&format=json&gcmlimit=500&iiextmetadatalanguage=ru";
+//			"https://wikimap.toolforge.org/api.php?origin=*&cat=" + this.WikiCommCat.replace(' ', '_') + "&lang=ru&subcats=&subcatdepth=7";*/
+xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generator=categorymembers&gcmtitle=" + encodeURIComponent(categ.replace(/ /g, '_')) + "&gcmtype=subcat|file&prop=imageinfo&iiprop=timestamp|user|url|size|mime|mediatype|extmetadata&format=json&gcmlimit=500&iiextmetadatalanguage=ru";
 		xhr.ini_obj = this;
 		this.WikiCommons.n_xhr++;
 		xhr.lv = lv + 1;
@@ -197,7 +199,6 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 			} else {
 				xhr.ini_obj.addWikiCommonsCategoryData(xhr);
 			}
-			console.log (xhr.status);
 		}
 	};
 
@@ -243,10 +244,10 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 			}
 			if (mtobj.ns == 14) // subcat
 			{
-				var ct = mtobj.title.replace(/ /g, '_')
+				var ct = mtobj.title;
 				if (!this.WikiCommons.Cat_OK[ct])
 				{
-					this.getWikiCommonsData(encodeURIComponent(ct), xhr.lv);
+					this.getWikiCommonsData(ct, xhr.lv);
 					console.log(" c+ " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
 				}
 				else
