@@ -44,7 +44,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (t && t.wikidata)
 		{
 			var wikiDataQ = t.wikidata;
-			log('WikiData ' + wikiDataQ);
+			log('OSM: WikiData - ' + wikiDataQ);
 		}
 		var gJs = L.geoJSON(mr);
 		this.getWikiData(t ? t.wikidata : null);
