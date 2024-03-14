@@ -14,7 +14,8 @@ L.OSM.park_explication_obj = function(f_obj){
 		geoNodes : null,
 		geoJSON : null,
 		layer : null,
-		superPartGeoJSON : null
+		superPartGeoJSON : null,
+		bbox: null
 	};
 };
 
@@ -47,7 +48,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			log('OSM: WikiData - ' + wikiDataQ);
 		}
 		var gJs = L.geoJSON(mr);
-		this.getWikiData(t ? t.wikidata : null);
+		//this.getWikiData(t ? t.wikidata : null);
 		var b = gJs.getBounds();
 		console.log(b, gJs, this.osm_obj_type);
 
@@ -369,7 +370,15 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 
 			var ok = false;
 			for (var j_n in geoNd) {
-				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], main_rel, { ignoreBoundary: true }));
+				if (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], main_rel, { ignoreBoundary: true }));
+				{
+					ok = true;
+					break;
+				}
+			}
+
+			function uniq(value, index, self) {
+				return self.indexOf(value) === index;
 			}
 
    			// Проход по всем блокам для фильтрации объекта и определения принадлежности к участку
@@ -378,12 +387,28 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 				if (ok && block.f_obj.filter(this, osmGeoJSON_obj)) {
 					var eo = new L.OSM.park_explication_obj();
 					eo.geoJSON = osmGeoJSON_obj;
+					eo.bbox = this.OsmGDlib.γεωμετρία.bbox(osmGeoJSON_obj);
 					eo.geoNodes = geoNd;
 					var sP = null;
 					if (участки.length > 0)
 					{
-					// К какому участку относится объект
-						var SPGJ = nd_superParts(geoNd, участки, this); // К какому участку относится объект
+						// К какому участку относится объект
+						var уч_geoJson = []; // Перечень участков, которым принадлежат точки данного объекта
+						// Предварительный проход					
+						for (var i_u in участки) {
+							var polyg = участки[i_u];
+							if (! this.OsmGDlib.γεωμετρία.bboxIntersect(polyg.bbox, eo.bbox))
+								continue;
+							for (var i_n in geoNd) {
+								if (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(
+										geoNd[i_n],
+										polyg,
+										{ ignoreBoundary: true })
+								    )
+								уч_geoJson.push(polyg);
+							}
+						}
+						var SPGJ = уч_geoJson.filter(uniq)
 						eo.superPartGeoJSON = SPGJ;
 						var sP = (SPGJ.length == 1) ? superPart(SPGJ) : null;
 					}	   
@@ -440,22 +465,6 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 				if (ok)
 					return уч_geoJson[c]; // Первый Участок, к которому относятся все точки
 			}
-		}
-		function nd_superParts (nd, участки, b)
-		{ // Участки, к которым относятся переданные точки
-			function uniq(value, index, self) {
-				return self.indexOf(value) === index;
-			}
-			var уч_geoJson = []; // Перечень участков, которым принадлежат точки данного объекта
-			for (var i_u in участки) {
-				var pol = участки[i_u];
-				for (var i_n in nd) {
-					if (b.OsmGDlib.γεωμετρία.booleanPointInPolygon(nd[i_n], pol, { ignoreBoundary: true })) {
-						уч_geoJson.push(pol);
-					}
-				}
-			}
-			return уч_geoJson.filter(uniq);
 		}
 
 		function superPart (Уч_geoJSON) {

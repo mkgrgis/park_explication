@@ -13,7 +13,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		var _smod = (suff != '') ? '/' + suff : '';
 		return 	this.OSM_API_URL + type + '/' + id + _smod;
 	};
-	
+
 	// Асинхронное получение файла
 	this.OSM_layer_request = function (req_par, GA) {
 		var i = this.osm_type.indexOf(req_par.type);
@@ -32,12 +32,12 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				xhr.GA.OSM_layer_include(xhr);
 		};
 	};
-	
+
 	// Выбирает широту и долготу из XML узла единстственной точки в формате OSM
 	this.OSM_xml_node_geo = function (OSM_node) {
 		return [parseFloat(OSM_node.getAttribute('lat')), parseFloat(OSM_node.getAttribute('lon'))];
 	};
-	
+
 	// Вычисляет среднее геометрическое массива координат
 	this.φλ_avg = function (φλ) {
 		if (φλ.length == 1)
@@ -57,7 +57,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		var avg_λ = (minλ + maxλ) / 2;
 		return [avg_φ, avg_λ];
 	};
-	
+
 	// Усреднение в массиве geoDiv
 	this.avgGeoDivs = function (a) {
 		var φλ = [];
@@ -68,7 +68,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return this.φλ_avg(φλ);
 	};
-	
+
 	// Вычисляет среднее геометрическое точек из OSM XML документа
 	this.OSM_node_avg = function (xml) {
 		var φλ = [];
@@ -79,7 +79,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return this.φλ_avg(φλ);
 	};
-	
+
 	// По коду точки в OSM возвращает объект с широтой и долготой.
 	this.OSM_node_geo = function (xml, id, φλ = true) {
 		var nodes = xml.getElementsByTagName('node');
@@ -95,7 +95,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 			return osmg;
 		return [osmg[1], osmg[0]];
 	};
-	
+
 	// Удаляет точки из geoJSON отношения или линии
 	this.geoJsonRemoveOsmNodes = function (geoJson) {
 		for (var i = 0; i < geoJson.features.length; i++) {
@@ -106,7 +106,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return geoJson;
 	};
-	
+
 	// Получает из документа ветвь отношения с данным кодом
 	this.getRelationXmlTree = function (xml, osm_rl_id) {
 		var relations = xml.getElementsByTagName('relation');
@@ -116,7 +116,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return null;
 	};
-	
+
 	// Получает массив номеров отношений, содержащих подчинённые территории
 	this.getSubAreas = function (xml, osm_rl_id) {
 		var relXml = this.getRelationXmlTree(xml, osm_rl_id);
@@ -131,7 +131,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return subAreas;
 	};
-	
+
 	// Удаляет чужие полигоны из документа, оставляя собственный полигон заданного отношения
 	this.geoJsonDecomposeSubAreas = function (geoJson, osm_rl_id) {
 		var subrel = []; var j = 0;
@@ -146,7 +146,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return geoJson;
 	};
-	
+
 	// Оставляет собственный полигон заданного отношения
 	this.relationSelfPolygon = function (geoJson, osm_rl_id) {
 		for (var i = 0; i < geoJson.features.length; i++) {
@@ -155,7 +155,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return null;
 	};
-	
+
 	// Получить значение данного тега
 	this.getOsmTag = function (xml, type, osm_id, tag) {
 		var ok = null;
@@ -175,7 +175,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		}
 		return null;
 	};
-	
+
 	// Создание GeoJson из основного контура отношения, представленного в xml документе
 	this.osmRelationGeoJson = function (xml, rel_id) {
 		var geoJson0 = osmtogeojson(xml);
@@ -184,7 +184,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 		geoJson2.osm_rel_id = rel_id;
 		return geoJson2;
 	};
-	
+
 	// Создание GeoJson из контура, представленного в xml документе
 	this.osmWayGeoJson = function (xml, way_id) {
 		var geoJson0 = osmtogeojson(xml);
@@ -230,7 +230,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				}, 0);
 			else
 				return null;
-		
+
 			function geoJSON_len(lineString) {
 				if (lineString.length < 2)
 					return 0;
@@ -240,7 +240,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 						lineString[i][0], lineString[i][1]);
 				return result;
 			}
-		
+
 			/**
 			 * Calculate the approximate distance between two coordinates (lat/lon)
 			 *
@@ -278,7 +278,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 						area += explication.γεωμετρία.sqf(_.geometries[i]);
 					}
 					return area;
-			}		
+			}
 			function polygonArea(coords) {
 				var area = 0;
 				if (coords && coords.length > 0) {
@@ -289,7 +289,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				}
 				return area;
 			}
-		
+
 			/**
 			 * Calculate the approximate area of the polygon were it projected onto
 			 *	 the earth.  Note that this area will be positive if ring is oriented
@@ -304,18 +304,18 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 			 * {float} The approximate signed geodesic area of the polygon in square
 			 *	 meters.
 			 */
-		
+
 			function ringArea(coords) {
 				var p1, p2, p3, lowerIndex, middleIndex, upperIndex, i,
 					area = 0,
 					coordsLength = coords.length;
-		
+
 				var wgs84 = {};
 				wgs84.RADIUS = 6378137;
 				wgs84.FLATTENING_DENOM = 298.257223563
 				wgs84.FLATTENING = 1 / wgs84.FLATTENING_DENOM.FLATTENING_DENOM;
 				wgs84.POLAR_RADIUS = wgs84.RADIUS * (1 - wgs84.FLATTENING);
-		
+
 				if (coordsLength > 2) {
 					for (i = 0; i < coordsLength; i++) {
 						if (i === coordsLength - 2) {// i = N-2
@@ -336,19 +336,19 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 						p3 = coords[upperIndex];
 						area += (rad(p3[0]) - rad(p1[0])) * Math.sin(rad(p2[1]));
 					}
-		
+
 					area = area * wgs84.RADIUS * wgs84.RADIUS / 2;
 				}
 				return area;
 			}
-		
+
 			function rad(_) {
 				return _ * Math.PI / 180;
 			}
 		// Блок вычисления площади
-		},		
+		},
 		// Выделение массива точек из geoJSON
-		geo_nodes : function (geoJSONel) { 
+		geo_nodes : function (geoJSONel) {
 			var nd = [];
 			var g = geoJSONel.geometry;
 			if (g.type == 'Point') {
@@ -373,13 +373,13 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				return nd;
 			}
 			return null;
-		},		
+		},
 		// Блок геометрического анализа принадлежности из библиотеки https://turfjs.org/docs/
 		booleanPointInPolygon : function (point, polygon, options) {
 			function inRing(pt, ring, ignoreBoundary) {
 				var isInside = false;
 				if (ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1])
-					ring = ring.slice(0, ring.length - 1);		
+					ring = ring.slice(0, ring.length - 1);
 				for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
 					var xi = ring[i][0], yi = ring[i][1];
 					var xj = ring[j][0], yj = ring[j][1];
@@ -395,9 +395,9 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 			}
 			function getCoord(obj) {
 				if (!obj) throw new Error('obj is required');
-		
+
 				var coordinates = getCoords(obj);
-		
+
 				// getCoord() must contain at least two numbers (Point)
 				if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
 					return coordinates;
@@ -408,15 +408,15 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 			function getCoords(obj) {
 				if (!obj) throw new Error('obj is required');
 				var coordinates;
-		
+
 				// Array of numbers
 				if (obj.length) {
 					coordinates = obj;
-		
+
 					// Geometry Object
 				} else if (obj.coordinates) {
 					coordinates = obj.coordinates;
-		
+
 					// Feature
 				} else if (obj.geometry && obj.geometry.coordinates) {
 					coordinates = obj.geometry.coordinates;
@@ -432,37 +432,37 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				if (coordinates.length > 1 && isNumber(coordinates[0]) && isNumber(coordinates[1])) {
 					return true;
 				}
-		
+
 				if (Array.isArray(coordinates[0]) && coordinates[0].length) {
 					return containsNumber(coordinates[0]);
 				}
 				throw new Error('coordinates must only contain numbers');
 			}
-		
+
 			function isNumber(num) {
 				return !isNaN(num) && num !== null && !Array.isArray(num);
 			}
-		
+
 			// Optional parameters
 			options = options || {};
 			if (typeof options !== 'object') throw new Error('options is invalid');
 			var ignoreBoundary = options.ignoreBoundary;
-		
+
 			// validation
 			if (!point) throw new Error('point is required');
 			if (!polygon) throw new Error('polygon is required');
-		
+
 			var pt = getCoord(point);
 			var polys = getCoords(polygon);
 			var type = (polygon.geometry) ? polygon.geometry.type : polygon.type;
 			var bbox = polygon.bbox;
-		
+
 			// Quick elimination if point is not inside bbox
-			if (bbox && inBBox(pt, bbox) === false) return false;
-		
+			//if (bbox && inBBox(pt, bbox) === false) return false;
+
 			// normalize to multipolygon
 			if (type === 'Polygon') polys = [polys];
-		
+
 			for (var i = 0, insidePoly = false; i < polys.length && !insidePoly; i++) {
 				// check if it is in the outer ring first
 				if (inRing(pt, polys[i][0], ignoreBoundary)) {
@@ -479,6 +479,56 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 				}
 			}
 			return insidePoly;
+		},
+		bbox : function (geoJSON) {
+			function getCoordinatesDump(gj) {
+				var coords;
+				if (gj.type == 'Point') {
+					coords = [gj.coordinates];
+				} else if (gj.type == 'LineString' || gj.type == 'MultiPoint') {
+					coords = gj.coordinates;
+				} else if (gj.type == 'Polygon' || gj.type == 'MultiLineString') {
+					coords = gj.coordinates.reduce(function(dump,part) {
+						return dump.concat(part);
+					}, []);
+				} else if (gj.type == 'MultiPolygon') {
+					coords = gj.coordinates.reduce(function(dump,poly) {
+						return dump.concat(poly.reduce(function(points,part) {
+							return points.concat(part);
+						},[]));
+					},[]);
+				} else if (gj.type == 'Feature') {
+					coords =	getCoordinatesDump(gj.geometry);
+				} else if (gj.type == 'GeometryCollection') {
+					coords = gj.geometries.reduce(function(dump,g) {
+						return dump.concat(getCoordinatesDump(g));
+					},[]);
+				} else if (gj.type == 'FeatureCollection') {
+					coords = gj.features.reduce(function(dump,f) {
+						return dump.concat(getCoordinatesDump(f));
+					},[]);
+				}
+				return coords;
+			}
+
+			var coords, bbox;
+			coords = getCoordinatesDump(geoJSON);
+			bbox = [ Number.POSITIVE_INFINITY,Number.POSITIVE_INFINITY,
+					 Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY];
+			return coords.reduce(function(prev,coord) {
+				return [
+				Math.min(coord[0], prev[0]),
+				Math.min(coord[1], prev[1]),
+				Math.max(coord[0], prev[2]),
+				Math.max(coord[1], prev[3])
+				];
+				}, bbox);
+		},
+		bboxIntersect : function(a, b) {
+//		bboxIntersect : function([axmin, aymin, axmax, aymax], [bxmin, bymin, bxmax, bymax]) {
+			const yOverlaps = b[1] <= a[3] && b[3] >= a[1];
+			const xOverlaps = b[0] <= a[2] && b[2] >= a[0];
+			return xOverlaps && yOverlaps;
 		}
 	}; // γεωμετρία
 };
