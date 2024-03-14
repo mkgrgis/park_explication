@@ -6,7 +6,7 @@ expl_func_blocks = {
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 				data_obj.Нужно_доработать = data_obj.Нужно_доработать ? ('<span style="color: red">' + data_obj.Нужно_доработать + '</span>') : null;
 				return data_obj;
-			},
+		},
 		SQL: function(){
 			return {
 				No: "integer not null",
@@ -50,7 +50,7 @@ expl_func_blocks = {
 			return {
 				tooltip : участок.Название + (участок.Код ? (" (" + участок.Код + ")") : ''), //+ "×" + "∀",
 				popup : base.popup(участок, '<b>Карточка</br>участка/района парка</b></br><i>№ в таблице</i> ', block)
-					};			
+					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, участок) {
 			var S = {};
@@ -79,7 +79,7 @@ expl_func_blocks = {
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var ref = t['ref'];
-			var ref_start = t['ref:start_date'];							  
+			var ref_start = t['ref:start_date'];
 			if (!ref)
 				return false;
 			var bar = t['barrier'];
@@ -94,7 +94,7 @@ expl_func_blocks = {
 				data_obj.Вырублен = data_obj.Вырублен ? '<span style="color: red"><b>Да</b></span>' : null;
 				data_obj.Нужно_доработать = data_obj.Нужно_доработать ? ('<span style="color: red">' + data_obj.Нужно_доработать + '</span>') : null;
 				return data_obj;
-			},
+		},
 		SQL: function(){
 			return {
 				No: "integer not null",
@@ -184,7 +184,7 @@ expl_func_blocks = {
 			return {
 				tooltip : маточная_площадка.Участок + "×" + маточная_площадка.Номер_площадки + (маточная_площадка.Род ? (' : ' + маточная_площадка.Род + ' ' + маточная_площадка.Вид) : ''),
 				popup : base.popup(маточная_площадка, '<b>Карточка</br>маточной площадки</b></br><i>№ в таблице</i> ', block)
-					};			
+					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, маточная_площадка) {
 			var S = {};
@@ -241,7 +241,7 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		SQL: function(){
 			return {
 				No: "integer not null",
@@ -325,8 +325,7 @@ expl_func_blocks = {
 			if (вт.Подтверждение_направления_течения == 'Пересекает изолинию или видимый наклон')
 				S.color = '#729FCF';
 			else if (вт.Подтверждение_направления_течения == 'Осмотр, зафиксировано направление течения')
-				S.color = '#3DECFA';					
-			return S;
+				S.color = '#3DECFA';							return S;
 		},
 		sort: function (a, b) {
 			if (a.data.Название === b.data.Название) {
@@ -533,8 +532,7 @@ expl_func_blocks = {
 				S.color = '88ff00';
 			else if (пл.Тип == 'Собачья площадка')
 				S.color = 'bbbbbb';
-				
-			S.dashArray = '2, 2';
+						S.dashArray = '2, 2';
 			return S;
 		},
 		sort: function (a, b) {
@@ -556,7 +554,7 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 
@@ -628,7 +626,7 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 
 			var t = osmGeoJSON_obj.properties.tags;
@@ -639,18 +637,14 @@ expl_func_blocks = {
 			var descr = t['description'] ?? '';
 			var note = t['note'] ?? null;
 			var at = t['architect'] ?? null;
-			var ar = t['artist_name'] ?? null;				
-			ref = '<a href="https://ru_monuments.toolforge.org/get_info.php?id=' + ref + '">' + ref + '</a>';
-			
-			var ОКН = {
-				No: null,					
-				Участок : Уч ?? null,
+			var ar = t['artist_name'] ?? null;						ref = '<a href="https://ru_monuments.toolforge.org/get_info.php?id=' + ref + '">' + ref + '</a>';
+					var ОКН = {
+				No: null,								Участок : Уч ?? null,
 				Код_ЕГРОКН : ref,
 				Название : name ,
 				Датировка: start,
 				Архитектор: at,
-				Автор_худ_решения: ar,					
-				Заметки: note,
+				Автор_худ_решения: ar,								Заметки: note,
 				Описание: descr
 			};
 			return ОКН;
@@ -687,15 +681,14 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 
 			var t = osmGeoJSON_obj.properties.tags;
 
 			var l = t['leisure'];
 			var урна = {
-				No: null,					
-			/*	Заметки: note ? note : null,
+				No: null,							/*	Заметки: note ? note : null,
 				Датировка: start ? start : '',
 				Описание: descr ? descr : '',*/
 				Участок : Уч
@@ -732,7 +725,7 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 
 			var t = osmGeoJSON_obj.properties.tags;
@@ -745,7 +738,7 @@ expl_func_blocks = {
 			var mtt = base.osm.data.material[mt];
 			var скамейка = {
 				No: null,
-				Спинка: (bc == 'yes') ? 'есть' : 'нет',					
+				Спинка: (bc == 'yes') ? 'есть' : 'нет',
 				Метариал: mtt ? mtt : (mt ? mt : ''),
 				Цвет: cl ? cl : '',
 				Участок: Уч,
@@ -793,7 +786,7 @@ expl_func_blocks = {
 			var at = t['artwork_type'];
 			var mt = t['material'];
 			var au = t['artist_name'] ?? '';
-			var start = t['start_date'] ?? null;				
+			var start = t['start_date'] ?? null;
 			var note = t['note'] ?? '';
 			var mtt = base.osm.data.material[mt];
 			var дпр = {
@@ -815,8 +808,7 @@ expl_func_blocks = {
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, дпр) {
 			var S = {};
-			S.weight = 4;				
-			return S;
+			S.weight = 4;						return S;
 		},
 		sort: function (a, b) {
 			return 0;
@@ -847,7 +839,7 @@ expl_func_blocks = {
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
 
@@ -894,15 +886,13 @@ expl_func_blocks = {
 	Здания_и_сооружения: {
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
-			var b = t['building'];			
-			var am = t['amenity'];
+			var b = t['building'];					var am = t['amenity'];
 			if (b || am == 'shelter')
-				return true;			
-			return false;
+				return true;					return false;
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		SQL: function(){
 			return {
 				No: "integer not null",
@@ -915,8 +905,7 @@ expl_func_blocks = {
 			var b = t['building'];
 			var tb = base.osm.data.building[b] ?? b ?? null;
 			var am = t['amenity'];
-			var mt = t['material'];	
-			var h = t['height'] ?? '';
+			var mt = t['material'];			var h = t['height'] ?? '';
 			var rh = t['roof:height'] ?? '';
 			var rs = t['roof:shape'] ?? '';
 			var mtt = base.osm.data.material[mt] ?? mt ?? null;
@@ -933,7 +922,7 @@ expl_func_blocks = {
 				Тип: tb,
 				Название: n,
 				Другое_название: t['alt_name'] ?? '',
-				Местное: t['local_name'] ?? '',				
+				Местное: t['local_name'] ?? '',
 				Длина_части: mt_len ? '≈' + mt_len.toFixed(1) + 'м' : '',
 				Материал: mtt,
 				Площадь: sq,
@@ -943,8 +932,7 @@ expl_func_blocks = {
 				Заметки: note,
 				Датировка: start,
 				Описание: descr,
-				Датировка: start				
-			};
+				Датировка: start						};
 			return здание;
 		},
 		interactive: function (base, block, здание) {
@@ -956,12 +944,8 @@ expl_func_blocks = {
 		geoJSON_style: function (base, osmGeoJSON_obj, зд) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var S = {};
-			
-			var b = t['building'];			
-			var am = t['amenity'];
-			var mt = t['material'];	
-			
-			S.color = (am == 'shelter') ? '#00ff00' : (b == 'roof')? '#ff0000' : (b == 'yes') ? '#0ff000' : '#000ff0';
+					var b = t['building'];					var am = t['amenity'];
+			var mt = t['material'];					S.color = (am == 'shelter') ? '#00ff00' : (b == 'roof')? '#ff0000' : (b == 'yes') ? '#0ff000' : '#000ff0';
 			return S;
 		},
 		sort: function (a, b) {
@@ -984,19 +968,17 @@ expl_func_blocks = {
 			var t = osmGeoJSON_obj.properties.tags;
 			var n = t['natural'];
 			if (n == 'stone')
-				return true;			
-			return false;
+				return true;					return false;
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
 			return data_obj;
-			},
+		},
 		SQL: function(){
 			return {
 				No: "integer not null",
 				Участок: "varchar(8)",
 				Высота: "double precision",
-				Ширина: "double precision"				
-			}
+				Ширина: "double precision"						}
 		},
 		data_object: function (base, osmGeoJSON_obj, Уч) {
 			var t = osmGeoJSON_obj.properties.tags;
@@ -1021,11 +1003,10 @@ expl_func_blocks = {
 				popup : base.popup(камень, '<b>Карточка камня</b></br><i>№ в таблице</i> ', block)
 					};
 		},
-		geoJSON_style: function (base, osmGeoJSON_obj, зд) {
+		geoJSON_style: function (base, osmGeoJSON_obj, камень) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var S = {};
-		
-			S.color = '#ff4400';
+				S.color = '#ff4400';
 			return S;
 		},
 		sort: function (a, b) {
@@ -1040,6 +1021,78 @@ expl_func_blocks = {
 			}
 			else {
 				return (a.data.Высота < b.data.Высота) ? -1 : 1;
+			}
+		}
+	},
+	Фонари: {
+		filter: function (base, osmGeoJSON_obj) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var n = t['highway'];
+			if (n == 'street_lamp')
+				return true;					return false;
+		},
+		webData_object: function (base, osmGeoJSON_obj, data_obj){
+			return data_obj;
+		},
+		SQL: function(){
+			return {
+				No: "integer not null",
+				Участок: "varchar(8)",
+				Код: "varchar",
+			 	Высота: "double precision",
+				Цвет: "varchar",
+				Число_ламп: "integer",
+				Тип_светильника: "varchar",
+				Цвет_света: "varchar",
+				Материал: "varchar",
+				Монтаж: "varchar",
+				Датировка: "varchar",
+				Описание: "varchar"
+			}
+		},
+		data_object: function (base, osmGeoJSON_obj, Уч) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var h = t['height'] ?? '';;
+			var descr = t['description'] ?? '';
+			var фонарь = {
+				No: null,
+				Код: t['ref'] ?? '',
+			 	Высота: h,
+				Цвет: t['colour'] ?? '',
+				Число_ламп: t['light:count'] ?? '',
+				Тип_светильника: t['lamp_type'] ?? '',
+				Цвет_света: t['light:colour'] ?? '',
+				Материал: t['material'] ?? '',
+				Монтаж: t['lamp_mount'] ?? '',
+				Датировка: t['start_date'] ?? '',
+				Описание: descr
+			};
+			return фонарь;
+		},
+		interactive: function (base, block, фонарь) {
+			return {
+				tooltip : фонарь.Код ?? (фонарь.Высота ? (фонарь.Высота + ' м ') : ''),
+				popup : base.popup(фонарь, '<b>Карточка фонаря</b></br><i>№ в таблице</i> ', block)
+					};
+		},
+		geoJSON_style: function (base, osmGeoJSON_obj, фонарь) {
+			var t = osmGeoJSON_obj.properties.tags;
+			var S = {};
+				S.color = t['light:colour'] ?? 'yellow';
+			return S;
+		},
+		sort: function (a, b) {
+			if (a.data.Код === b.data.Код) {
+				return 0;
+			}
+			else if (!a.data.Код) {
+				return 1;
+			}
+			else if (!b.data.Код) {
+				return -1;
+			}
+			else {
+				return (a.data.Код < b.data.Код) ? -1 : 1;
 			}
 		}
 	}
