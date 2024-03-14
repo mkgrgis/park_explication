@@ -1082,6 +1082,11 @@ expl_func_blocks = {
 			return S;
 		},
 		sort: function (a, b) {
+			function n(k) {
+				var a = k.split(' ');
+				r = Number(a[0]) * 100 + Number(a[1]);
+				return r;
+			}
 			if (a.data.Код === b.data.Код) {
 				return 0;
 			}
@@ -1092,7 +1097,7 @@ expl_func_blocks = {
 				return -1;
 			}
 			else {
-				return (a.data.Код < b.data.Код) ? -1 : 1;
+				return (n(a.data.Код) < n(b.data.Код)) ? -1 : 1;
 			}
 		}
 	}
