@@ -1083,6 +1083,8 @@ expl_func_blocks = {
 		},
 		sort: function (a, b) {
 			function n(k) {
+				if (k.indexOf(' ') == -1)
+					return k;
 				var a = k.split(' ');
 				r = Number(a[0]) * 100 + Number(a[1]);
 				return r;
