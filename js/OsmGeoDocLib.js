@@ -292,7 +292,7 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 
 			/**
 			 * Calculate the approximate area of the polygon were it projected onto
-			 *	 the earth.  Note that this area will be positive if ring is oriented
+			 *	 the earth.	Note that this area will be positive if ring is oriented
 			 *	 clockwise, otherwise it will be negative.
 			 *
 			 * Reference:
@@ -529,7 +529,195 @@ OsmGeoDocLib = function (OSM_baseURL, OSM_API_URL){
 			const yOverlaps = b[1] <= a[3] && b[3] >= a[1];
 			const xOverlaps = b[0] <= a[2] && b[2] >= a[0];
 			return xOverlaps && yOverlaps;
+		},
+		centroid: function (geojson) {
+		var xSum = 0;
+		var ySum = 0;
+		var len = 0;
+		this.turf_coordEach(geojson, function (coord) {
+			xSum += coord[0];
+			ySum += coord[1];
+			len++;
+		}, true);
+		return [ySum / len, xSum / len];
+		},
+
+/**
+ * Iterate over coordinates in any GeoJSON object, similar to Array.forEach()
+ *
+ * @name coordEach
+ * @param {FeatureCollection|Feature|Geometry} geojson any GeoJSON object
+ * @param {Function} callback a method that takes (currentCoord, coordIndex, featureIndex, multiFeatureIndex)
+ * @param {boolean} [excludeWrapCoord=false] whether or not to include the final coordinate of LinearRings that wraps the ring in its iteration.
+ * @returns {void}
+ * @example
+ * var features = turf.featureCollection([
+ *   turf.point([26, 37], {"foo": "bar"}),
+ *   turf.point([36, 53], {"hello": "world"})
+ * ]);
+ *
+ * turf.coordEach(features, function (currentCoord, coordIndex, featureIndex, multiFeatureIndex, geometryIndex) {
+ *   //=currentCoord
+ *   //=coordIndex
+ *   //=featureIndex
+ *   //=multiFeatureIndex
+ *   //=geometryIndex
+ * });
+ */
+		turf_coordEach: function (geojson, callback, excludeWrapCoord) {
+			// Handles null Geometry -- Skips this GeoJSON
+			if (geojson === null) return;
+			var j,
+				k,
+				l,
+				geometry,
+				stopG,
+				coords,
+				geometryMaybeCollection,
+				wrapShrink = 0,
+				coordIndex = 0,
+				isGeometryCollection,
+				type = geojson.type,
+				isFeatureCollection = type === "FeatureCollection",
+				isFeature = type === "Feature",
+				stop = isFeatureCollection ? geojson.features.length : 1;
+
+			// This logic may look a little weird. The reason why it is that way
+			// is because it's trying to be fast. GeoJSON supports multiple kinds
+			// of objects at its root: FeatureCollection, Features, Geometries.
+			// This function has the responsibility of handling all of them, and that
+			// means that some of the `for` loops you see below actually just don't apply
+			// to certain inputs. For instance, if you give this just a
+			// Point geometry, then both loops are short-circuited and all we do
+			// is gradually rename the input until it's called 'geometry'.
+			//
+			// This also aims to allocate as few resources as possible: just a
+			// few numbers and booleans, rather than any temporary arrays as would
+			// be required with the normalization approach.
+			for (var featureIndex = 0; featureIndex < stop; featureIndex++) {
+				geometryMaybeCollection = isFeatureCollection
+					? geojson.features[featureIndex].geometry
+					: isFeature
+					? geojson.geometry
+					: geojson;
+				isGeometryCollection = geometryMaybeCollection
+					? geometryMaybeCollection.type === "GeometryCollection"
+					: false;
+				stopG = isGeometryCollection
+					? geometryMaybeCollection.geometries.length
+					: 1;
+
+				for (var geomIndex = 0; geomIndex < stopG; geomIndex++) {
+					var multiFeatureIndex = 0;
+					var geometryIndex = 0;
+					geometry = isGeometryCollection
+						? geometryMaybeCollection.geometries[geomIndex]
+						: geometryMaybeCollection;
+
+					// Handles null Geometry -- Skips this geometry
+					if (geometry === null) continue;
+					coords = geometry.coordinates;
+					var geomType = geometry.type;
+
+					wrapShrink =
+						excludeWrapCoord &&
+						(geomType === "Polygon" || geomType === "MultiPolygon")
+							? 1
+							: 0;
+
+					switch (geomType) {
+						case null:
+							break;
+						case "Point":
+							if (
+								callback(
+									coords,
+									coordIndex,
+									featureIndex,
+									multiFeatureIndex,
+									geometryIndex
+								) === false
+							)
+								return false;
+							coordIndex++;
+							multiFeatureIndex++;
+							break;
+						case "LineString":
+						case "MultiPoint":
+							for (j = 0; j < coords.length; j++) {
+								if (
+									callback(
+										coords[j],
+										coordIndex,
+										featureIndex,
+										multiFeatureIndex,
+										geometryIndex
+									) === false
+								)
+									return false;
+								coordIndex++;
+								if (geomType === "MultiPoint") multiFeatureIndex++;
+							}
+							if (geomType === "LineString") multiFeatureIndex++;
+							break;
+						case "Polygon":
+						case "MultiLineString":
+							for (j = 0; j < coords.length; j++) {
+								for (k = 0; k < coords[j].length - wrapShrink; k++) {
+									if (
+										callback(
+											coords[j][k],
+											coordIndex,
+											featureIndex,
+											multiFeatureIndex,
+											geometryIndex
+										) === false
+									)
+										return false;
+									coordIndex++;
+								}
+								if (geomType === "MultiLineString") multiFeatureIndex++;
+								if (geomType === "Polygon") geometryIndex++;
+							}
+							if (geomType === "Polygon") multiFeatureIndex++;
+							break;
+						case "MultiPolygon":
+							for (j = 0; j < coords.length; j++) {
+								geometryIndex = 0;
+								for (k = 0; k < coords[j].length; k++) {
+									for (l = 0; l < coords[j][k].length - wrapShrink; l++) {
+										if (
+											callback(
+												coords[j][k][l],
+												coordIndex,
+												featureIndex,
+												multiFeatureIndex,
+												geometryIndex
+											) === false
+										)
+											return false;
+										coordIndex++;
+									}
+									geometryIndex++;
+								}
+								multiFeatureIndex++;
+							}
+							break;
+						case "GeometryCollection":
+							for (j = 0; j < geometry.geometries.length; j++)
+								if (
+									coordEach(geometry.geometries[j], callback, excludeWrapCoord) ===
+									false
+								)
+									return false;
+							break;
+						default:
+							throw new Error("Unknown Geometry Type");
+					}
+				}
+			}
 		}
+
 	}; // γεωμετρία
 };
 //

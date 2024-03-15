@@ -187,13 +187,16 @@ expl_func_blocks = {
 					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, маточная_площадка) {
+			var t = osmGeoJSON_obj.properties.tags;
 			var S = {};
 			if (маточная_площадка.Тип == 'Кусты')
 				S.weight = 1;
 			else if (маточная_площадка.Тип == '?')
 				S.weight = 2;
-			else
+			else if (t['leaf_cycle'])
 				S.weight = 2;
+			else
+				S.weight = 1;
 
 			var lc = osmGeoJSON_obj.properties.tags['leaf_cycle'];
 			var lt = osmGeoJSON_obj.properties.tags['leaf_type'];
@@ -532,7 +535,7 @@ expl_func_blocks = {
 				S.color = '88ff00';
 			else if (пл.Тип == 'Собачья площадка')
 				S.color = 'bbbbbb';
-						S.dashArray = '2, 2';
+			S.dashArray = '2, 2';
 			return S;
 		},
 		sort: function (a, b) {
