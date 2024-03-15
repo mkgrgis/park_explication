@@ -53,7 +53,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (t && t.wikidata)
 		{
 			var wikiDataQ = t.wikidata;
-			log('OSM: WikiData - ' + wikiDataQ);
+			console.log('OSM: WikiData - ' + wikiDataQ);
 		}
 
 		if (this.getWikiData)
@@ -86,7 +86,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 				alert("Ошибка БД OSM! " + xhr.url);
 				return;
 			} else {
-				log('Данные по контуру получены ');
+				log('Данные по контуру парка получены, ожидаем внутренние объекты ... ');
 				xhr.ini_obj.getAllgeoData(xhr.responseXML);
 				return;
 			}

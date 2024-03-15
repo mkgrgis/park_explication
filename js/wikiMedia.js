@@ -22,7 +22,7 @@
 				   "  SERVICE wikibase:label { bd:serviceParam wikibase:language \"ru\". }" +
    				   "}";
 		xhr.url += SPQL;
-		// log('SPARQL ' + SPQL);
+		// console.log('SPARQL ' + SPQL);
 		xhr.ini_obj = this;
 		xhr.open('GET', xhr.url, true);
 		xhr.send();
@@ -53,7 +53,7 @@
 		var Res0 = wikiDataXml.getElementsByTagName('sparql')[0].getElementsByTagName('results')[0].getElementsByTagName('result')[0];
 		if (!Res0)
 		{
-			log('Данные по WikiData пусты');
+			console.log('Данные по WikiData пусты');
 			return;
 		}
 		this.wikidata = {
@@ -62,8 +62,8 @@
 			Name : getBindNode(Res0, 'itemLabel', 'literal'),
 			Geo : getBindNode(Res0, 'geoCoord', 'literal')
 		};
-		log('WikiData');
-		log (this.wikidata);
+		console.log('WikiData');
+		console.log (this.wikidata);
 		/* var Qa = this.wikidata.uri.split("/");
 		var Qcode = Qa[Qa.length-1]; */
 		this.iniWikiCommons(this.wikidata.CommonsCat);
@@ -126,7 +126,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 		}
 		if (WCmeta.batchcomplete != "")
 		{
-			log("Ошибка запроса данных с ВикиСклада! \n" + xhr.url);
+			console.log("Ошибка запроса данных с ВикиСклада! \n" + xhr.url);
 			return;
 		}
 
