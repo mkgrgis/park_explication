@@ -86,7 +86,7 @@ expl_func_blocks = {
 			if (bar == 'gate')
 				return false;
 			var nt = t['natural'];
-			if (nt != 'wood' && nt != 'scrub' && nt != 'tree_row' && nt != 'tree' && bar != 'hedge')
+			if (!ref_start && nt != 'wood' && nt != 'scrub' && nt != 'tree_row' && nt != 'tree' && bar != 'hedge')
 				return false;
 			return true;
 		},
