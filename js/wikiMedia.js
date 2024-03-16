@@ -62,8 +62,8 @@
 			Name : getBindNode(Res0, 'itemLabel', 'literal'),
 			Geo : getBindNode(Res0, 'geoCoord', 'literal')
 		};
-		console.log('WikiData');
-		console.log (this.wikidata);
+		if (this.logWikiMedia) console.log('WikiData');
+		if (this.logWikiMedia) console.log (this.wikidata);
 		/* var Qa = this.wikidata.uri.split("/");
 		var Qcode = Qa[Qa.length-1]; */
 		this.iniWikiCommons(this.wikidata.CommonsCat);
@@ -114,7 +114,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 	};
 
 	L.OSM.park_explication.prototype.addWikiCommonsCategoryData = function (xhr) {
-		console.log("++ " + xhr.lv + " K " + xhr.WCcateg + " " + xhr.readyState + " " + xhr.status);
+		if (this.logWikiMedia) console.log("++ " + xhr.lv + " K " + xhr.WCcateg + " " + xhr.readyState + " " + xhr.status);
 		try
 		{
 			var WCmeta = JSON.parse(xhr.responseText);
@@ -126,7 +126,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 		}
 		if (WCmeta.batchcomplete != "")
 		{
-			console.log("Ошибка запроса данных с ВикиСклада! \n" + xhr.url);
+			if (this.logWikiMedia) console.log("Ошибка запроса данных с ВикиСклада! \n" + xhr.url);
 			return;
 		}
 
@@ -151,7 +151,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 					this.addWikiCommonsData(mtobj);
 				}
 				else
-					console.log(" File ++ " + mtobj.title);
+					if (this.logWikiMedia) console.log(" File ++ " + mtobj.title);
 			}
 			if (mtobj.ns == 14) // subcat
 			{
@@ -159,16 +159,16 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 				if (!this.WikiCommons.Cat_OK[ct])
 				{
 					this.getWikiCommonsData(ct, xhr.lv);
-					console.log(" c+ " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
+					if (this.logWikiMedia) console.log(" c+ " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
 				}
 				else
-					console.log(" c- " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
+					if (this.logWikiMedia) console.log(" c- " + xhr.lv + " K " + xhr.WCcateg + " -> " + ct);
 			}
 		}
 		this.WikiCommons.n_xhr--;
 		if (!this.WikiCommons.n_xhr)
 		{
-			console.log(' Изображений ' + this.WikiCommons.images.length);
+			if (this.logWikiMedia) console.log(' Изображений ' + this.WikiCommons.images.length);
 		}
 		return;
 	}

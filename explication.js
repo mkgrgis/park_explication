@@ -25,6 +25,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 	this.osm_obj_type = osm_obj_type;
 	this.osm_obj_id =  osm_obj_id;
 	this.f_fin_ok = f_fin_ok;
+	this.logWikiMedia = false;
 	this.get_data();
 	this.osm = {};
 	this.osm.data = JSON.parse('{	"leaf_type":{		"broadleaved":{			"ru" : "Широколиственная",			"color" : "#8DB600"		},		"needleleaved":{			"ru" : "Хвойная",			"color" : "#397262"		},		"mixed":{			"ru" : "Смешанный",			"color" : "#888888"		},		"leafless":{			"ru" : "Безлистная",			"color" : "#000000"		},		"null":{			"ru" : "?",			"color" : "#ffff00"		}	},	"leaf_cycle":{		"evergreen":{			"ru" : "Вечнозелёные",			"color" : "#397262"		},		"deciduous":{			"ru" : "Листопадные",			"color" : "#8DB600"		},		"semi_evergreen":{			"ru" : "Полулистопадные",			"color" : "#00ffa0"		},		"semi_deciduous":{			"ru" : "С коротким безлиственным периодом",			"color" : "#476300"		},		"mixed":{			"ru" : "смешанные",			"color" : "#888888"		},		"null":{			"ru" : "?",			"color" : "#ffff00"		}	},	"natural":{		"wood" : "Древесная посадка",		"tree" : "Отдельное дерево",		"tree_row" : "Ряд деревьев",		"scrub" : "Кусты",		"null" : "?"	},	"water":{		"spring" : "Родник",		"pond" : "Водная гладь",		"river" : "Речка",		"stream" : "Ручей",		"drain" : "Сток",		"ditch" : "Канава",		"waterfall" : "Водопад",		"weir" : "Плотина",		"riverbank" : "Большая река",		"fountain" : "Фонтан",		"null" : "?"	},	"highway":{		"path" : "Тропинка",		"footway" : "Дорожка",		"footpath" : "Дорожка",		"service" : "Проезжая дорога",		"track" : "Парковая дорога",		"steps" : "Лестница",		"pedestrian" : "Пешеходная улица",		"null" : "?"	},	"surface":{		"dirt" : "Грязь",		"ground" : "Земля",		"unpaved" : "Земля",		"compacted" : "Утрамбовано",		"tiles" : "Плитка",		"paving_stones" : "Мощение",		"asphalt" : "Асфальт",		"gravel" : "Гравий",		"paved" : "Твёрдое",		"wood" : "Дерево",		"metal" : "Металл",		"pebblestone" : "Галька",		"fine_gravel" : "Камнегравийный слой",		"grass" : "Трава",		"null" : ""	},	"surface_color":{		"dirt" : "#9b7653",		"ground" : "#9b76ff",		"compacted" : "#442d25",		"tiles" : "#303030",		"paving_stones" : "#774444",		"asphalt" : "#444444",		"gravel" : "yellow",		"paved" : "#111111",		"wood" : "#0a5F38",		"pebblestone" : "#888888",		"fine_gravel" : "#f8f32b",		"grass" : "#8DB600",		"null" : "red"	},	"leisure": {		"pitch" : "Спортивная площадка",		"playground" : "Игровая площадка",		"dog_park" : "Собачья площадка"	},	"sport": {		"fitness" : "фитнес",		"table_tennis" : "настольный тенис"	},	"artwork":{		"sculpture" : "скульптура"	},	"material":{		"wood" : "дерево",		"metal" : "металл",		"stone" : "камень",		"marble" : "мрамор",		"glass" : "стекло",		"steel" : "сталь",		"concrete" : "заливной бетон"	},	"artwork_type":{		"sculpture" : "скульптура",		"statue" : "статуя",		"painting" : "живописное",		"mosaic" : "мозаика",		"mural" : "фреска",		"architecture" : "архитектурный объект",		"installation" : "инсталляция"	},	"source_taxon":{		"board" : "Щит с описанием",		"survey" : "Осмотр",		"label" : "Бирка на саженцах",		"null" : "нет"	},	"information":{		"board" : "Щит с описанием",		"office" : "Cправочная служба",		"terminal" : "Терминал информационной системы",		"audioguide" : "Аудиогид",		"map" : "Карта или план",		"tactile_map" : "Тактильная карта",		"tactile_model" : "Тактильная модель",		"guidepost" : "Указатель направлений",		"trail_blaze" : "Маршрутная метка или табличка",		"route_marker" : "Маршрутная метка или табличка"	},	"board_type":{		"geology" : "о геологии",		"history" : "об истории",		"nature" : "о природе или климате",		"plants" : "о растительности",		"notice" : "о мероприятиях",		"wildlife" : "о животном мире",		"null" : "не указан"	},	"source_direction":{		"isoline" : "Пересекает изолинию или видимый наклон",		"survey" : "Осмотр, зафиксировано направление течения",		"null" : "нет"	},	"building":{		"yes": "Здание общего типа",		"shed": "Вспомогательная постройка",		"farm_auxiliary": "Сельскохозяйственное здание",		"roof": "Навес",		"kiosk": "Будка",		"cabin": "Кабина",		"null": "не указан"	}}');
@@ -59,7 +60,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (this.getWikiData)
 			this.getWikiData(t ? t.wikidata : null);
 		var xhr = new XMLHttpRequest();
-		xhr.url = 'https://overpass-api.de/api/interpreter?data=[out:xml];( relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);<;);out+meta;';
+		xhr.url = 'https://overpass-api.de/api/interpreter?data=[out:xml];( relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);>;<;);out+meta;';
 		xhr.open('GET', xhr.url, true);
 		xhr.ini_obj = this;
 		xhr.send();
@@ -69,7 +70,12 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 				alert("Ошибка БД OSM! " + xhr.url);
 			} else {
 				if (typeof (xhr.ini_obj.f_fin_ok) == 'function')
-					xhr.ini_obj.f_fin_ok(xhr);
+				{
+					log('Внутренние данные парка получены, выделяем участки ');
+					var xml = xhr.responseXML;
+					xhr.ini_obj.geoJsonGeneral = osmtogeojson(xml);
+					xhr.ini_obj.f_fin_ok(xhr.ini_obj);
+				}
 			}
 		}
 	};
@@ -134,7 +140,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 	) {
 		log('Данные по участкам переданы, фильтруем по датам ');
 		var hronofiltr = map_params.start_date ?? null;
-		//this.exportJSON(this.geoJsonGeneral, "1");
+//		this.exportJSON(this.geoJsonGeneral, "1");
 		console.log(Object.keys(this.geoJsonGeneral.features).length);
 		var del = [];
 		var main_bbox = this.OsmGDlib.γεωμετρία.bbox(this.main_rel);
@@ -160,16 +166,24 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 					}
 				}
 				if (max_date > hronofiltr)
-					del.push(i);
+					del.push(osmGeoJSON_obj);
 				console.log(min_date + " " + max_date + " " + osmGeoJSON_obj.properties.tags['start_date']);
 			}
-/*
 			var f_bbox = this.OsmGDlib.γεωμετρία.bbox(osmGeoJSON_obj);
 			if (! this.OsmGDlib.γεωμετρία.bboxIntersect(main_bbox, f_bbox))
-				del.push(i);*/
+				del.push(osmGeoJSON_obj);
 		}
-		for (var i in del)
-			this.geoJsonGeneral.features.splice(i, 1);
+		
+		for (var i_d in del) {
+			var d = del[i_d];
+			for (var i_f in this.geoJsonGeneral.features) {
+				var f = this.geoJsonGeneral.features[i_f];
+				if (d == f) {
+					this.geoJsonGeneral.features.splice(i_f, 1);
+					break;
+				}
+			}
+		}
 
 		log('Отфильтровано по времени появления ' + Object.keys(this.geoJsonGeneral.features).length + ' объектов, выявляем на каких участках объекты ');
 
@@ -196,15 +210,15 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 						// Предварительный проход					
 						for (var i_u in участки) {
 							var polyg = участки[i_u];
-/*							if (! this.OsmGDlib.γεωμετρία.bboxIntersect(polyg.bbox, eo.bbox))
-								continue;*/
+							if (! this.OsmGDlib.γεωμετρία.bboxIntersect(polyg.bbox, eo.bbox))
+								continue;
 							var geoNd = this.OsmGDlib.γεωμετρία.geo_nodes(osmGeoJSON_obj);
 							for (var i_n in geoNd) {
 								if (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(
 										geoNd[i_n],
 										polyg,
 										{ ignoreBoundary: true })
-								    )
+									)
 								уч_geoJson.push(polyg);
 							}
 						}
@@ -324,7 +338,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 					}
 				});
 
-				if (eo.geoJSON.properties.showDirection)
+				if (eo.geoJSON.properties.showTextLabel)
 					l.setText(st.text, st.textStyle);
 				if (act.popup){
 					l.bindPopup(act.popup);
@@ -352,8 +366,6 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 	 			console.log(e);
 	 			}
 		}
-
-		log('Экспликация показана ');
 
 		var t1 = new Date().getTime();
 		document.getElementById('note').innerText = 'Сформировано за ' + (t1 - t0) / 1000 + ' сек.';
@@ -403,6 +415,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		};
 
 		this.md.Control.addOverlay(L.gridLayer.gridDebug(), "сетка WMS");
+		log('Экспликация показана ');
 	}; // Конец основной алгоритмической ветви
 
 	L.OSM.park_explication.prototype.activate = function (id, object_class){

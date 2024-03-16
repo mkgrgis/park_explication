@@ -239,7 +239,7 @@ expl_func_blocks = {
 			if (mm && mm == 'water_well')
 				return true;
 			if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
-				osmGeoJSON_obj.properties.showDirection = true;
+				osmGeoJSON_obj.properties.showTextLabel = true;
 			return true;
 		},
 		webData_object: function (base, osmGeoJSON_obj, data_obj){
@@ -302,7 +302,7 @@ expl_func_blocks = {
 		geoJSON_style: function (base, osmGeoJSON_obj, вт) {
 			var S = {};
 			S.color='#7EBCEB';
-			if (osmGeoJSON_obj.properties.showDirection)
+			if (osmGeoJSON_obj.properties.showTextLabel)
 			{
 				S.textStyle = {repeat: true,
 							  offset: 4,

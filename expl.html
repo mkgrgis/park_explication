@@ -324,7 +324,7 @@
 		function log(x, t0) {
 			if (t0)
 				this.t0 = t0;
-			console.log(x);
+			console.log(x + ' ↓');
 			this.tn0 = this.tn
 			this.tn = new Date().getTime();
 			console.log((this.tn - this.t0) / 1000 + (this.tn0 ? ('  (' + ((this.tn - this.tn0) / 1000) + ')') : ''));
@@ -364,18 +364,15 @@
 			);
 		}
 
-		function subAreaFilter(xhr) {
-			log('Внутренние данные парка получены, выделяем участки ');
-			var xml = xhr.responseXML;
+		function subAreaFilter(park_expl) {
 			// Выделяем участки парка
-			var main_id = xhr.ini_obj.osm_obj_id;
-			var osm_id_участки = xhr.ini_obj.osm_obj_type == 'relation' ? this.OsmGDlib.getSubAreas(xhr.ini_obj.osm_main_obj_xml, main_id) : null;
-			this.geoJsonGeneral = osmtogeojson(xml);
+			var osm_id_участки = park_expl.osm_obj_type == 'relation' ? this.OsmGDlib.getSubAreas(park_expl.osm_main_obj_xml, park_expl.osm_obj_id) : null;
+
 			var участки = [];
 			for (var i in osm_id_участки) {
 				var id = osm_id_участки[i];
-				var n = this.OsmGDlib.relationSelfPolygon(this.geoJsonGeneral, id);
-				var gJ = this.geoJsonGeneral.features[n];
+				var n = this.OsmGDlib.relationSelfPolygon(park_expl.geoJsonGeneral, id);
+				var gJ = park_expl.geoJsonGeneral.features[n];
 				gJ.bbox = this.OsmGDlib.γεωμετρία.bbox(gJ);
 				участки.push(gJ);
 			}
