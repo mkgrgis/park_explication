@@ -138,7 +138,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		map_params,
 		explicationDataProcess
 	) {
-		log('Данные по участкам переданы, фильтруем по датам ');
+		log('Данные по участкам готовы, фильтруем по датам и окрестностям');
 		var hronofiltr = map_params.start_date ?? null;
 //		this.exportJSON(this.geoJsonGeneral, "1");
 		console.log(Object.keys(this.geoJsonGeneral.features).length);
