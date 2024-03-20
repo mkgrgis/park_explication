@@ -1,6 +1,6 @@
-universal_explication = {
+Блоки_имитации_плана = {
 	Участки: {
-		zoomMin: 13,
+		zoomMin: 14,
 		filter: function (base, osmGeoJSON_obj) {
 			return false; // Участки не фильтруются
 		},
@@ -47,10 +47,20 @@ universal_explication = {
 			};
 			return участок;
 		},
-		interactive: function (base, block, участок) {
+		interactive: function (base, block, участок, eo) {
+			var c = base.OsmGDlib.γεωμετρία.centroid(eo.geoJSON);
+			var numberIcon = L.divIcon({
+				className: "участок",
+				iconSize: [0, 0],
+				iconAnchor: [15, 25],
+				html: участок.Название
+				});
+			var m = L.marker(c, {icon: numberIcon});
+			base.block[block].textLayers.addLayer(m);
+			// base.block[block].textLayers.addLayer(L.circleMarker(c, { radius: 4, weight: 1, color: '#ff0000' }));
 			return {
-				tooltip : участок.Название + (участок.Код ? (" (" + участок.Код + ")") : ''), //+ "×" + "∀",
-				popup : base.popup(участок, '<b>Карточка</br>участка/района парка</b></br><i>№ в таблице</i> ', block)
+				tooltip : участок.Название + '-й участок',
+				popup : base.popup(участок, '<b>Карточка</br>участка</b></br><i>№ в таблице</i> ', block)
 					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, участок) {
@@ -61,9 +71,10 @@ universal_explication = {
 				S.weight = 2;
 			else
 				S.weight = 1;
-			S.fillColor = "#44ff00";
-			S.fillOpacity = 0.1;
-			S.color = "#f2872f";
+			S.fillColor = "#000000";
+			S.fillOpacity = 0;
+			S.color = "#00ff00";
+			S.opacity = 0.5;
 			return S;
 		},
 		sort: function (a, b) {
@@ -182,35 +193,27 @@ universal_explication = {
 			};
 			return маточная_площадка;
 		},
-		interactive: function (base, block, маточная_площадка) {
+		interactive: function (base, block, маточная_площадка, eo) {
+			var c = base.OsmGDlib.γεωμετρία.centroid(eo.geoJSON);
+			var numberIcon = L.divIcon({
+				className: "маточная_площадка",
+				iconSize: [0, 0],
+				iconAnchor: [8, 10],
+				html: маточная_площадка.Номер_площадки
+				});
+			var m = L.marker(c, {icon: numberIcon});
+			base.block[block].textLayers.addLayer(m);
+			// base.block[block].textLayers.addLayer(L.circleMarker(c, { radius: 4, weight: 1, color: '#00ff00' }));
 			return {
 				tooltip : маточная_площадка.Участок + "×" + маточная_площадка.Номер_площадки + (маточная_площадка.Род ? (' : ' + маточная_площадка.Род + ' ' + маточная_площадка.Вид) : ''),
 				popup : base.popup(маточная_площадка, '<b>Карточка</br>маточной площадки</b></br><i>№ в таблице</i> ', block)
 					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, маточная_площадка) {
-			var t = osmGeoJSON_obj.properties.tags;
 			var S = {};
-			if (маточная_площадка.Тип == 'Кусты')
-				S.weight = 1;
-			else if (маточная_площадка.Тип == '?')
-				S.weight = 2;
-			else if (t['leaf_cycle'])
-				S.weight = 2;
-			else
-				S.weight = 1;
-
-			var lc = osmGeoJSON_obj.properties.tags['leaf_cycle'];
-			var lt = osmGeoJSON_obj.properties.tags['leaf_type'];
-			if (base.osm.data.leaf_type[lt])
-				S.color = base.osm.data.leaf_type[lt].color;
-			else
-				S.color = "#88FF88";
-			if (base.osm.data.leaf_cycle[lc])
-				S.fillColor = base.osm.data.leaf_cycle[lc].color;
-			else
-				S.fillColor = "#88FF88";
-			S.fillOpacity = 0.2;
+			S.weight = 2;
+			S.color = '#ffffff';
+			S.opacity = 0.3;
 			return S;
 		},
 		sort: function (a, b) {
@@ -241,7 +244,7 @@ universal_explication = {
 				return false;
 			if (mm && mm == 'water_well')
 				return true;
-			if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
+			//if (osmGeoJSON_obj.geometry.type == 'LineString' && ww)
 				osmGeoJSON_obj.properties.showTextLabel = true;
 			return true;
 		},
@@ -307,10 +310,20 @@ universal_explication = {
 			S.color='#7EBCEB';
 			if (osmGeoJSON_obj.properties.showTextLabel)
 			{
-				S.textStyle = {repeat: true,
-							  offset: 4,
-							  attributes: {fill: '#07E1F5'}};
-				S.text = '\u25BA		';
+				S.textStyle = { repeat: true,
+								offset: -5,
+								attributes: {
+									fill: '#4b96ff',
+									"font-family":'Bm431',
+									"font-weight":"bold",
+									"font-size": "12px",
+									"text-transform" : "uppercase",
+									"text-shadow" : "2px 0 2px #00004b, 0 2px 2px #00004b, -2px 0 2px #00004b, 0 -2px 2px #00004b"
+								}
+							  };
+				var n = osmGeoJSON_obj.properties.tags.name;
+				if (n)
+					S.text = n + '	 -\u25BA';
 			}
 			if (вт.Тип == 'Речка')
 				S.weight = 4;
@@ -353,6 +366,8 @@ universal_explication = {
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var hw = t['highway'];
+			if (t['name'])
+				osmGeoJSON_obj.properties.showTextLabel = true;
 			if (['path', 'footway', 'footpath', 'service', 'track', 'steps', 'pedestrian'].indexOf(hw) < 0)
 				return false;
 			return true;
@@ -415,13 +430,25 @@ universal_explication = {
 			else if (др.Тип == 'Лестница')
 				S.weight = 4;
 			else
-				S.weight = 1;
+				S.weight = 3;
 
 			var hs = osmGeoJSON_obj.properties.tags['surface'];
-			if (base.osm.data.surface_color[hs])
-				S.color = base.osm.data.surface_color[hs];
-			else
-				S.color = 'white';
+			S.color = '#ffffff';
+			S.opacity = 0.7;
+			if (osmGeoJSON_obj.properties.showTextLabel)
+			{
+				S.text = osmGeoJSON_obj.properties.tags.name.toUpperCase();
+				S.textStyle = { repeat: false,
+								offset: 0,
+								attributes: {
+									fill: '#ffaf00', //'#000000',
+									"font-family":'P152',
+									"font-size": "15px",
+									"text-transform" : "uppercase",
+									"text-shadow" : "2px 0 2px #ffaf00, 0 2px 2px #ffaf00, -2px 0 2px #ffaf00, 0 -2px 2px #ffaf00"
+								}
+				};
+			}
 			return S;
 		},
 		sort: function (a, b) {
@@ -541,7 +568,7 @@ universal_explication = {
 				S.color = '88ff00';
 			else if (пл.Тип == 'Собачья площадка')
 				S.color = 'bbbbbb';
-			S.dashArray = '2, 2';
+						S.dashArray = '2, 2';
 			return S;
 		},
 		sort: function (a, b) {
@@ -553,7 +580,7 @@ universal_explication = {
 		}
 	},
 	Справочные_объекты: {
-		zoomMin: 16,
+		zoomMin: 15,
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var tr = t['tourism'];
@@ -625,63 +652,6 @@ universal_explication = {
 			return 0;
 		}
 	},
-	Объекты_культурного_наследия: {
-		zoomMin: 12,
-		filter: function (base, osmGeoJSON_obj) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var r = t['ref:ЕГРОКН'];
-			var r1 = t['ref:okn'];
-			if (!r && !r1)
-				return false;
-			return true;
-		},
-		webData_object: function (base, osmGeoJSON_obj, data_obj){
-			return data_obj;
-		},
-		data_object: function (base, osmGeoJSON_obj, Уч) {
-
-			var t = osmGeoJSON_obj.properties.tags;
-
-			var ref = t['ref:ЕГРОКН'] ?? t['ref:okn'] ?? null;
-			var name = t['name'] ?? null;
-			var start = t['start_date'] ?? null;
-			var descr = t['description'] ?? '';
-			var note = t['note'] ?? null;
-			var at = t['architect'] ?? null;
-			var ar = t['artist_name'] ?? null;						ref = '<a href="https://ru_monuments.toolforge.org/get_info.php?id=' + ref + '">' + ref + '</a>';
-					var ОКН = {
-				No: null,								Участок : Уч ?? null,
-				Код_ЕГРОКН : ref,
-				Название : name ,
-				Датировка: start,
-				Архитектор: at,
-				Автор_худ_решения: ar,								Заметки: note,
-				Описание: descr
-			};
-			return ОКН;
-		},
-		interactive: function (base, block, ОКН) {
-			return {
-				tooltip : ОКН.Название,
-				popup : base.popup(ОКН, '<b>Карточка объекта культурного наследия</b></br><i>№ в таблице</i> ', block)
-					};
-		},
-		geoJSON_style: function (base, osmGeoJSON_obj, ОКН) {
-			var S = {};
-			S.weight = 1;
-			S.color = '#ff0000';
-			return S;
-		},
-		sort: function (a, b) {
-			au = ('00' + a.data.Участок).substr(-2);
-			bu = ('00' + b.data.Участок).substr(-2);
-			if ( au < bu) return -1;
-			if ( au > bu) return 1;
-			if (a.data.Название < b.data.Название) return -1;
-			if (a.data.Название > b.data.Название) return 1;
-			return 0;
-		}
-	},
 	Урны: {
 		zoomMin: 15,
 		filter: function (base, osmGeoJSON_obj) {
@@ -728,7 +698,7 @@ universal_explication = {
 		}
 	},
 	Скамейки: {
-		zoomMin: 15,
+		zoomMin: 14,
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var l = t['amenity'];
@@ -899,7 +869,7 @@ universal_explication = {
 		}
 	},
 	Здания_и_сооружения: {
-		zoomMin: 10,
+		zoomMin: 13,
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var b = t['building'];					var am = t['amenity'];
@@ -979,70 +949,8 @@ universal_explication = {
 			}
 		}
 	},
-	Камни: {
-		zoomMin: 10,
-		filter: function (base, osmGeoJSON_obj) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var n = t['natural'];
-			if (n == 'stone')
-				return true;					return false;
-		},
-		webData_object: function (base, osmGeoJSON_obj, data_obj){
-			return data_obj;
-		},
-		SQL: function(){
-			return {
-				No: "integer not null",
-				Участок: "varchar(8)",
-				Высота: "double precision",
-				Ширина: "double precision"						}
-		},
-		data_object: function (base, osmGeoJSON_obj, Уч) {
-			var t = osmGeoJSON_obj.properties.tags;
-
-			var nt = t['natural'];
-			var h = t['height'] ?? '';;
-			var wd = t['width'] ?? '';
-			var descr = t['description'] ?? '';
-			var n = t['name'] ?? t['alt_name'] ?? t['local_name'] ?? '';
-			var камень = {
-				No: null,
-				Название: n,
-			 	Высота: h,
-				Ширина: wd,
-				Описание: descr
-			};
-			return камень;
-		},
-		interactive: function (base, block, камень) {
-			return {
-				tooltip : камень.Название ? камень.Название : (камень.Высота ? (камень.Ширина ? камень.Высота + ' м / ' + камень.Ширина + ' м ' : камень.Высота + ' м') : ''),
-				popup : base.popup(камень, '<b>Карточка камня</b></br><i>№ в таблице</i> ', block)
-					};
-		},
-		geoJSON_style: function (base, osmGeoJSON_obj, камень) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var S = {};
-				S.color = '#ff4400';
-			return S;
-		},
-		sort: function (a, b) {
-			if (a.data.Высота === b.data.Высота) {
-				return 0;
-			}
-			else if (!a.data.Высота) {
-				return 1;
-			}
-			else if (!b.data.Высота) {
-				return -1;
-			}
-			else {
-				return (a.data.Высота < b.data.Высота) ? -1 : 1;
-			}
-		}
-	},
 	Фонари: {
-		zoomMin: 15,
+		zoomMin: 12,
 		filter: function (base, osmGeoJSON_obj) {
 			var t = osmGeoJSON_obj.properties.tags;
 			var n = t['highway'];
@@ -1100,13 +1008,6 @@ universal_explication = {
 			return S;
 		},
 		sort: function (a, b) {
-			function n(k) {
-				if (k.indexOf(' ') == -1)
-					return k;
-				var a = k.split(' ');
-				r = Number(a[0]) * 100 + Number(a[1]);
-				return r;
-			}
 			if (a.data.Код === b.data.Код) {
 				return 0;
 			}
@@ -1117,7 +1018,7 @@ universal_explication = {
 				return -1;
 			}
 			else {
-				return (n(a.data.Код) < n(b.data.Код)) ? -1 : 1;
+				return (a.data.Код < b.data.Код) ? -1 : 1;
 			}
 		}
 	}

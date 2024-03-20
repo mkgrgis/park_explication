@@ -136,8 +136,14 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		L_mapLayer,
 		L_mapNames,
 		map_params,
-		explicationDataProcess
+		explicationScriptBlocks,
+		explicationDataProcess,
+		mapDivIni,
+		layerOutputFunc
 	) {
+		this.mapDivIni = mapDivIni;
+		this.layerOutputFunc = layerOutputFunc;
+		this.map_params = map_params;
 		log('Данные по участкам готовы, фильтруем по датам и окрестностям');
 		var hronofiltr = map_params.start_date ?? null;
 //		this.exportJSON(this.geoJsonGeneral, "1");
@@ -188,8 +194,8 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		log('Отфильтровано по времени появления ' + Object.keys(this.geoJsonGeneral.features).length + ' объектов, выявляем на каких участках объекты ');
 
 		this.block = {};
-		for (var oi in expl_func_blocks) {
-			this.block[oi] = new L.OSM.park_explication_block(expl_func_blocks[oi]);
+		for (var oi in explicationScriptBlocks) {
+			this.block[oi] = new L.OSM.park_explication_block(explicationScriptBlocks[oi]);
 		}		
 		for (var i in this.geoJsonGeneral.features) {
 			var osmGeoJSON_obj = this.geoJsonGeneral.features[i];
@@ -371,29 +377,38 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		document.getElementById('note').innerText = 'Сформировано за ' + (t1 - t0) / 1000 + ' сек.';
 		document.getElementById('status').innerText = '';
 
-		this.md = this.map(
+		var mapDivFunc = this.mapDivIni ?? this.map;
+		this.md = mapDivFunc(
 			document.getElementById('map'),
 			{
 				tileLayers: L_mapLayer,
 				Names: L_mapNames
 			},
-			map_params
+			this.map_params,
+			this
 		);
 
 		if (this.addWikiCommonsLayer)
 			this.addWikiCommonsLayer();
-		// Вывод всех слоёв на карту по группам
-		for (var oi in this.block) {
-			var block = this.block[oi];
-			var full = new L.LayerGroup();
-			full.addLayer(block.layerGroup);
-			full.addLayer(block.textLayers);
-			this.md.Control.addOverlay(full, oi.replaceAll('_', ' '));
-			if (map_params.obj && map_params.obj == oi)
-			{
-				block.layerGroup.addTo(this.md.map);
-				block.textLayers.addTo(this.md.map);					
+
+		if (!this.layerOutputFunc) {
+			// Вывод всех слоёв на карту по группам
+			for (var oi in this.block) {
+				var block = this.block[oi];
+				var full = new L.LayerGroup();
+				full.addLayer(block.layerGroup);
+				full.addLayer(block.textLayers);
+				this.md.Control.addOverlay(full, oi.replaceAll('_', ' '));
+				if (this.map_params.obj && this.map_params.obj == oi)
+				{
+					block.layerGroup.addTo(this.md.map);
+					block.textLayers.addTo(this.md.map);					
+				}
 			}
+		}
+		else
+		{
+			this.layerOutputFunc(this);
 		}
 
 		this.md.Control.expand();
