@@ -43,14 +43,14 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 
 	L.OSM.park_explication.prototype.getAllgeoData = function (osm_main_obj_xml) {
 		this.osm_main_obj_xml = osm_main_obj_xml;
-		var main_rel =  (this.osm_obj_type == 'relation') ? this.OsmGDlib.osmRelationGeoJson(osm_main_obj_xml, this.osm_obj_id) : ((this.osm_obj_type == 'way') ? this.OsmGDlib.osmWayGeoJson(osm_main_obj_xml, this.osm_obj_id) : null);
-		if (!main_rel)
+		var main_osm_obj =  (this.osm_obj_type == 'relation') ? this.OsmGDlib.osmRelationGeoJson(osm_main_obj_xml, this.osm_obj_id) : ((this.osm_obj_type == 'way') ? this.OsmGDlib.osmWayGeoJson(osm_main_obj_xml, this.osm_obj_id) : null);
+		if (!main_osm_obj)
 		{
 			alert("Основной объект OSM не указан");
 			return;
 		}
-		this.main_rel = main_rel.features[0];
-		var t = this.main_rel.tags;
+		this.main_osm_obj = main_osm_obj.features[0];
+		var t = this.main_osm_obj.tags;
 		if (t && t.wikidata)
 		{
 			var wikiDataQ = t.wikidata;
@@ -100,8 +100,8 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		}
 	};
 
-	L.OSM.park_explication.prototype.map = function (div, map_prov, map_params) {
-		var cen = this.OsmGDlib.γεωμετρία.centroid(this.main_rel);
+	L.OSM.park_explication.prototype.map = function (div, map_prov, map_params, context) {
+		var cen = context.OsmGDlib.γεωμετρία.centroid(context.main_osm_obj);
 		var md = new mapDiv(
 			div,
 			cen,
@@ -116,8 +116,8 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			map_params
 		);
 
-		var n = this.main_rel.properties.tags.name;
-		var mr = L.geoJSON(this.main_rel, { fillOpacity: 0, color: "#F2872F" });
+		var n = context.main_osm_obj.properties.tags.name;
+		var mr = L.geoJSON(context.main_osm_obj, { fillOpacity: 0, color: "#F2872F" });
 		md.map.fitBounds(mr.getBounds());
 		md.Control.addOverlay(mr, n);
 		md.map.addLayer(mr);
@@ -149,7 +149,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 //		this.exportJSON(this.geoJsonGeneral, "1");
 		console.log(Object.keys(this.geoJsonGeneral.features).length);
 		var del = [];
-		var main_bbox = this.OsmGDlib.γεωμετρία.bbox(this.main_rel);
+		var main_bbox = this.OsmGDlib.γεωμετρία.bbox(this.main_osm_obj);
 
 		for (var i in this.geoJsonGeneral.features) {
 			var osmGeoJSON_obj = this.geoJsonGeneral.features[i];
@@ -255,7 +255,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			var geoNd = this.OsmGDlib.γεωμετρία.geo_nodes(osmGeoJSON_obj);
 			var ok = false;
 			for (var j_n in geoNd) {
-				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], this.main_rel, { ignoreBoundary: true }));
+				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], this.main_osm_obj, { ignoreBoundary: true }));
 			}
 			block = this.block['Участки'];
 
@@ -359,7 +359,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		}
 	 	log('Отрисовка данных подготовлена');
 
-		if (this.main_rel.properties.tags.name == 'Бирюлёвский дендропарк'){
+		if (this.main_osm_obj.properties.tags.name == 'Бирюлёвский дендропарк'){
 			this.привязка_указателей(this.block);
 		 	log('Маточные площадки привязаны к указателям');
 		}
@@ -377,7 +377,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		document.getElementById('note').innerText = 'Сформировано за ' + (t1 - t0) / 1000 + ' сек.';
 		document.getElementById('status').innerText = '';
 
-		var mapDivFunc = this.mapDivIni ?? this.map;
+		var mapDivFunc = this.mapDivIni ?? L.OSM.park_explication.prototype.map;
 		this.md = mapDivFunc(
 			document.getElementById('map'),
 			{

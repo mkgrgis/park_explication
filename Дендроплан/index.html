@@ -156,7 +156,7 @@
 
 			document.getElementById('filter').innerText = filter;
 			var mapDivIni = function (div, map_prov, map_params, context) {
-				var cen = context.OsmGDlib.γεωμετρία.centroid(context.main_rel);
+				var cen = context.OsmGDlib.γεωμετρία.centroid(context.main_osm_obj);
 				var md = new mapDiv(
 					div,
 					cen,
@@ -170,11 +170,11 @@
 					true,
 					map_params
 				);
-				var main_rel_inverse = structuredClone(context.main_rel);
-				main_rel_inverse.geometry.coordinates[1] = structuredClone(main_rel_inverse.geometry.coordinates[0]);
-				main_rel_inverse.geometry.coordinates[0] = [[180, -90], [180, 90], [-180, 90], [-180, -90]];
-				var n = context.main_rel.properties.tags.name;
-				var mr = L.geoJSON(main_rel_inverse, { fillOpacity: 0.55, color: "#008800", fillColor: "#000000" });
+				var main_osm_obj_inverse = structuredClone(context.main_osm_obj);
+				main_osm_obj_inverse.geometry.coordinates[1] = structuredClone(main_osm_obj_inverse.geometry.coordinates[0]);
+				main_osm_obj_inverse.geometry.coordinates[0] = [[180, -90], [180, 90], [-180, 90], [-180, -90]];
+				var n = context.main_osm_obj.properties.tags.name;
+				var mr = L.geoJSON(main_osm_obj_inverse, { fillOpacity: 0.55, color: "#008800", fillColor: "#000000" });
 				md.Control.addOverlay(mr, n);
 				md.map.addLayer(mr);
 				return md;

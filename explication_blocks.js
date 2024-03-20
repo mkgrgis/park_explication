@@ -465,7 +465,7 @@ universal_explication = {
 			var обсадка = {
 				No: null,
 				Род: bio_rus[0].genus ? bio_rus[0].genus : bio_lat[0].genus ? bio_lat[0].genus : '',
-				Вид: bio_rus[0].spieces ? bio_rus[0].spieces.join(' ') : bio_lat[0].spieces ? bio_lat[0].spieces : '',
+				Вид: bio_rus[0].spieces ? (bio_rus[0].spieces.constructor.name == "Array" ? bio_rus[0].spieces.join(' ') : bio_rus[0].spieces) : bio_lat[0].spieces ? bio_lat[0].spieces : '',
 				Длина_части: mt_len
 			};
 			return обсадка;
@@ -707,7 +707,19 @@ universal_explication = {
 			};
 			return урна;
 		},
-		interactive: function (base, block, урна) {
+		interactive: function (base, block, урна, eo) {
+			var t = eo.geoJSON.properties.tags;
+			var w = t['waste'];
+			if (w == 'dog_excrement') {
+			var dogIcon = L.divIcon({
+				className: "собачья_помойка",
+				iconSize: [0, 0],
+				iconAnchor: [15, 15],
+				html: '🐶'
+				});
+			var m = L.marker(eo.geoJSON.geometry.coordinates, {icon: dogIcon});
+			base.block[block].textLayers.addLayer(m);
+			}
 			return {
 				tooltip : '',
 				popup : base.popup(урна, '<b>Карточка урны</b></br><i>№ в таблице</i> ', block)

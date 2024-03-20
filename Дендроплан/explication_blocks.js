@@ -677,7 +677,19 @@
 			};
 			return урна;
 		},
-		interactive: function (base, block, урна) {
+		interactive: function (base, block, урна, eo) {
+			var t = eo.geoJSON.properties.tags;
+			var w = t['waste'];
+			if (w == 'dog_excrement') {
+			var dogIcon = L.divIcon({
+				className: "собачья_помойка",
+				iconSize: [0, 0],
+				iconAnchor: [15, 15],
+				html: '🐶'
+				});
+			var m = L.marker(c, {icon: dogIcon});
+			base.block[block].textLayers.addLayer(m);
+			}
 			return {
 				tooltip : '',
 				popup : base.popup(урна, '<b>Карточка урны</b></br><i>№ в таблице</i> ', block)
