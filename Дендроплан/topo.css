@@ -76,25 +76,25 @@
 	font-family: 'Bm431';
 	font-style: normal;
 	font-weight: normal;
-	src: url('Topo woff2/Bm431.woff2') format('woff');
+	src: url('Topo/Bm431.otf') format('truetype');
 	}
 	
 	@font-face {
 	font-family: 'D231';
-	src: url('Topo woff2/D231.woff2') format('woff');
+	src: url('Topo/D231.woff2') format('woff');
 	}
 
 	@font-face {
 	font-family: 'D431';
-	src: url('Topo woff2/D431.woff2') format('woff');
+	src: url('Topo/D431.woff2') format('woff');
 	}
 
 	@font-face {
 	font-family: 'P151';
-	src: url('Topo woff2/P151.woff2') format('woff');
+	src: url('Topo/P151.woff2') format('woff');
 	}
 
 	@font-face {
 	font-family: 'P152';
-	src: url('Topo woff2/P152.woff2') format('woff');
+	src: url('Topo/P152.woff2') format('woff');
 	}
