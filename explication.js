@@ -257,7 +257,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			for (var j_n in geoNd) {
 				ok = ok || (this.OsmGDlib.γεωμετρία.booleanPointInPolygon(geoNd[j_n], this.main_osm_obj, { ignoreBoundary: true }));
 			}
-			block = this.block['Участки'];
+			var block = this.block['Участки'];
 
 			var eo = new L.OSM.park_explication_obj();
 			eo.geoJSON = osmGeoJSON_obj;
