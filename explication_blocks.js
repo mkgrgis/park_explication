@@ -235,7 +235,7 @@ universal_explication = {
 			var ww = t['waterway'];
 			var am = t['amenity'];
 			var mm = t['man_made'];
-			if (!ww && nt != 'water' && nt != 'spring' && am != 'fountain')
+			if (!ww && nt != 'water' && nt != 'spring' && nt != 'wetland' && am != 'fountain')
 				return false;
 			if (ww == 'dam')
 				return false;
@@ -267,6 +267,8 @@ universal_explication = {
 				ww = 'pond';
 			if (nt == 'spring')
 				ww = 'spring';
+			if (nt == 'wetland')
+				ww = 'wetland';
 			if (am == 'fountain')
 				ww = 'fountain';
 
@@ -303,6 +305,7 @@ universal_explication = {
 					};
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, вт) {
+			var t = osmGeoJSON_obj.properties.tags;
 			var S = {};
 			S.color='#7EBCEB';
 			if (osmGeoJSON_obj.properties.showTextLabel)
@@ -331,7 +334,11 @@ universal_explication = {
 			if (вт.Подтверждение_направления_течения == 'Пересекает изолинию или видимый наклон')
 				S.color = '#729FCF';
 			else if (вт.Подтверждение_направления_течения == 'Осмотр, зафиксировано направление течения')
-				S.color = '#3DECFA';							return S;
+				S.color = '#3DECFA';
+
+			if (t['natural'] && t['natural'] == 'wetland')
+				S.color = '#0FC096';
+			return S;
 		},
 		sort: function (a, b) {
 			if (a.data.Название === b.data.Название) {

@@ -1,4 +1,4 @@
-{ 
+{
 	"leaf_type":{
 		"broadleaved":{
 			"ru" : "Широколиственная",
@@ -65,6 +65,7 @@
 		"weir" : "Плотина",
 		"riverbank" : "Большая река",
 		"fountain" : "Фонтан",
+		"wetland" : "Болото",
 		"null" : "?"
 	},
 	"highway":{
