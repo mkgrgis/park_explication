@@ -908,6 +908,7 @@ var universal_explication = {
 			var bc = t['backrest'];
 			var mt = t['material'];
 			var cl = t['color'];
+			var s = t['seats'];
 			var start = t['start_date'] ?? null;
 			var mtt = base.osm.data.material[mt];
 			var скамейка = {
@@ -915,6 +916,7 @@ var universal_explication = {
 				Спинка: (bc == 'yes') ? 'есть' : (bc == 'yes') ? 'нет' : 'не ясно',
 				Материал: mtt ? mtt : (mt ? mt : ''),
 				Цвет: cl ? cl : '',
+				Мест: s ? s : '',
 				Участок: Уч,
 				Датировка: start
 			};
