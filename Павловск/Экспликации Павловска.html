@@ -116,7 +116,8 @@
 		#tab_Объекты_культурного_наследия:checked ~ #x_Объекты_культурного_наследия,
 		#tab_Здания_и_сооружения:checked ~ #x_Здания_и_сооружения,
 		#tab_Камни:checked ~ #x_Камни,
-		#tab_Фонари:checked ~ #x_Фонари { display: block; }
+		#tab_Фонари:checked ~ #x_Фонари,
+		#tab_Реперы:checked ~ #x_Реперы { display: block; }
 
 	</style>
 	<script src="../js/leaflet.js" type="text/javascript"></script>
@@ -313,6 +314,15 @@
 			</p>
 			<div class="objTable">
 				<table class="dataTable" id="Фонари"></table>
+			</div>
+		</div>
+		<div id="x_Реперы">
+			<h3>Реперы</h3> <p>Экспорт данных
+				<a onclick="exportJSON(this)">JSON</a>
+				<a onclick="exportSQL(this)">SQL</a>
+			</p>
+			<div class="objTable">
+				<table class="dataTable" id="Реперы"></table>
 			</div>
 		</div>
 	</div>

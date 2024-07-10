@@ -181,7 +181,7 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 		l.im_data = im_data;
 		var fn = im_data.title.split("File:")[1];
 		fn = fn.replace(/ /g, '_');
-		var s_md5 = MD5_hash(unescape(encodeURIComponent(fn)));
+		var s_md5 = L.OSM.park_explication.MD5(unescape(encodeURIComponent(fn)));
 		var wp = s_md5.substring(0, 1) + "/" + s_md5.substring(0, 2) + "/";
 		var th_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + wp + encodeURI(fn) + '/320px-' + encodeURI(fn);
 		var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p><table role="popup_card"><tr><th role="popup_card">Свойство</th><th role="popup_card">Значение</th></tr>';
@@ -202,8 +202,8 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 			});
 		this.WikiCommons.WCLG.addLayer(l);
 	}
-	
-var MD5_hash = function(d)
+
+	L.OSM.park_explication.MD5 = function(d)
 {
 	function M(d)
 	{
@@ -273,7 +273,7 @@ var MD5_hash = function(d)
 	{
 		return d << _ | d >>> 32 - _
 	}
-	
+
 	var r = M(V(Y(X(d), 8 * d.length)));
 	return r.toLowerCase()
 };
