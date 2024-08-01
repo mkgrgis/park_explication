@@ -119,6 +119,12 @@
 		#tab_Фонари:checked ~ #x_Фонари,
 		#tab_Реперы:checked ~ #x_Реперы { display: block; }
 
+		.coord {
+			margin: 0px;
+			padding: 0px;
+			display:inline;
+			font-size: 10pt;		
+		}
 	</style>
 	<script src="../js/leaflet.js" type="text/javascript"></script>
 	<script src="../js/osmtogeojson.js" type="text/javascript"></script>
@@ -137,6 +143,32 @@
 	<h2>Экспликации парковых объектов</h2>
 	<p id="filter0" style="display : none">Граница датировок - не позднее <span id="filter"></span></p>
 	<div id="map" style="height: 700px; width:98%"></div>
+	<div id="coordpanel" name="coord" style="display: flex;flex-direction: row;width:500px">
+		<div style="display:inline-block;width: 25%">
+			<p class="coord" id="lat"></p>
+			<br>
+			<p class="coord" id="lat_60"></p>
+		</div>
+		<div style="display:inline-block;width: 25%">
+			<p class="coord" id="lon"></p>
+			<br>
+			<p class="coord" id="lon_60"> </p>
+		</div>		
+		<div style="display:inline-block;width: 25%">
+			<p class="coord" id="px"></p>
+			<br>
+			<p class="coord" id="rx"></p>
+			<br>
+			<p class="coord" id="tx"></p>
+		</div>
+		<div style="display:inline-block;width: 25%">
+			<p class="coord" id="py"></p>
+			<br>
+			<p class="coord" id="ry"></p>
+			<br>
+			<p class="coord" id="ty"></p>
+		</div>
+	</div>
 	<p></p>
 	<div class="tabs">
 		<input type="radio" name="inset" value="" id="tab_Участки" checked>

@@ -110,12 +110,11 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			{
 				ini: 14,
 				min: 8,
-				max: 20
+				max: 22
 			},
 			true,
 			map_params
 		);
-
 		var n = context.main_osm_obj.properties.tags.name;
 		var mr = L.geoJSON(context.main_osm_obj, { fillOpacity: 0, color: "#F2872F" });
 		md.map.fitBounds(mr.getBounds());
@@ -449,7 +448,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		}
 	};
 
-		L.OSM.park_explication.prototype.exportJSON = function (exportObj, exportFile){
+		L.OSM.park_explication.exportJSON = function (exportObj, exportFile){
 			 var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
 			 var specialNode = document.createElement('a');
 			 specialNode.setAttribute("href",	  dataStr);
@@ -458,7 +457,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 			 specialNode.click();
 			 specialNode.remove();
 		};
-		L.OSM.park_explication.prototype.exportSQL = function (exportObj, tableName, exportFile){
+		L.OSM.park_explication.exportSQL = function (exportObj, tableName, exportFile){
 			 var SQL = "";
 			 for (var i in exportObj){
 				var ins = "INSERT INTO " + tableName + " ("
@@ -569,6 +568,58 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 		this.map.addControl(this.Control);
 	}
 	this.ini_layer.addTo(this.map);
+	function degr60(c60){
+		var degree = Math.floor(c60);
+		var rawMinute = Math.abs((c60 % 1) * 60);		
+		var minute = Math.floor(rawMinute);
+		var  second = Math.floor(Math.round((rawMinute % 1) * 60));
+		return degree + '°' + minute + '′' + second + '″';
+	}
+	this.map.on('mousemove', function(e) {
+		if (!document.getElementById('coordpanel'))
+			return;
+
+		var x = Math.floor(e.layerPoint.x);
+		var y = Math.floor(e.layerPoint.y);
+
+		var zoom = this.getZoom();
+		var z_px = 1 << zoom + 8;
+		var ltrad = e.latlng.lat * Math.PI / 180;
+		var xabsf = (e.latlng.lng + 180) / 360;
+		var yabsf = (1 - Math.log(Math.tan(ltrad) + 1 / Math.cos(ltrad)) / Math.PI) / 2;
+		var xabs = Math.floor(xabsf * z_px);
+		var yabs = Math.floor(yabsf * z_px);
+		
+	    document.getElementById('rx').innerHTML = "&nbspx " + x;
+    	document.getElementById('ry').innerHTML = "&nbspy " + y;
+	    document.getElementById('px').innerHTML = "&nbspx₀ " + xabs;
+    	document.getElementById('py').innerHTML = "&nbspy₀ " + yabs;
+	    document.getElementById('tx').innerHTML = "&nbspx□ " + (xabs >> 8);
+    	document.getElementById('ty').innerHTML = "&nbspy□ " + (yabs >> 8);
+	    document.getElementById('lat').innerHTML = "&nbspφ " + e.latlng.lat.toFixed(5);
+	    document.getElementById('lon').innerHTML = "&nbspλ " + e.latlng.lng.toFixed(5);
+	    document.getElementById('lat_60').innerHTML = "&nbspφ " + degr60(e.latlng.lat);
+	    document.getElementById('lon_60').innerHTML = "&nbspλ " + degr60(e.latlng.lng);
+	});
+	this.map.on('dblclick', function(e) {
+		var x = Math.floor(e.layerPoint.x);
+		var y = Math.floor(e.layerPoint.y);
+		var zoom = this.getZoom();
+		var ltrad = e.latlng.lat * Math.PI / 180;
+		var q = 1 << zoom + 8;
+		let xabs = Math.floor((e.latlng.lng + 180) / 360 * q);
+		let yabs = Math.floor((1 - Math.log(Math.tan(ltrad) + 1 / Math.cos(ltrad)) / Math.PI) / 2 * q);
+	    var coord_obj = {
+		    "xabs" : xabs,
+	    	"yabs" : yabs,
+			"φ" : e.latlng.lat,
+		    "λ" : e.latlng.lng,
+		    "φ60" : degr60(e.latlng.lat),
+		    "λ60" : degr60(e.latlng.lng),
+		    "z" : zoom
+	    };
+		L.OSM.park_explication.exportJSON (coord_obj, 'φλ');
+	});
 }
 
 // '<a href="#' + block + "_" + webData_obj.No + '">' + webData_obj.No + '</a>
