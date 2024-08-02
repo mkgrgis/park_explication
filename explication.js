@@ -60,7 +60,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (this.getWikiData)
 			this.getWikiData(t ? t.wikidata : null);
 		var xhr = new XMLHttpRequest();
-		xhr.url = 'https://overpass-api.de/api/interpreter?data=[out:xml];( relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);>;<;);out+meta;';
+		xhr.url = 'https://overpass-api.de/api/interpreter?data=[out:xml];(relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);>;<;);out+meta;';
 		xhr.open('GET', xhr.url, true);
 		xhr.ini_obj = this;
 		xhr.send();
@@ -145,7 +145,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		this.map_params = map_params;
 		log('Данные по участкам готовы, фильтруем по датам и окрестностям');
 		var hronofiltr = map_params.start_date ?? null;
-//		this.exportJSON(this.geoJsonGeneral, "1");
+		// this.exportJSON(this.geoJsonGeneral, "1");
 		console.log(Object.keys(this.geoJsonGeneral.features).length);
 		var del = [];
 		var main_bbox = this.OsmGDlib.γεωμετρία.bbox(this.main_osm_obj);
@@ -444,7 +444,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (obj_id_ok){
 			var l = b.obj[obj_id_ok].layer;
 			l.openPopup();
-			this.md.map.fitBounds(l.getBounds(), {maxZoom: 18});
+			this.md.map.fitBounds(l.getBounds(), {max: 18});
 		}
 	};
 
@@ -558,7 +558,7 @@ function mapDiv(div, centerGeo, provider, providerName, Z, controls, map_params)
 			}
 		}
   	}
-  
+ 
 	if (controls) {
 		this.Control = new L.Control.Layers();
 		for (var i in TileLayers){
