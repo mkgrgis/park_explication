@@ -77,6 +77,7 @@
 		Cat_OK : {},
 		Img_OK : {},
 		images : [],
+		wikiMediaObj : {},
 		style : {weight : 2, color : '#ffffff', radius: 4, fillColor: '#ff0000', fillOpacity: 0.7},
 		WCLG : new L.LayerGroup()
 		};
@@ -111,6 +112,22 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 				xhr.ini_obj.addWikiCommonsCategoryData(xhr);
 			}
 		}
+	};
+
+	L.OSM.park_explication.prototype.preparePropTable = function (im_data) {
+		var fn = im_data.title.split("File:")[1];
+		fn = fn.replace(/ /g, '_');
+		var s_md5 = L.OSM.park_explication.MD5(unescape(encodeURIComponent(fn)));
+		var wp = s_md5.substring(0, 1) + "/" + s_md5.substring(0, 2) + "/";
+		var th_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + wp + encodeURI(fn) + '/320px-' + encodeURI(fn);
+		im_data.emb_html = '<html><style> p[role="popup_card"] { font-size: 11px; } table[role="popup_card"] { border-collapse: collapse; } td[role="popup_card"], th[role="popup_card"] { border: 1px solid black; margin-left: auto; /* Параметры рамки */ } th[role="popup_card"] { background: #b0e0e6; border: 1px solid black; } </style><body><a href="https://commons.wikimedia.org/wiki/' + encodeURI(im_data.title) + '" target="_blank"><center><img src="' + th_url + '" width="250">' + 
+		'<p align="center" role="popup_card">' + im_data.title +'</a><table role="popup_card"><tr><th role="popup_card">Свойство</th><th role="popup_card">Значение</th></tr>';
+		for (var k in im_data.meta) {
+			if (k[0] == '_' || k == 'No' || !im_data.meta[k] || im_data.meta[k] == '?' || im_data.meta[k] == '-')
+				continue;
+			im_data.emb_html += '<tr role="popup_card"><td role="popup_card">' + k.replace('_', ' ').replace('_', ' ') + '</td><td role="popup_card">' + JSON.stringify(im_data.meta[k].value) + '</td></tr>';
+		}
+		im_data.emb_html += '</table></body></html>';
 	};
 
 	L.OSM.park_explication.prototype.addWikiCommonsCategoryData = function (xhr) {
@@ -149,6 +166,8 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 					mtobj.meta = ii;
 					this.WikiCommons.images.push(mtobj);
 					this.addWikiCommonsData(mtobj);
+					this.preparePropTable(mtobj);
+					this.WikiCommons.wikiMediaObj[mtobj.pageid] = mtobj;
 				}
 				else
 					if (this.logWikiMedia) console.log(" File ++ " + mtobj.title);
@@ -173,6 +192,12 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 		return;
 	}
 
+	details = function(pageid) {
+		var editWindow = window.open("","","width=1000 height=800 titlebar=0");
+		var wmo = this.park_explication.WikiCommons.wikiMediaObj;
+		editWindow.document.write(wmo[pageid].emb_html);
+		}
+
 	L.OSM.park_explication.prototype.addWikiCommonsData = function (im_data) {
 		if (!im_data.meta.GPSLatitude || !im_data.meta.GPSLongitude)
 			return false;
@@ -184,14 +209,8 @@ xhr.url = "https://commons.wikimedia.org/w/api.php?origin=*&action=query&generat
 		var s_md5 = L.OSM.park_explication.MD5(unescape(encodeURIComponent(fn)));
 		var wp = s_md5.substring(0, 1) + "/" + s_md5.substring(0, 2) + "/";
 		var th_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + wp + encodeURI(fn) + '/320px-' + encodeURI(fn);
-		var html = '<details><p align="center" role="popup_card">' + im_data.title +'</p><table role="popup_card"><tr><th role="popup_card">Свойство</th><th role="popup_card">Значение</th></tr>';
-		for (var k in im_data.meta) {
-			if (k[0] == '_' || k == 'No' || !im_data.meta[k] || im_data.meta[k] == '?' || im_data.meta[k] == '-')
-				continue;
-			html += '<tr role="popup_card"><td role="popup_card">' + k.replace('_', ' ').replace('_', ' ') + '</td><td role="popup_card">' + JSON.stringify(im_data.meta[k].value) + '</td></tr>';
-		}
-		html += '</table></details>';
-		l.bindPopup('<a href="https://commons.wikimedia.org/wiki/' + encodeURI(im_data.title) + '" target="_blank"><center><img src="' + th_url + '" width="150"><p><small>' + fn + '</small></a><small><br>' + (im_data.meta.ImageDescription ?im_data.meta.ImageDescription.value : '') + '<br>' + im_data.meta.LicenseShortName.value + '<br>' + (im_data.meta.Artist ?im_data.meta.Artist.value : '') + '<br>' + (im_data.meta.DateTimeOriginal ? im_data.meta.DateTimeOriginal.value : '') + '</small></p></center>' + html);
+		
+		l.bindPopup('<a href="https://commons.wikimedia.org/wiki/' + encodeURI(im_data.title) + '" target="_blank"><center><img src="' + th_url + '" width="150"><p><small>' + fn + '</small></a><small><br>' + (im_data.meta.ImageDescription ?im_data.meta.ImageDescription.value : '') + '<br>' + im_data.meta.LicenseShortName.value + '<br>' + (im_data.meta.Artist ?im_data.meta.Artist.value : '') + '<br>' + (im_data.meta.DateTimeOriginal ? im_data.meta.DateTimeOriginal.value : '') + '</small></p></center><p onclick=details(' + im_data.pageid + ')>Подробности см. тут.</p>');
 
 		l.bindTooltip(im_data.meta.ImageDescription && im_data.meta.ImageDescription.value ? im_data.meta.ImageDescription.value : fn);
 		l.on('mouseover', function (e) {
