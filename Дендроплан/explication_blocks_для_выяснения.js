@@ -211,8 +211,9 @@
 		},
 		geoJSON_style: function (base, osmGeoJSON_obj, маточная_площадка) {
 			var S = {};
+			var t = osmGeoJSON_obj.properties.tags;
 			S.weight = 2;
-			S.color = '#ffffff';
+			S.color = (t.genus || t.taxon) ? '#ffffff' : '#ff0000';
 			S.opacity = 0.3;
 			return S;
 		},
@@ -762,125 +763,6 @@
 			return 0;
 		}
 	},
-	Достопримечательности: {
-		zoomMin: 15,
-		filter: function (base, osmGeoJSON_obj) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var l = t['tourism'];
-			if (!l)
-				return false;
-			if (l != 'attraction' && l != 'artwork')
-				return false;
-			return true;
-		},
-		webData_object: function (base, osmGeoJSON_obj, data_obj){
-			return data_obj;
-			},
-		data_object: function (base, osmGeoJSON_obj, Уч) {
-			var t = osmGeoJSON_obj.properties.tags;
-
-			var n = t['name'] ?? '';
-			var at = t['artwork_type'];
-			var mt = t['material'];
-			var au = t['artist_name'] ?? '';
-			var start = t['start_date'] ?? null;
-			var note = t['note'] ?? '';
-			var mtt = base.osm.data.material[mt];
-			var дпр = {
-				No: null,
-				Тип: at ? base.osm.data.artwork_type[at] : '',
-				Название: n,
-				Автор: au,
-				Заметки: note,
-				Датировка: start,
-				Участок: Уч
-			};
-			return дпр;
-		},
-		interactive: function (base, block, дпр) {
-			return {
-				tooltip : '',
-				popup : base.popup(дпр, '<b>Карточка достопримечательности</b></br><i>№ в таблице</i> ', block)
-					};
-		},
-		geoJSON_style: function (base, osmGeoJSON_obj, дпр) {
-			var S = {};
-			S.weight = 4;						return S;
-		},
-		sort: function (a, b) {
-			return 0;
-			/*if (a.data.Название === b.data.Название) {
-				return 0;
-			}
-			else if (!a.data.Название) {
-				return 1;
-			}
-			else if (!b.data.Название) {
-				return -1;
-			}
-			else {
-				return (a.data.Название < b.data.Название) ? -1 : 1;
-			}*/
-		}
-	},
-	Малые_формы: {
-		zoomMin: 16,
-		filter: function (base, osmGeoJSON_obj) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var tr = t['tourism'];
-			var hs = t['historic'];
-			if (!tr && !hs)
-				return false;
-			if (hs == 'memorial' || tr == 'artwork')
-				return true;
-			return false;
-		},
-		webData_object: function (base, osmGeoJSON_obj, data_obj){
-			return data_obj;
-		},
-		data_object: function (base, osmGeoJSON_obj, Уч) {
-			var t = osmGeoJSON_obj.properties.tags;
-
-			var l = t['amenity'];
-			var mt = t['material'];
-			var n = t['name'] ?? '';
-			var mtt = base.osm.data.material[mt] ?? mt ?? null;
-			var малая_форма = {
-				No: null,
-				Название: n,
-				Метариал: mtt,
-				Участок: Уч
-			};
-			return малая_форма;
-		},
-		interactive: function (base, block, малая_форма) {
-			return {
-				tooltip : '',
-				popup : base.popup(малая_форма, '<b>Карточка малой формы</b></br><i>№ в таблице</i> ', block)
-					};
-		},
-		geoJSON_style: function (base, osmGeoJSON_obj, малая_форма) {
-			var S = {};
-			S.weight = 2;
-			S.color = '#000ff0';
-			return S;
-		},
-		sort: function (a, b) {
-			return 0;
-			/*if (a.data.Название === b.data.Название) {
-				return 0;
-			}
-			else if (!a.data.Название) {
-				return 1;
-			}
-			else if (!b.data.Название) {
-				return -1;
-			}
-			else {
-				return (a.data.Название < b.data.Название) ? -1 : 1;
-			}*/
-		}
-	},
 	Здания_и_сооружения: {
 		zoomMin: 13,
 		filter: function (base, osmGeoJSON_obj) {
@@ -959,79 +841,6 @@
 			}
 			else {
 				return (a.data.Название < b.data.Название) ? -1 : 1;
-			}
-		}
-	},
-	Фонари: {
-		zoomMin: 12,
-		filter: function (base, osmGeoJSON_obj) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var n = t['highway'];
-			if (n == 'street_lamp')
-				return true;					return false;
-		},
-		webData_object: function (base, osmGeoJSON_obj, data_obj){
-			return data_obj;
-		},
-		SQL: function(){
-			return {
-				No: "integer not null",
-				Участок: "varchar(8)",
-				Код: "varchar",
-			 	Высота: "double precision",
-				Цвет: "varchar",
-				Число_ламп: "integer",
-				Тип_светильника: "varchar",
-				Цвет_света: "varchar",
-				Материал: "varchar",
-				Монтаж: "varchar",
-				Датировка: "varchar",
-				Описание: "varchar"
-			}
-		},
-		data_object: function (base, osmGeoJSON_obj, Уч) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var h = t['height'] ?? '';;
-			var descr = t['description'] ?? '';
-			var фонарь = {
-				No: null,
-				Код: t['ref'] ?? '',
-			 	Высота: h,
-				Цвет: t['colour'] ?? '',
-				Число_ламп: t['light:count'] ?? '',
-				Тип_светильника: t['lamp_type'] ?? '',
-				Цвет_света: t['light:colour'] ?? '',
-				Материал: t['material'] ?? '',
-				Монтаж: t['lamp_mount'] ?? '',
-				Датировка: t['start_date'] ?? '',
-				Описание: descr
-			};
-			return фонарь;
-		},
-		interactive: function (base, block, фонарь) {
-			return {
-				tooltip : фонарь.Код ?? (фонарь.Высота ? (фонарь.Высота + ' м ') : ''),
-				popup : base.popup(фонарь, '<b>Карточка фонаря</b></br><i>№ в таблице</i> ', block)
-					};
-		},
-		geoJSON_style: function (base, osmGeoJSON_obj, фонарь) {
-			var t = osmGeoJSON_obj.properties.tags;
-			var S = {};
-				S.color = t['light:colour'] ?? 'yellow';
-			return S;
-		},
-		sort: function (a, b) {
-			if (a.data.Код === b.data.Код) {
-				return 0;
-			}
-			else if (!a.data.Код) {
-				return 1;
-			}
-			else if (!b.data.Код) {
-				return -1;
-			}
-			else {
-				return (a.data.Код < b.data.Код) ? -1 : 1;
 			}
 		}
 	}
