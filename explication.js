@@ -60,7 +60,7 @@ L.OSM.park_explication = function(osm_obj_type, osm_obj_id, f_fin_ok){
 		if (this.getWikiData)
 			this.getWikiData(t ? t.wikidata : null);
 		var xhr = new XMLHttpRequest();
-		xhr.url = 'https://overpass-api.de/api/interpreter?data=[out:xml];(relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);>;<;);out+meta;';
+		xhr.url = 'https://overpass.openstreetmap.fr/api/interpreter?data=[out:xml];(relation(' + this.osm_obj_id +'););map_to_area;(nwr(area);>;<;);out+meta;';
 		xhr.open('GET', xhr.url, true);
 		xhr.ini_obj = this;
 		xhr.send();
@@ -720,3 +720,4 @@ L.OSM.park_explication.prototype.привязка_указателей = functio
 			o.webData.Тип_информации = '<span style="color: green">' + п + '</span>';
 	}
 };
+
